@@ -1,0 +1,612 @@
+{
+  "meta": {
+    "title": "RAADS-R Test - Autism Diagnostic Scale",
+    "description": "Ritvo Autism Asperger Diagnostic Scale - Revised"
+  },
+  "ui": {
+    "header": {
+      "title": "RAADS-R Test",
+      "subtitle": "Ritvo Autism Asperger Diagnostic Scale - Revised"
+    },
+    "progress": {
+      "question": "Question",
+      "of": "of",
+      "completed": "completed"
+    },
+    "form": {
+      "commentLabel": "Comment (optional)",
+      "commentPlaceholder": "Add a comment about this question...",
+      "keyboardHint": "💡 <strong>Keyboard shortcuts:</strong> A/B/C/D to select, Tab for comment, Esc to exit, P/N for navigation, Enter to continue"
+    },
+    "navigation": {
+      "previous": "← Previous",
+      "next": "Next →",
+      "viewResults": "View Results"
+    },
+    "instructions": {
+      "title": "Instructions:",
+      "text": "Think carefully about each question and choose the answer that best applies to you. Answer honestly based on your own experience."
+    },
+    "results": {
+      "totalScore": "Total Score",
+      "categoriesTitle": "Scores by Category",
+      "categories": {
+        "social": "Social Interactions",
+        "sensory": "Sensory Motor",
+        "restricted": "Restricted Interests",
+        "language": "Language"
+      },
+      "interpretationScale": "Interpretation Scale",
+      "scaleLabels": {
+        "none": "No ASD",
+        "possible": "Possible traits",
+        "likely": "Possible ASD",
+        "strong": "Strong indication"
+      },
+      "warning": {
+        "title": "⚠️ Important",
+        "text": "This test is a diagnostic aid tool only. Only a qualified healthcare professional can establish an autism diagnosis. If your results suggest autistic traits, consult a psychiatrist, psychologist or specialized physician."
+      },
+      "actions": {
+        "restart": "🔄 Restart Test",
+        "copyResults": "📋 Copy Results",
+        "copyJson": "📄 Copy Full JSON",
+        "copied": "✅ Copied!",
+        "jsonCopied": "✅ JSON Copied!"
+      },
+      "interpretations": {
+        "none": {
+          "level": "No ASD",
+          "description": "No signs of autism detected"
+        },
+        "light": {
+          "level": "Mild traits",
+          "description": "Some autistic traits, but probably no ASD"
+        },
+        "moderate": {
+          "level": "Moderate traits",
+          "description": "Several autistic traits present"
+        },
+        "possible": {
+          "level": "Possible ASD",
+          "description": "Minimum score at which autism is considered"
+        },
+        "strong": {
+          "level": "Strong indication of ASD",
+          "description": "Strong indication of autism spectrum disorder"
+        },
+        "solid": {
+          "level": "Solid evidence of ASD",
+          "description": "Solid evidence of ASD (average score of autistic individuals)"
+        },
+        "veryStrong": {
+          "level": "Very strong evidence of ASD",
+          "description": "Very strong evidence of autism spectrum disorder"
+        }
+      }
+    },
+    "copyText": {
+      "header": "RAADS-R TEST RESULTS",
+      "separator": "=====================================",
+      "date": "Date:",
+      "totalScoreLabel": "TOTAL SCORE:",
+      "interpretationLabel": "Interpretation:",
+      "descriptionLabel": "Description:",
+      "categoriesHeader": "SCORES BY CATEGORY:",
+      "scaleHeader": "INTERPRETATION SCALE:",
+      "scaleDescriptions": {
+        "0-24": "No ASD",
+        "25-64": "Some autistic traits, probably no ASD",
+        "65-89": "Minimum score at which autism is considered",
+        "90-129": "Strong indication of ASD",
+        "130-159": "Solid evidence of ASD (average score of autistic individuals)",
+        "160+": "Very strong evidence of ASD"
+      },
+      "disclaimer": "IMPORTANT: This test is a diagnostic aid tool only.\nConsult a qualified healthcare professional for an official diagnosis."
+    }
+  },
+  "options": [
+    {
+      "value": 0,
+      "label": "True now and when I was young (16 years or younger)",
+      "key": "A"
+    },
+    {
+      "value": 1,
+      "label": "True only now",
+      "key": "B"
+    },
+    {
+      "value": 2,
+      "label": "True only when I was younger than 16",
+      "key": "C"
+    },
+    {
+      "value": 3,
+      "label": "Never true",
+      "key": "D"
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "I am a sympathetic person.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 2,
+      "text": "I often use words and phrases from movies and television in conversations.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 3,
+      "text": "I am often surprised when others tell me I have been rude.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 4,
+      "text": "Sometimes I talk too loudly or too softly, and I am not aware of it.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 5,
+      "text": "I often don't know how to act in social situations.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 6,
+      "text": "I can \"put myself in someone else's shoes.\"",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 7,
+      "text": "I have a hard time figuring out what some phrases mean, like \"you are the apple of my eye.\"",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 8,
+      "text": "I only like to talk to people who share my interests.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 9,
+      "text": "I focus on details rather than the overall idea.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 10,
+      "text": "I always notice how food feels in my mouth. This is more important to me than how it tastes.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 11,
+      "text": "I miss my best friends or family when we are apart for a long time.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 12,
+      "text": "Sometimes I offend others by saying what I am thinking, even if I don't mean to.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 13,
+      "text": "I only like to think and talk about a few things that interest me.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 14,
+      "text": "I'd rather go out to eat in a restaurant by myself than with someone I know.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 15,
+      "text": "I cannot imagine what it would be like to be someone else.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 16,
+      "text": "I have been told that I am clumsy or uncoordinated.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 17,
+      "text": "Others consider me odd or different.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 18,
+      "text": "I understand when friends need to be comforted.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 19,
+      "text": "I am very sensitive to the way clothes feel when I touch them. How they feel is more important to me than how they look.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 20,
+      "text": "I like to copy the way certain people speak and act. It helps me appear more normal.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 21,
+      "text": "It can be very intimidating for me to talk to more than one person at the same time.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 22,
+      "text": "I have to \"act normal\" to please others and make them like me.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 23,
+      "text": "Meeting new people is usually easy for me.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 24,
+      "text": "I get highly confused when someone interrupts me when I am talking about something I am very interested in.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 25,
+      "text": "It is difficult for me to understand how other people are feeling when we are talking.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 26,
+      "text": "I like having a conversation with several people, for instance at a dinner party, school or work.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 27,
+      "text": "I take things too literally, so I often miss what people are trying to say.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 28,
+      "text": "It is very difficult for me to understand when someone is embarrassed or jealous.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 29,
+      "text": "Some ordinary textures that do not bother others feel very offensive to me.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 30,
+      "text": "I get extremely upset when the way I like to do things is suddenly changed.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 31,
+      "text": "I have never wanted or needed to have what other people call an \"intimate relationship.\"",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 32,
+      "text": "It is difficult for me to start and stop a conversation. I need to keep going until I am finished.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 33,
+      "text": "I speak with a normal rhythm.",
+      "category": "SM",
+      "reverse": true
+    },
+    {
+      "id": 34,
+      "text": "I can be very sensitive to sounds, textures or colors, or completely unaware of them.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 35,
+      "text": "The phrase \"I've got you under my skin\" makes me very uncomfortable.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 36,
+      "text": "Sometimes the sound of a word or a high pitched noise can be painful to my ears.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 37,
+      "text": "I am an understanding type of person.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 38,
+      "text": "I cannot tell when someone is flirting with me.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 39,
+      "text": "I can see in my mind in exact detail things that I am interested in.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 40,
+      "text": "I make lists of things that interest me, even when they have no practical use (for example sports statistics, train schedules, calendar dates, historical facts).",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 41,
+      "text": "When I feel overwhelmed by my senses, I have to isolate myself to shut them down.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 42,
+      "text": "I like to talk things over with my friends.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 43,
+      "text": "I cannot tell if someone is interested or bored with what I am saying.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 44,
+      "text": "It can be very hard to read someone's face, hand and body movements when we are talking.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 45,
+      "text": "I have a hard time relating to other people's thoughts or feelings.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 46,
+      "text": "I can feel like I am different person at different times.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 47,
+      "text": "I feel very comfortable dating or being in social situations.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 48,
+      "text": "I try to be as helpful as possible when other people tell me their personal problems.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 49,
+      "text": "I have been told that I have an unusual voice (for example flat, monotone, childish, or high-pitched).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 50,
+      "text": "Sometimes a thought or a subject gets stuck in my mind and I have to talk about it even if no one wants to listen.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 51,
+      "text": "I do certain things with my hands over and over again (like flapping, twirling sticks or strings, waving things by my eyes).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 52,
+      "text": "I have never been interested in what most of the people I know consider interesting.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 53,
+      "text": "I am considered a compassionate type of person.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 54,
+      "text": "I get along with other people by following a set of specific rules that help me appear normal.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 55,
+      "text": "It is very difficult for me to work and function in groups.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 56,
+      "text": "When I talk to someone, I have a hard time changing the subject. If the other person does so, I can get confused and not follow the new topic.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 57,
+      "text": "Sometimes I have to cover my ears to block out painful noises (like vacuum cleaners or people talking too much or too loudly).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 58,
+      "text": "I can chat and make small talk with people.",
+      "category": "L",
+      "reverse": true
+    },
+    {
+      "id": 59,
+      "text": "Sometimes things that should hurt do not bother me.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 60,
+      "text": "When I talk to someone, I have a hard time telling when it is my turn to talk or to listen.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 61,
+      "text": "I am considered a loner by those who know me best.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 62,
+      "text": "I usually speak in a normal tone.",
+      "category": "SM",
+      "reverse": true
+    },
+    {
+      "id": 63,
+      "text": "I like things to be exactly the same day after day and even small changes in my routines upset me.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 64,
+      "text": "How to make friends and socialize is a mystery to me.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 65,
+      "text": "It calms me to spin around or rock in a chair when I feel stressed.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 66,
+      "text": "The phrase \"He wears his heart on his sleeve\" does not make sense to me.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 67,
+      "text": "If I am in a place where there are many smells, textures to feel, noises or bright lights, I get anxious or frightened.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 68,
+      "text": "I can tell when someone says one thing but means something else.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 69,
+      "text": "I like being by myself as much as possible.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 70,
+      "text": "I keep my thoughts stacked in my memory like they are on filing cards, and I pick out the ones I need by looking through the stack.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 71,
+      "text": "The same sound sometimes seems very loud or very quiet, even though I know it has not changed.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 72,
+      "text": "I enjoy spending time eating and talking with my family and friends.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 73,
+      "text": "I cannot stand it when I dislike a sound, color, smell or texture.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 74,
+      "text": "I don't like to be hugged or held.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 75,
+      "text": "When I go somewhere, I have to follow a familiar route or I can get very confused and upset.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 76,
+      "text": "It is difficult to figure out what other people expect of me.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 77,
+      "text": "I like to have close friends.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 78,
+      "text": "People tell me that I give too much detail.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 79,
+      "text": "I am often told I ask embarrassing questions.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 80,
+      "text": "I tend to point out other people's mistakes.",
+      "category": "IS",
+      "reverse": false
+    }
+  ]
+}

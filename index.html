@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title"></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .question-option {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .question-option:hover {
+            background-color: #f8f9fa;
+        }
+        .question-option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .keyboard-hint {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .copy-feedback {
+            background-color: #28a745 !important;
+            border-color: #28a745 !important;
+        }
+        .interpretation-card {
+            border-left: 4px solid;
+        }
+        .interp-none { border-left-color: #28a745; }
+        .interp-light { border-left-color: #ffc107; }
+        .interp-moderate { border-left-color: #fd7e14; }
+        .interp-possible { border-left-color: #dc3545; }
+        .interp-strong { border-left-color: #6f42c1; }
+        .interp-solid { border-left-color: #343a40; }
+        .interp-very-strong { border-left-color: #000; }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <!-- Header -->
+        <div class="alert alert-primary border-start border-primary border-4" role="alert">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 id="main-title" class="h2 mb-2 text-primary">RAADS-R</h1>
+                    <p id="main-subtitle" class="mb-0"></p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="current-language-flag">🇫🇷</span> <span id="current-language-name">Français</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇺🇸 English</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="changeLanguage('fr')">🇫🇷 Français</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Content -->
+        <div id="test-container">
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted"><span id="progress-label-question">Question</span> <span id="current-q">1</span> <span id="progress-label-of">sur</span> <span id="total-q">80</span></small>
+                    <small class="text-muted"><span id="progress-percent">0</span>% <span id="progress-label-completed"></span></small>
+                </div>
+                <div class="progress">
+                    <div id="progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="card border-2 mb-4">
+                <div class="card-body">
+                    <h3 class="card-title h5 mb-4" id="question-text"></h3>
+                    
+                    <!-- Answer Options -->
+                    <div id="answer-options" class="mb-4">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Comment Field -->
+                    <div class="mb-3">
+                        <label for="question-comment" id="comment-label" class="form-label"></label>
+                        <textarea class="form-control" id="question-comment" rows="2" placeholder=""></textarea>
+                    </div>
+
+                    <!-- Keyboard Hints -->
+                    <div class="keyboard-hint">
+                        <small id="keyboard-hint-text"></small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="d-flex justify-content-between">
+                <button id="prev-btn" class="btn btn-outline-secondary" disabled> </button>
+                <button id="next-btn" class="btn btn-primary" disabled> </button>
+            </div>
+
+            <!-- Instructions -->
+            <div class="alert alert-light mt-4">
+                <h6 id="instructions-title" class="alert-heading"></h6>
+                <p id="instructions-text" class="mb-0 small"></p>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="results-container" style="display: none;">
+            <!-- Results will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        let lang = null;
+        let currentLanguage = 'en'; // Default language
+        let questions = [];
+        let options = [];
+
+        let currentQuestion = 0;
+        let answers = {};
+        let comments = {};
+
+        let inCommentField = false;
+
+        // Language configuration
+        const languages = {
+            'fr': {
+                name: 'Français',
+                flag: '🇫🇷',
+                file: 'fr.json'
+            },
+            'en': {
+                name: 'English',
+                flag: '🇺🇸',
+                file: 'en.json'
+            }
+        };
+
+        // Get language from URL parameter or localStorage
+        function getInitialLanguage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlLang = urlParams.get('lang');
+            
+            if (urlLang && languages[urlLang]) {
+                return urlLang;
+            }
+            
+            const storedLang = localStorage.getItem('raads-language');
+            if (storedLang && languages[storedLang]) {
+                return storedLang;
+            }
+            
+            return 'fr'; // Default fallback
+        }
+
+        // Update URL with language parameter
+        function updateURL(language) {
+            const url = new URL(window.location);
+            url.searchParams.set('lang', language);
+            window.history.replaceState({}, '', url);
+        }
+
+        // Load language file
+        async function loadLanguage(languageCode = currentLanguage) {
+            try {
+                const response = await fetch(languages[languageCode].file);
+                lang = await response.json();
+                questions = lang.questions;
+                options = lang.options;
+                currentLanguage = languageCode;
+                
+                // Update UI language indicator
+                updateLanguageDisplay();
+                
+                // Update HTML lang attribute
+                document.documentElement.lang = languageCode;
+                
+                // Store language preference
+                localStorage.setItem('raads-language', languageCode);
+                
+                // Update URL
+                updateURL(languageCode);
+                
+                return true;
+            } catch (error) {
+                console.error('Error loading language file:', error);
+                return false;
+            }
+        }
+
+        // Update language display in dropdown
+        function updateLanguageDisplay() {
+            const langConfig = languages[currentLanguage];
+            const flagElement = document.getElementById('current-language-flag');
+            const nameElement = document.getElementById('current-language-name');
+            
+            if (flagElement) flagElement.textContent = langConfig.flag;
+            if (nameElement) nameElement.textContent = langConfig.name;
+        }
+
+        // Change language function
+        async function changeLanguage(newLanguage) {
+            if (newLanguage === currentLanguage) return;
+            
+            // Show loading state
+            const dropdownButton = document.getElementById('languageDropdown');
+            if (!dropdownButton) {
+                console.error('Language dropdown not found');
+                return;
+            }
+            
+            const originalText = dropdownButton.innerHTML;
+            dropdownButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Loading...';
+            dropdownButton.disabled = true;
+            
+            try {
+                const success = await loadLanguage(newLanguage);
+                if (success) {
+                    initializeUI();
+                    
+                    // Reset test state when language changes
+                    currentQuestion = 0;
+                    answers = {};
+                    comments = {};
+                    
+                    // Update question count and reload current question
+                    $('#total-q').text(questions.length);
+                    
+                    // Hide results if visible and show test
+                    $('#results-container').hide();
+                    $('#test-container').show();
+                    
+                    loadQuestion();
+                    
+                    // Show success feedback
+                    showLanguageChangeSuccess();
+                } else {
+                    throw new Error('Failed to load language');
+                }
+            } catch (error) {
+                console.error('Error changing language:', error);
+                alert('Error loading language. Please try again.');
+                // Restore original language on error
+                currentLanguage = currentLanguage === 'fr' ? 'en' : 'fr';
+            } finally {
+                // Restore dropdown button
+                dropdownButton.innerHTML = originalText;
+                dropdownButton.disabled = false;
+                updateLanguageDisplay();
+            }
+        }
+
+        // Show language change success feedback
+        function showLanguageChangeSuccess() {
+            const dropdownButton = document.getElementById('languageDropdown');
+            if (dropdownButton) {
+                dropdownButton.classList.add('btn-success');
+                dropdownButton.classList.remove('btn-outline-primary');
+                
+                setTimeout(() => {
+                    dropdownButton.classList.remove('btn-success');
+                    dropdownButton.classList.add('btn-outline-primary');
+                }, 1000);
+            }
+        }
+
+        // Initialize UI with language data
+        function initializeUI() {
+            if (!lang) return;
+
+            // Update meta information
+            document.getElementById('page-title').textContent = lang.meta.title;
+            document.getElementById('main-title').textContent = lang.ui.header.title;
+            document.getElementById('main-subtitle').textContent = lang.ui.header.subtitle;
+
+            // Update progress labels
+            document.getElementById('progress-label-question').textContent = lang.ui.progress.question;
+            document.getElementById('progress-label-of').textContent = lang.ui.progress.of;
+            document.getElementById('progress-label-completed').textContent = lang.ui.progress.completed;
+
+            // Update form labels
+            document.getElementById('comment-label').textContent = lang.ui.form.commentLabel;
+            document.getElementById('question-comment').placeholder = lang.ui.form.commentPlaceholder;
+            document.getElementById('keyboard-hint-text').innerHTML = lang.ui.form.keyboardHint;
+
+            // Update navigation buttons
+            document.getElementById('prev-btn').innerHTML = lang.ui.navigation.previous;
+
+            // Update instructions
+            document.getElementById('instructions-title').textContent = lang.ui.instructions.title;
+            document.getElementById('instructions-text').textContent = lang.ui.instructions.text;
+        }
+
+        $(document).ready(async function() {
+            // Get initial language from URL or storage
+            currentLanguage = getInitialLanguage();
+            
+            const langLoaded = await loadLanguage(currentLanguage);
+            if (!langLoaded) {
+                alert('Error loading language file. Please refresh the page.');
+                return;
+            }
+
+            initializeUI();
+            $('#total-q').text(questions.length);
+            loadQuestion();
+            
+            // Navigation buttons
+            $('#prev-btn').click(prevQuestion);
+            $('#next-btn').click(nextQuestion);
+
+            // Track focus/blur on comment field
+            $('#question-comment')
+            .on('focus', function() { inCommentField = true; })
+            .on('blur', function() { inCommentField = false; });
+
+            // Keyboard navigation
+            $(document).keydown(function(e) {
+            if ($('#results-container').is(':visible')) return;
+            
+            // Handle Escape key to blur from comment field
+            if (inCommentField && e.key === 'Escape') {
+                $('#question-comment').blur();
+                return;
+            }
+            
+            // Handle Shift+Enter in comment field
+            if (inCommentField && e.key === 'Enter' && e.shiftKey) {
+                e.preventDefault(); // Prevent new line
+                if (canProceed()) {
+                    nextQuestion();
+                }
+                return;
+            }
+            
+            // Handle Tab key to focus comment field (only when not already in comment field)
+            if (!inCommentField && e.key === 'Tab') {
+                e.preventDefault(); // Prevent default tab behavior
+                $('#question-comment').focus();
+                return;
+            }
+            
+            if (inCommentField) return;
+
+            const key = e.key.toLowerCase();
+            if (['a', 'b', 'c', 'd'].includes(key)) {
+                const optionIndex = key.charCodeAt(0) - 97; // a=0, b=1, c=2, d=3
+                selectAnswer(optionIndex);
+            } else if (e.key === 'Enter' || key === 'n') {
+                if (canProceed()) {
+                    nextQuestion();
+                }
+            } else if (key === 'p') {
+                prevQuestion();
+            }
+            });
+        });
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            $('#question-text').text(question.text);
+            $('#current-q').text(currentQuestion + 1);
+            
+            // Update progress
+            const progress = ((Object.keys(answers).length) / questions.length) * 100;
+            $('#progress-percent').text(Math.round(progress));
+            $('#progress-bar').css('width', progress + '%');
+            
+            // Load answer options
+            let optionsHtml = '';
+            options.forEach((option, index) => {
+                const isSelected = answers[question.id] === option.value;
+                optionsHtml += `
+                    <div class="question-option border rounded p-3 mb-2 ${isSelected ? 'selected' : ''}" 
+                         data-value="${option.value}" onclick="selectAnswer(${index})">
+                        <div class="d-flex align-items-start">
+                            <input type="radio" class="form-check-input me-3 mt-1" 
+                                   name="answer" value="${option.value}" ${isSelected ? 'checked' : ''}>
+                            <div class="flex-grow-1">
+                                <strong class="text-primary">${option.key}.</strong> ${option.label}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            $('#answer-options').html(optionsHtml);
+            
+            // Load comment
+            $('#question-comment').val(comments[question.id] || '');
+            
+            // Remove focus from comment field to enable keyboard shortcuts
+            $('#question-comment').blur();
+            
+            // Update navigation buttons
+            $('#prev-btn').prop('disabled', currentQuestion === 0);
+            const nextBtnText = currentQuestion === questions.length - 1 ? lang.ui.navigation.viewResults : lang.ui.navigation.next;
+            $('#next-btn')
+                .prop('disabled', !canProceed())
+                .html(nextBtnText);
+        }
+
+        function selectAnswer(optionIndex) {
+            const question = questions[currentQuestion];
+            const value = options[optionIndex].value;
+            
+            answers[question.id] = value;
+            
+            // Update visual selection
+            $('.question-option').removeClass('selected');
+            $(`.question-option[data-value="${value}"]`).addClass('selected');
+            
+            // Update radio button
+            $(`input[value="${value}"]`).prop('checked', true);
+            
+            // Update next button
+            $('#next-btn').prop('disabled', false);
+        }
+
+        function saveComment() {
+            const question = questions[currentQuestion];
+            const comment = $('#question-comment').val().trim();
+            if (comment) {
+                comments[question.id] = comment;
+            } else {
+                delete comments[question.id];
+            }
+        }
+
+        function canProceed() {
+            return answers[questions[currentQuestion].id] !== undefined;
+        }
+
+        function nextQuestion() {
+            if (!canProceed()) return;
+            
+            saveComment();
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                saveComment();
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function calculateScore() {
+            let totalScore = 0;
+            let languageScore = 0;
+            let socialScore = 0;
+            let sensoryScore = 0;
+            let restrictedScore = 0;
+
+            questions.forEach(question => {
+                const answer = answers[question.id];
+                if (answer !== undefined) {
+                    let score = question.reverse ? answer : (3 - answer);
+                    totalScore += score;
+
+                    switch (question.category) {
+                        case 'L': languageScore += score; break;
+                        case 'IS': socialScore += score; break;
+                        case 'SM': sensoryScore += score; break;
+                        case 'IR': restrictedScore += score; break;
+                    }
+                }
+            });
+
+            return {
+                total: totalScore,
+                language: languageScore,
+                social: socialScore,
+                sensory: sensoryScore,
+                restricted: restrictedScore
+            };
+        }
+
+        function getInterpretation(score) {
+            const interpretations = lang.ui.results.interpretations;
+            
+            if (score < 25) return { 
+                level: interpretations.none.level, 
+                color: "text-success", 
+                class: "interp-none", 
+                description: interpretations.none.description 
+            };
+            if (score < 50) return { 
+                level: interpretations.light.level, 
+                color: "text-warning", 
+                class: "interp-light", 
+                description: interpretations.light.description 
+            };
+            if (score < 65) return { 
+                level: interpretations.moderate.level, 
+                color: "text-warning", 
+                class: "interp-moderate", 
+                description: interpretations.moderate.description 
+            };
+            if (score < 90) return { 
+                level: interpretations.possible.level, 
+                color: "text-danger", 
+                class: "interp-possible", 
+                description: interpretations.possible.description 
+            };
+            if (score < 130) return { 
+                level: interpretations.strong.level, 
+                color: "text-danger", 
+                class: "interp-strong", 
+                description: interpretations.strong.description 
+            };
+            if (score < 160) return { 
+                level: interpretations.solid.level, 
+                color: "text-dark", 
+                class: "interp-solid", 
+                description: interpretations.solid.description 
+            };
+            return { 
+                level: interpretations.veryStrong.level, 
+                color: "text-dark", 
+                class: "interp-very-strong", 
+                description: interpretations.veryStrong.description 
+            };
+        }
+
+        function showResults() {
+            const results = calculateScore();
+            const interpretation = getInterpretation(results.total);
+            const ui = lang.ui.results;
+            
+            $('#test-container').hide();
+            
+            const resultsHtml = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card interpretation-card ${interpretation.class} mb-4">
+                            <div class="card-body">
+                                <h2 class="card-title h4">${ui.totalScore}</h2>
+                                <div class="display-4 fw-bold mb-2">${results.total}/240</div>
+                                <div class="h5 ${interpretation.color} fw-bold">${interpretation.level}</div>
+                                <p class="text-muted mt-2">${interpretation.description}</p>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning border-start border-warning border-4">
+                            <h6 class="alert-heading">${ui.warning.title}</h6>
+                            <p class="mb-0 small">${ui.warning.text}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h2 class="h4 mb-3">${ui.categoriesTitle}</h2>
+                        
+                        <div class="row g-2 mb-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-primary bg-opacity-10 rounded">
+                                    <span class="fw-medium">${ui.categories.social}</span>
+                                    <span class="fw-bold">${results.social}/117</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded">
+                                    <span class="fw-medium">${ui.categories.sensory}</span>
+                                    <span class="fw-bold">${results.sensory}/60</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-info bg-opacity-10 rounded">
+                                    <span class="fw-medium">${ui.categories.restricted}</span>
+                                    <span class="fw-bold">${results.restricted}/42</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-warning bg-opacity-10 rounded">
+                                    <span class="fw-medium">${ui.categories.language}</span>
+                                    <span class="fw-bold">${results.language}/21</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h3 class="card-title h5">${ui.interpretationScale}</h3>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 bg-success bg-opacity-25 rounded text-center small">
+                                    <div class="fw-bold">0-24</div>
+                                    <div>${ui.scaleLabels.none}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 bg-warning bg-opacity-25 rounded text-center small">
+                                    <div class="fw-bold">25-64</div>
+                                    <div>${ui.scaleLabels.possible}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 bg-danger bg-opacity-25 rounded text-center small">
+                                    <div class="fw-bold">65-129</div>
+                                    <div>${ui.scaleLabels.likely}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 bg-dark bg-opacity-25 rounded text-center small">
+                                    <div class="fw-bold">130+</div>
+                                    <div>${ui.scaleLabels.strong}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex flex-wrap gap-2 justify-content-center">
+                    <button onclick="restartTest()" class="btn btn-primary">
+                        ${ui.actions.restart}
+                    </button>
+                    <button id="copy-results-btn" onclick="copyResults()" class="btn btn-success">
+                        ${ui.actions.copyResults}
+                    </button>
+                    <button id="copy-json-btn" onclick="copyFullJSON()" class="btn btn-info">
+                        ${ui.actions.copyJson}
+                    </button>
+                </div>
+            `;
+            
+            $('#results-container').html(resultsHtml).show();
+        }
+
+        function copyResults() {
+            const results = calculateScore();
+            const interpretation = getInterpretation(results.total);
+            const copyText = lang.ui.copyText;
+            
+            const resultsText = `${copyText.header}
+${copyText.separator}
+${copyText.date} ${new Date().toLocaleDateString('fr-FR')}
+
+${copyText.totalScoreLabel} ${results.total}/240
+${copyText.interpretationLabel} ${interpretation.level}
+${copyText.descriptionLabel} ${interpretation.description}
+
+${copyText.categoriesHeader}
+- ${lang.ui.results.categories.social}: ${results.social}/117
+- ${lang.ui.results.categories.sensory}: ${results.sensory}/60
+- ${lang.ui.results.categories.restricted}: ${results.restricted}/42
+- ${lang.ui.results.categories.language}: ${results.language}/21
+
+${copyText.scaleHeader}
+- 0-24: ${copyText.scaleDescriptions["0-24"]}
+- 25-64: ${copyText.scaleDescriptions["25-64"]}
+- 65-89: ${copyText.scaleDescriptions["65-89"]}
+- 90-129: ${copyText.scaleDescriptions["90-129"]}
+- 130-159: ${copyText.scaleDescriptions["130-159"]}
+- 160+: ${copyText.scaleDescriptions["160+"]}
+
+${copyText.disclaimer}`;
+
+            copyToClipboard(resultsText, 'copy-results-btn', lang.ui.results.actions.copied, lang.ui.results.actions.copyResults);
+        }
+
+        function copyFullJSON() {
+            const results = calculateScore();
+            const interpretation = getInterpretation(results.total);
+            
+            const fullData = {
+                metadata: {
+                    testName: "RAADS-R",
+                    testDate: new Date().toISOString(),
+                    totalQuestions: questions.length,
+                    answeredQuestions: Object.keys(answers).length
+                },
+                scores: {
+                    total: results.total,
+                    maxTotal: 240,
+                    language: results.language,
+                    maxLanguage: 21,
+                    social: results.social,
+                    maxSocial: 117,
+                    sensory: results.sensory,
+                    maxSensory: 60,
+                    restricted: results.restricted,
+                    maxRestricted: 42
+                },
+                interpretation: {
+                    level: interpretation.level,
+                    description: interpretation.description
+                },
+                questionsAndAnswers: questions.map(q => ({
+                    id: q.id,
+                    text: q.text,
+                    category: q.category,
+                    reverse: q.reverse,
+                    answer: answers[q.id],
+                    answerText: answers[q.id] !== undefined ? options[answers[q.id]].label : null,
+                    comment: comments[q.id] || null,
+                    score: answers[q.id] !== undefined ? (q.reverse ? (3 - answers[q.id]) : answers[q.id]) : null
+                }))
+            };
+
+            copyToClipboard(JSON.stringify(fullData, null, 2), 'copy-json-btn', lang.ui.results.actions.jsonCopied, lang.ui.results.actions.copyJson);
+        }
+
+        function copyToClipboard(text, buttonId, successText, originalText) {
+            const $btn = $('#' + buttonId);
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Success feedback
+                $btn.addClass('copy-feedback')
+                    .text(successText)
+                    .prop('disabled', true);
+                
+                setTimeout(() => {
+                    $btn.removeClass('copy-feedback')
+                        .text(originalText)
+                        .prop('disabled', false);
+                }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                $btn.addClass('copy-feedback')
+                    .text(successText)
+                    .prop('disabled', true);
+                
+                setTimeout(() => {
+                    $btn.removeClass('copy-feedback')
+                        .text(originalText)
+                        .prop('disabled', false);
+                }, 2000);
+            });
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            answers = {};
+            comments = {};
+            $('#results-container').hide();
+            $('#test-container').show();
+            loadQuestion();
+        }
+    </script>
+</body>
+</html>

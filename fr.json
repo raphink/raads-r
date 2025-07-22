@@ -1,0 +1,612 @@
+{
+  "meta": {
+    "title": "Test RAADS-R - Échelle diagnostique de l'autisme",
+    "description": "Échelle diagnostique de l'autisme et de l'Asperger de Ritvo - révisée"
+  },
+  "ui": {
+    "header": {
+      "title": "Test RAADS-R",
+      "subtitle": "Échelle diagnostique de l'autisme et de l'Asperger de Ritvo - révisée"
+    },
+    "progress": {
+      "question": "Question",
+      "of": "sur",
+      "completed": "complété"
+    },
+    "form": {
+      "commentLabel": "Commentaire (optionnel)",
+      "commentPlaceholder": "Ajoutez un commentaire sur cette question...",
+      "keyboardHint": "💡 <strong>Raccourcis clavier :</strong> A/B/C/D pour sélectionner, Tab pour commentaire, Échap pour sortir, P/N pour navigation, Entrée pour continuer"
+    },
+    "navigation": {
+      "previous": "← Précédent",
+      "next": "Suivant →",
+      "viewResults": "Voir les résultats"
+    },
+    "instructions": {
+      "title": "Instructions :",
+      "text": "Réfléchissez attentivement à chaque question et choisissez la réponse qui vous correspond le mieux. Répondez honnêtement selon votre propre expérience."
+    },
+    "results": {
+      "totalScore": "Score Total",
+      "categoriesTitle": "Scores par catégorie",
+      "categories": {
+        "social": "Interactions sociales",
+        "sensory": "Symptômes sensorimoteurs",
+        "restricted": "Intérêts restreints",
+        "language": "Langage"
+      },
+      "interpretationScale": "Échelle d'interprétation",
+      "scaleLabels": {
+        "none": "Pas de TSA",
+        "possible": "Traits possibles",
+        "likely": "TSA possible",
+        "strong": "Forte présomption"
+      },
+      "warning": {
+        "title": "⚠️ Important",
+        "text": "Ce test est un outil d'aide au diagnostic uniquement. Seul un professionnel de santé qualifié peut établir un diagnostic d'autisme. Si vos résultats suggèrent des traits autistiques, consultez un psychiatre, psychologue ou médecin spécialisé."
+      },
+      "actions": {
+        "restart": "🔄 Refaire le test",
+        "copyResults": "📋 Copier les résultats",
+        "copyJson": "📄 Copier JSON complet",
+        "copied": "✅ Copié!",
+        "jsonCopied": "✅ JSON copié!"
+      },
+      "interpretations": {
+        "none": {
+          "level": "Pas de TSA",
+          "description": "Aucun signe d'autisme détecté"
+        },
+        "light": {
+          "level": "Traits légers",
+          "description": "Certains traits autistiques, mais probablement pas de TSA"
+        },
+        "moderate": {
+          "level": "Traits modérés",
+          "description": "Plusieurs traits autistiques présents"
+        },
+        "possible": {
+          "level": "TSA possible",
+          "description": "Score minimum auquel l'autisme est considéré"
+        },
+        "strong": {
+          "level": "Forte présomption de TSA",
+          "description": "Forte présomption de trouble du spectre autistique"
+        },
+        "solid": {
+          "level": "Preuve solide de TSA",
+          "description": "Preuve solide de TSA (score moyen des personnes autistes)"
+        },
+        "veryStrong": {
+          "level": "Preuve très solide de TSA",
+          "description": "Preuve très solide de trouble du spectre autistique"
+        }
+      }
+    },
+    "copyText": {
+      "header": "RÉSULTATS DU TEST RAADS-R",
+      "separator": "=====================================",
+      "date": "Date:",
+      "totalScoreLabel": "SCORE TOTAL:",
+      "interpretationLabel": "Interprétation:",
+      "descriptionLabel": "Description:",
+      "categoriesHeader": "SCORES PAR CATÉGORIE:",
+      "scaleHeader": "ÉCHELLE D'INTERPRÉTATION:",
+      "scaleDescriptions": {
+        "0-24": "Pas de TSA",
+        "25-64": "Certains traits autistiques, probablement pas de TSA",
+        "65-89": "Score minimum auquel l'autisme est considéré",
+        "90-129": "Forte présomption de TSA",
+        "130-159": "Preuve solide de TSA (score moyen des personnes autistes)",
+        "160+": "Preuve très solide de TSA"
+      },
+      "disclaimer": "IMPORTANT: Ce test est un outil d'aide au diagnostic uniquement.\nConsultez un professionnel de santé qualifié pour un diagnostic officiel."
+    }
+  },
+  "options": [
+    {
+      "value": 0,
+      "label": "Vrai maintenant et quand j'étais jeune (16 ans ou avant)",
+      "key": "A"
+    },
+    {
+      "value": 1,
+      "label": "Vrai seulement maintenant",
+      "key": "B"
+    },
+    {
+      "value": 2,
+      "label": "Vrai seulement quand j'avais moins de 16 ans",
+      "key": "C"
+    },
+    {
+      "value": 3,
+      "label": "Jamais vrai",
+      "key": "D"
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "Je suis une personne compatissante",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 2,
+      "text": "J'utilise souvent des mots et des phrases entendus dans des films ou à la télévision dans les conversations",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 3,
+      "text": "Je suis souvent surpris lorsque les autres me disent que j'ai été impoli.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 4,
+      "text": "Parfois, je parle trop fort ou trop doucement et je ne m'en aperçois pas.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 5,
+      "text": "J'ai souvent des difficultés à savoir comment me comporter en société.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 6,
+      "text": "Je peux \"me mettre dans la peau de quelqu'un d'autre\".",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 7,
+      "text": "J'ai du mal à comprendre le sens de certaines phrases comme \"je tiens à toi comme à la prunelle de mes yeux\".",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 8,
+      "text": "J'aime seulement parler aux gens qui partagent mes centres d'intérêt.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 9,
+      "text": "Je fais plus attention aux détails qu'à l'idée générale.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 10,
+      "text": "Je suis sensible à l'effet produit par un aliment dans ma bouche. Ceci est plus important que son goût.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 11,
+      "text": "Mes meilleurs amis ou ma famille me manquent quand nous sommes séparés depuis longtemps.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 12,
+      "text": "Quelquefois, je vexe les autres en disant ce que je pense, sans le faire exprès.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 13,
+      "text": "J'aime seulement penser et parler des choses qui m'intéressent.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 14,
+      "text": "Je préfère aller manger dans un restaurant tout seul plutôt qu'avec quelqu'un que je connais.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 15,
+      "text": "Je n'arrive pas à imaginer comment ce serait d'être quelqu'un d'autre.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 16,
+      "text": "On m'a déjà dit que j'étais maladroit ou que je manquais de coordination.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 17,
+      "text": "Les autres me trouvent étrange ou différent.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 18,
+      "text": "Je comprends lorsque des amis ont besoin d'être réconfortés.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 19,
+      "text": "Je suis très sensible au contact de mes vêtements lorsque je les touche. Leur texture est plus importante pour moi que leur look.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 20,
+      "text": "J'aime copier la manière dont certaines personnes parlent et agissent. Cela m'aide à me sentir plus normal.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 21,
+      "text": "Cela peut être très intimidant pour moi de parler à plus d'une personne en même temps.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 22,
+      "text": "Je dois adopter un comportement \"normal\" pour plaire aux autres et pour qu'ils m'apprécient.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 23,
+      "text": "Rencontrer de nouvelles personnes est habituellement facile pour moi.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 24,
+      "text": "Je suis déstabilisé lorsque quelqu'un m'interrompt alors que je parle de quelque chose qui m'intéresse beaucoup.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 25,
+      "text": "Il m'est difficile de percevoir les sentiments des autres lors d'une conversation.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 26,
+      "text": "J'aime avoir une conversation avec plusieurs personnes, par exemple lors d'un dîner, à l'école ou au travail.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 27,
+      "text": "Je prends les choses trop au premier degré, ainsi je passe à côté de ce que les gens essaient de me dire.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 28,
+      "text": "C'est très difficile pour moi de comprendre lorsque quelqu'un est gêné ou jaloux.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 29,
+      "text": "Certaines textures ordinaires qui ne posent aucun problème aux autres sont pour moi insupportables lorsqu'elles sont au contact de ma peau.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 30,
+      "text": "Je suis très contrarié lorsqu'on m'empêche de faire les choses à ma façon.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 31,
+      "text": "Je n'ai jamais désiré ou eu besoin de ce que les autres personnes appellent une \"relation intime\".",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 32,
+      "text": "C'est difficile pour moi de commencer et d'arrêter une conversation. J'ai besoin d'aller jusqu'au bout de mon propos.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 33,
+      "text": "Je parle avec un rythme de voix normal.",
+      "category": "SM",
+      "reverse": true
+    },
+    {
+      "id": 34,
+      "text": "Je peux sans transition être très sensible ou pas du tout sensible au même son, à la même couleur ou à la même texture.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 35,
+      "text": "La phrase \"je t'ai dans la peau\" me met mal à l'aise.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 36,
+      "text": "Quelquefois, la sonorité d'un mot ou un bruit aigu peut me faire mal aux oreilles.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 37,
+      "text": "On me considère comme une personne très compréhensive.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 38,
+      "text": "Je ne peux pas m'identifier à un personnage dans un film, et je ne peux pas ressentir ce qu'il ressent.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 39,
+      "text": "Je ne peux pas dire si quelqu'un est en train de me draguer.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 40,
+      "text": "Je peux me représenter avec précisions les détails qui m'intéressent.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 41,
+      "text": "Je fais des listes de choses qui m'intéressent, même si elles n'ont pas d'utilité pratique (par exemple statistiques sportives, horaires de train, dates du calendrier, faits historiques, etc.)",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 42,
+      "text": "Quand je me sens dépassé par des stimulations sensorielles, je dois m'isoler pour y échapper.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 43,
+      "text": "J'aime parler de choses et d'autres avec mes amis.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 44,
+      "text": "Je ne peux pas dire si quelqu'un est intéressé ou ennuyé par ce que je dis.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 45,
+      "text": "Lorsque quelqu'un est en train de parler, il peut m'être très difficile de lire sur son visage, de comprendre les mouvements de ses mains ou de son corps.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 46,
+      "text": "Je peux ressentir à différents moments la même chose très différemment (comme des vêtements ou la température).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 47,
+      "text": "Je me sens très à l'aise lors d'un rendez-vous amoureux ou lorsque je me trouve en société.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 48,
+      "text": "J'essaie d'être aussi aidant que possible lorsque les autres me parlent de leurs problèmes personnels.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 49,
+      "text": "On m'a dit que j'avais une voix particulière (par exemple plate, monotone, enfantine ou aigüe)",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 50,
+      "text": "Quelquefois une idée ou un sujet reste bloqué dans mon esprit et je dois en parler, même si cela n'intéresse personne.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 51,
+      "text": "Je fais certaines choses avec mes mains de façon répétée (comme un battement d'ailes, faire tournoyer un bâton ou une ficelle, agiter des choses devant mes yeux).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 52,
+      "text": "Je n'ai jamais été intéressé par ce que la plupart des gens que je connais considèrent comme intéressant.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 53,
+      "text": "On me considère comme une personne compatissante.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 54,
+      "text": "Pour m'entendre avec les autres, je suis un ensemble de règles spécifiques qui m'aident à paraître normal.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 55,
+      "text": "C'est très difficile pour moi de travailler et d'évoluer dans un groupe.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 56,
+      "text": "Lorsque je parle à quelqu'un, il m'est difficile de changer de sujet. Si l'autre personne le fait, je peux être bouleversé et confus.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 57,
+      "text": "Quelquefois, je dois couvrir mes oreilles pour arrêter les bruits douloureux (comme un aspirateur ou des gens qui parlent trop ou trop fort).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 58,
+      "text": "Je peux discuter et avoir des conversations superficielles.",
+      "category": "L",
+      "reverse": true
+    },
+    {
+      "id": 59,
+      "text": "Quelquefois, des choses qui devraient être douloureuses ne me font pas mal (par exemple, lorsque je me blesse ou lorsque je me brûle la main sur un poêle).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 60,
+      "text": "Quand je parle à quelqu'un, j'ai des difficultés à savoir si c'est mon tour de parler ou d'écouter.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 61,
+      "text": "Je suis considéré comme un solitaire par ceux qui me connaissent le mieux.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 62,
+      "text": "Je parle habituellement avec un ton de voix normal.",
+      "category": "SM",
+      "reverse": true
+    },
+    {
+      "id": 63,
+      "text": "J'aime que les choses se déroulent toujours de la même manière, jour après jour, et même les petits changements dans mes routines me perturbent.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 64,
+      "text": "Comment se faire des amis et s'intégrer socialement est un mystère pour moi.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 65,
+      "text": "Cela me calme de tourner en rond ou de me balancer sur une chaise lorsque je me sens stressé.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 66,
+      "text": "La phrase \"il a le cœur sur la main\" n'a pas de sens pour moi.",
+      "category": "L",
+      "reverse": false
+    },
+    {
+      "id": 67,
+      "text": "Si je suis dans un endroit où il y a beaucoup d'odeurs, de matières à toucher, de bruits ou de lumières intenses, je me sens anxieux ou effrayé.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 68,
+      "text": "Je sais faire la différence lorsque quelqu'un dit une chose mais veut en dire une autre.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 69,
+      "text": "J'aime être seul autant que possible.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 70,
+      "text": "Je garde mes pensées empilées dans ma mémoire comme dans un classeur et je prends celles dont j'ai besoin en sélectionnant dans la pile (ou avec une méthode similaire).",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 71,
+      "text": "Le même son peut paraître quelquefois très fort ou très doux alors que je sais qu'il n'a pas changé.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 72,
+      "text": "J'aime passer du temps à manger et parler avec ma famille et mes amis.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 73,
+      "text": "Je ne supporte pas les choses que je n'aime pas (comme des odeurs, des matières, des sons ou des couleurs).",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 74,
+      "text": "Je n'aime pas être tenu ou étreint.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 75,
+      "text": "Lorsque je vais quelque part, je dois suivre un parcours familier sinon je peux devenir très confus et perturbé.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 76,
+      "text": "C'est difficile de comprendre ce que les autres personnes attendent de moi.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 77,
+      "text": "J'aime avoir des amis proches.",
+      "category": "IS",
+      "reverse": true
+    },
+    {
+      "id": 78,
+      "text": "On me dit que je donne trop de détails.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 79,
+      "text": "On me dit souvent que je pose des questions embarrassantes.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 80,
+      "text": "J'ai tendance à souligner les erreurs des autres.",
+      "category": "IS",
+      "reverse": false
+    }
+  ]
+}
