@@ -36,6 +36,7 @@ Parse the JSON report and produce a comprehensive LaTeX report using the templat
 - Do not identify as a psychologist
 - State that "the report was compiled using Claude AI"
 - Fill in all data fields from the JSON results
+- Generate the report in the language chosen for the test (as per JSON report)
 
 ### Step 6: Compilation Instructions
 Direct the user to use Overleaf to compile the LaTeX document into a PDF.
