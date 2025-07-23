@@ -106,8 +106,6 @@ Use this exact template for generating reports:
 \newcommand{\genderLabel}{Genre :}
 \newcommand{\professionLabel}{Profession :}
 \newcommand{\evaluationDateLabel}{Date d'évaluation :}
-\newcommand{\psychologistLabel}{Psychologue évaluateur :}
-\newcommand{\psychologistTitle}{Spécialiste TSA adultes}
 
 % ========================================
 
@@ -154,7 +152,6 @@ Use this exact template for generating reports:
 {\Large\bfseries \professionLabel} {\Large \participantProfession}\\[2cm]
 
 {\Large\bfseries \evaluationDateLabel} {\Large \evaluationDate}\\[0.5cm]
-{\Large\bfseries \psychologistLabel} {\Large \psychologistTitle}\\[3cm]
 
 \vfill
 {\color{secondary}\rule{\linewidth}{2pt}}
