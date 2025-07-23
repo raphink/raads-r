@@ -74,14 +74,24 @@ Use this exact template for generating reports:
 % RAADS-R Scores
 \newcommand{\totalScore}{[TOTAL_SCORE]}
 \newcommand{\maxTotalScore}{240}
+\newcommand{\threshTotalScore}{65}
+\newcommand{\typicalTotalScore}{26}
 \newcommand{\socialScore}{[SOCIAL_SCORE]}
 \newcommand{\maxSocialScore}{117}
+\newcommand{\threshSocialScore}{30}
+\newcommand{\typicalSocialScore}{12.5}
 \newcommand{\sensoryScore}{[SENSORY_SCORE]}
 \newcommand{\maxSensoryScore}{60}
+\newcommand{\threshSensoryScore}{15}
+\newcommand{\typicalSensoryScore}{6.5}
 \newcommand{\restrictedScore}{[RESTRICTED_SCORE]}
 \newcommand{\maxRestrictedScore}{42}
+\newcommand{\threshRestrictedScore}{14}
+\newcommand{\typicalRestrictedScore}{4.5}
 \newcommand{\languageScore}{[LANGUAGE_SCORE]}
 \newcommand{\maxLanguageScore}{21}
+\newcommand{\threshLanguageScore}{3}
+\newcommand{\typicalLanguageScore}{2.5}
 
 % Interpretation
 \newcommand{\interpretationLevel}{[INTERPRETATION_LEVEL]}
@@ -170,35 +180,68 @@ Le test RAADS-R (Ritvo Autism Asperger Diagnostic Scale-Revised) est un instrume
 \subsection{Répartition des scores par domaine}
 
 \begin{center}
+
+\pgfplotsset{
+    /pgfplots/ybar legend/.style={
+        /pgfplots/legend image code/.code={
+            \draw[##1,/tikz/.cd,bar width=3pt,yshift=0em,bar shift=8pt] 
+            plot coordinates {(0cm,0.8em)};
+        },
+    },
+}
+
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
-    width=14cm,
-    height=8cm,
-    ylabel={Score obtenu},
-    xlabel={Domaines évalués},
+    width=16cm,
+    height=10cm,
+    ylabel={Score},
+    xlabel={Domain},
     ymin=0,
-    ymax=120,
+    ymax=250,
     xtick=data,
-    xticklabels={Social, Sensoriel/Moteur, Intérêts restreints, Langage},
-    x tick label style={rotate=45, anchor=east},
-    bar width=1.5cm,
-    nodes near coords,
-    every node near coord/.append style={font=\Large\bfseries},
+    xticklabels={Social, Sensory/Motor, Restricted, Language, \textbf{Total}},
+    bar width=0.7cm,
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\small},
+    enlarge x limits=0.15,
+    grid=major,
+    grid style={gray!20},
+    every axis plot/.append style={thick},
+    nodes near coords align={vertical},
 ]
-\addplot[fill=primary!70] coordinates {
-    (1,\socialScore)
-    (2,\sensoryScore)
-    (3,\restrictedScore)
-    (4,\languageScore)
-};
-\addplot[fill=lightgray!50, draw=secondary] coordinates {
+% Maximum possible scores
+\addplot[fill=lightgray!40, draw=lightgray, bar shift=0pt] coordinates {
     (1,\maxSocialScore)
     (2,\maxSensoryScore)
     (3,\maxRestrictedScore)
     (4,\maxLanguageScore)
+    (5,\maxTotalScore)
 };
-\legend{Score obtenu, Score maximum}
+% Your scores
+\addplot[fill=primary!80, draw=primary!90, line width=1pt, bar shift=0pt] coordinates {
+    (1,\socialScore)
+    (2,\sensoryScore)
+    (3,\restrictedScore)
+    (4,\languageScore)
+    (5,\totalScore)
+};
+% Clinical thresholds - keep the working line legend
+\addplot[only marks, mark=triangle*, mark size=4pt, color=accent, line legend] coordinates {
+    (1,\threshSocialScore)
+    (2,\threshSensoryScore)
+    (3,\threshRestrictedScore)
+    (4,\threshLanguageScore)
+    (5,\threshTotalScore)
+};
+% Neurotypical average - keep the working line legend
+\addplot[only marks, mark=square*, mark size=3pt, color=success!80, line legend] coordinates {
+    (1,\typicalSocialScore)
+    (2,\typicalSensoryScore)
+    (3,\typicalRestrictedScore)
+    (4,\typicalLanguageScore)
+    (5,\typicalTotalScore)
+};
+\legend{Maximum Score, Your Score, Clinical Threshold, Neurotypical Average}
 \end{axis}
 \end{tikzpicture}
 \end{center}
