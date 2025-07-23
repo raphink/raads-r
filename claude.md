@@ -333,10 +333,11 @@ Language & \languageScore & \threshLanguageScore & \typicalLanguageScore & \maxL
 
 This appendix contains all 80 RAADS-R questions with the participant's responses and any comments provided during the assessment. Questions are organized by domain and numbered according to the original scale.
 
+% For each item, add comment between parenthesis only if provided
 \begin{itemize}[leftmargin=2cm]
-\item [QUESTION_1]: [ANSWER_1] ([COMMENT_1])
-\item [QUESTION_2]: [ANSWER_2] ([COMMENT_2])
-\item [QUESTION_3]: [ANSWER_3] ([COMMENT_3])
+\item [QUESTION_1]: [ANSWER_1]
+\item [QUESTION_2]: [ANSWER_2]
+\item [QUESTION_3]: [ANSWER_3]
 etc.
 \end{itemize}
 
