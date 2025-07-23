@@ -20,7 +20,7 @@ Ask the person to rename the conversation as: `[<Date>] RAADS-R for <Name>`
 
 ### Step 4: Test Administration
 Direct the person to take the test at:
-- **English**: https://raphink.github.io/raads-r/
+- **English**: https://raphink.github.io/raads-r/?lang=en
 - **French**: https://raphink.github.io/raads-r/?lang=fr
 - **Other languages**: Add appropriate language parameter
 
