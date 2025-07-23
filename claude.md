@@ -46,7 +46,7 @@ Use this exact template for generating reports:
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french]{babel} % Change to [english] for English reports
+\usepackage[english]{babel} % Change to [french] for French reports
 \usepackage{lmodern}
 \usepackage{geometry}
 \usepackage{xcolor}
@@ -97,24 +97,24 @@ Use this exact template for generating reports:
 \newcommand{\interpretationLevel}{[INTERPRETATION_LEVEL]}
 \newcommand{\interpretationDescription}{[INTERPRETATION_DESCRIPTION]}
 
-% Language-specific labels (French by default)
-\newcommand{\reportTitle}{RAPPORT D'ÉVALUATION}
-\newcommand{\testName}{Test RAADS-R}
+% Language-specific labels (translate if necessary)
+\newcommand{\reportTitle}{ASSESSMENT REPORT}
+\newcommand{\testName}{RAADS-R Test}
 \newcommand{\testFullName}{Ritvo Autism Asperger Diagnostic Scale - Revised}
-\newcommand{\participantLabel}{Participant :}
-\newcommand{\ageLabel}{Âge :}
-\newcommand{\genderLabel}{Genre :}
-\newcommand{\professionLabel}{Profession :}
-\newcommand{\evaluationDateLabel}{Date d'évaluation :}
+\newcommand{\participantLabel}{Participant:}
+\newcommand{\ageLabel}{Age:}
+\newcommand{\genderLabel}{Gender:}
+\newcommand{\professionLabel}{Profession:}
+\newcommand{\evaluationDateLabel}{Evaluation Date:}
 
 % ========================================
 
-% Configuration de la page
+% Page configuration
 \geometry{margin=2.5cm}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\textcolor{primary}{Évaluation RAADS-R}}
-\fancyhead[R]{\textcolor{primary}{\participantName\ - \participantAge\ ans}}
+\fancyhead[L]{\textcolor{primary}{RAADS-R Assessement}}
+\fancyhead[R]{\textcolor{primary}{\participantName\ - \participantAge\ years old}}
 \fancyfoot[C]{\thepage}
 
 % Couleurs personnalisées
@@ -159,22 +159,26 @@ Use this exact template for generating reports:
 
 \newpage
 
-\section{Synthèse exécutive}
+\section{Executive Summary}
 
 \begin{center}
 \colorbox{accent!20}{\begin{minipage}{0.9\textwidth}
 \centering
 \vspace{0.5cm}
-{\Large\bfseries\color{accent} RÉSULTAT PRINCIPAL}\\[0.5cm]
-{\huge\bfseries Score total : \totalScore/\maxTotalScore}\\[0.3cm]
+{\Large\bfseries\color{accent} MAIN RESULT}\\[0.5cm]
+{\huge\bfseries Total Score: \totalScore/\maxTotalScore}\\[0.3cm]
 {\Large\bfseries\color{accent} \MakeUppercase{\interpretationLevel}}
 \vspace{0.5cm}
 \end{minipage}}
 \end{center}
 
-Le test RAADS-R (Ritvo Autism Asperger Diagnostic Scale-Revised) est un instrument d'auto-évaluation standardisé pour le diagnostic des troubles du spectre autistique chez les adultes. Avec un score de \totalScore, [INTERPRETATION_CONTEXT], les résultats de \participantName\ indiquent une \textbf{\interpretationDescription}.
+The RAADS-R (Ritvo Autism Asperger Diagnostic Scale-Revised) is a standardized self-
+assessment instrument for diagnosing autism spectrum disorders in adults.
+With a score of \totalScore, [INTERPRETATION_CONTEXT], the results for \participantName
+indicate \textbf{\interpretationDescription}.
+clinical diagnosis), the results for Test indicate Some autistic traits, but probably no ASD.
 
-\subsection{Répartition des scores par domaine}
+\subsection{Score Distribution by Domain}
 
 \begin{center}
 
@@ -260,176 +264,55 @@ Language & \languageScore & \threshLanguageScore & \typicalLanguageScore & \maxL
 \end{tabular}
 \end{center}
 
-\section{Analyse détaillée par domaine}
+\section{Detailed Analysis by Domain}
 
-\subsection{Domaine Social (\socialScore/\maxSocialScore\ points)}
+\subsection{Social Domain (\socialScore/\maxSocialScore\ points)}
 
 [SOCIAL_DOMAIN_ANALYSIS]
 
-% Template sections for detailed analysis
-\textbf{Compétences sociales fondamentales :}
-\begin{itemize}[leftmargin=2cm]
-\item [SOCIAL_SKILL_1]
-\item [SOCIAL_SKILL_2]
-\item [SOCIAL_SKILL_3]
-\item [SOCIAL_SKILL_4]
-\end{itemize}
+[SOCIAL_DOMAIN_DETAILED_ANALYSIS]
 
-\textbf{Communication interpersonnelle :}
-\begin{itemize}[leftmargin=2cm]
-\item [COMMUNICATION_1]
-\item [COMMUNICATION_2]
-\item [COMMUNICATION_3]
-\item [COMMUNICATION_4]
-\end{itemize}
 
-\textbf{Relations interpersonnelles :}
-\begin{itemize}[leftmargin=2cm]
-\item [RELATIONSHIP_1]
-\item [RELATIONSHIP_2]
-\item [RELATIONSHIP_3]
-\end{itemize}
-
-\subsection{Domaine Sensoriel/Moteur (\sensoryScore/\maxSensoryScore\ points)}
+\subsection{Sensory/Motor Domain (\sensoryScore/\maxSensoryScore\ points)}
 
 [SENSORY_DOMAIN_ANALYSIS]
 
-\textbf{Sensibilités sensorielles :}
-\begin{itemize}[leftmargin=2cm]
-\item [SENSORY_1]
-\item [SENSORY_2]
-\item [SENSORY_3]
-\item [SENSORY_4]
-\end{itemize}
+[SENSORY_DOMAIN_DETAILED_ANALYSIS]
 
-\textbf{Régulation sensorielle :}
-\begin{itemize}[leftmargin=2cm]
-\item [REGULATION_1]
-\item [REGULATION_2]
-\item [REGULATION_3]
-\end{itemize}
 
-\textbf{Évolution temporelle :}
-[SENSORY_EVOLUTION]
-
-\subsection{Domaine Intérêts Restreints (\restrictedScore/\maxRestrictedScore\ points)}
+\subsection{Restricted Interests Domain (\restrictedScore/\maxRestrictedScore\ points)}
 
 [RESTRICTED_DOMAIN_ANALYSIS]
 
-\textbf{Patterns d'intérêts spécialisés :}
-\begin{itemize}[leftmargin=2cm]
-\item [INTEREST_1]
-\item [INTEREST_2]
-\item [INTEREST_3]
-\item [INTEREST_4]
-\end{itemize}
+[RESTRICTED_DOMAIN_DETAILED_ANALYSIS]
 
-\textbf{Communication et intérêts :}
-\begin{itemize}[leftmargin=2cm]
-\item [COMMUNICATION_INTEREST_1]
-\item [COMMUNICATION_INTEREST_2]
-\item [COMMUNICATION_INTEREST_3]
-\end{itemize}
 
-\subsection{Domaine Langage (\languageScore/\maxLanguageScore\ points)}
+\subsection{Language Domain (\languageScore/\maxLanguageScore\ points)}
 
 [LANGUAGE_DOMAIN_ANALYSIS]
 
-\textbf{Compétences acquises :}
-\begin{itemize}[leftmargin=2cm]
-\item [LANGUAGE_STRENGTH_1]
-\item [LANGUAGE_STRENGTH_2]
-\item [LANGUAGE_STRENGTH_3]
-\end{itemize}
+[LANGUAGE_DOMAIN_DETAILED_ANALYSIS]
 
-\textbf{Quelques difficultés persistantes :}
-\begin{itemize}[leftmargin=2cm]
-\item [LANGUAGE_DIFFICULTY_1]
-\item [LANGUAGE_DIFFICULTY_2]
-\end{itemize}
 
-\section{Analyse développementale}
+\section{Developmental Analysis}
 
-\subsection{Évolution des symptômes}
+\subsection{Symptom Evolution}
 
 [DEVELOPMENTAL_ANALYSIS]
 
-\textbf{Persistance depuis l'enfance :}
-\begin{itemize}[leftmargin=2cm]
-\item [CHILDHOOD_PERSISTENCE_1]
-\item [CHILDHOOD_PERSISTENCE_2]
-\item [CHILDHOOD_PERSISTENCE_3]
-\end{itemize}
 
-\textbf{Développement à l'âge adulte :}
-\begin{itemize}[leftmargin=2cm]
-\item [ADULT_DEVELOPMENT_1]
-\item [ADULT_DEVELOPMENT_2]
-\end{itemize}
+\section{Strengths and Compensation Factors}
 
-\textbf{Améliorations avec l'âge :}
-\begin{itemize}[leftmargin=2cm]
-\item [IMPROVEMENT_1]
-\item [IMPROVEMENT_2]
-\item [IMPROVEMENT_3]
-\end{itemize}
+[STRENGTHS_AND_COMPENSATION]
 
-\section{Facteurs de force et de compensation}
-
-\textbf{Compétences développées :}
-\begin{itemize}[leftmargin=2cm]
-\item [STRENGTH_1]
-\item [STRENGTH_2]
-\item [STRENGTH_3]
-\item [STRENGTH_4]
-\end{itemize}
-
-\textbf{Stratégies de compensation :}
-\begin{itemize}[leftmargin=2cm]
-\item [COMPENSATION_1]
-\item [COMPENSATION_2]
-\item [COMPENSATION_3]
-\end{itemize}
 
 \section{Recommandations}
 
-\subsection{Évaluation diagnostique formelle}
-
-[DIAGNOSTIC_RECOMMENDATION]
-
-\begin{itemize}[leftmargin=2cm]
-\item [DIAGNOSTIC_STEP_1]
-\item [DIAGNOSTIC_STEP_2]
-\item [DIAGNOSTIC_STEP_3]
-\item [DIAGNOSTIC_STEP_4]
-\end{itemize}
-
-\subsection{Stratégies de soutien}
-
-\textbf{Gestion sensorielle :}
-\begin{itemize}[leftmargin=2cm]
-\item [SENSORY_SUPPORT_1]
-\item [SENSORY_SUPPORT_2]
-\item [SENSORY_SUPPORT_3]
-\end{itemize}
-
-\textbf{Compétences sociales :}
-\begin{itemize}[leftmargin=2cm]
-\item [SOCIAL_SUPPORT_1]
-\item [SOCIAL_SUPPORT_2]
-\item [SOCIAL_SUPPORT_3]
-\end{itemize}
-
-\textbf{Valorisation des forces :}
-\begin{itemize}[leftmargin=2cm]
-\item [STRENGTH_SUPPORT_1]
-\item [STRENGTH_SUPPORT_2]
-\item [STRENGTH_SUPPORT_3]
-\end{itemize}
+[RECOMMENDATIONS]
 
 \section{Conclusion}
 
-[CONCLUSION_INTRO] \participantName\ (\totalScore/\maxTotalScore) [CONCLUSION_INTERPRETATION]. Le profil révèle :
+[CONCLUSION_INTRO] \participantName\ (\totalScore/\maxTotalScore) [CONCLUSION_INTERPRETATION].
 
 \begin{itemize}[leftmargin=2cm]
 \item [CONCLUSION_POINT_1]
@@ -445,7 +328,7 @@ Language & \languageScore & \threshLanguageScore & \typicalLanguageScore & \maxL
 \vfill
 \begin{center}
 {\color{secondary}\rule{\linewidth}{1pt}}\\[0.3cm]
-{\footnotesize Rapport compilé le \today\ en utilisant Claude AI}
+{\footnotesize Reported compiled on \today\ using Claude AI
 \end{center}
 
 \end{document}
