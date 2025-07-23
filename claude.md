@@ -40,7 +40,8 @@ Direct the user to use Overleaf to compile the LaTeX document into a PDF.
 
 ## LaTeX Report Template
 
-Use this exact template for generating reports:
+Use the exact template below for generating reports.
+When copying the template code, ensure LaTeX syntax is preserved exactly, including all brackets, braces, and backslashes. Pay special attention to command endings like \\[0.3cm] and brace matching {}. Do not modify any LaTeX commands or spacing directives when filling in the template.
 
 ```latex
 \documentclass[11pt,a4paper]{article}
@@ -324,6 +325,21 @@ Language & \languageScore & \threshLanguageScore & \typicalLanguageScore & \maxL
 [CONCLUSION_CLINICAL_INTERPRETATION]
 
 [CONCLUSION_FINAL_RECOMMENDATION]
+
+\newpage
+\appendix
+
+\section{Complete Assessment Responses}
+
+This appendix contains all 80 RAADS-R questions with the participant's responses and any comments provided during the assessment. Questions are organized by domain and numbered according to the original scale.
+
+\begin{itemize}[leftmargin=2cm]
+\item [QUESTION_1]: [ANSWER_1] ([COMMENT_1])
+\item [QUESTION_2]: [ANSWER_2] ([COMMENT_2])
+\item [QUESTION_3]: [ANSWER_3] ([COMMENT_3])
+etc.
+\end{itemize}
+
 
 \vfill
 \begin{center}
