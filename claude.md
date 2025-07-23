@@ -24,6 +24,8 @@ Direct the person to take the test at:
 - **French**: https://raphink.github.io/raads-r/?lang=fr
 - **Other languages**: Add appropriate language parameter
 
+Instruct them to leave comments for questions when necessary, as they will be used in the report.
+
 Instruct them to copy the **Full JSON report** at the end and paste it in the chat.
 
 ### Step 5: Report Generation
