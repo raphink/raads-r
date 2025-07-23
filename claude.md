@@ -338,9 +338,9 @@ This appendix contains all 80 RAADS-R questions with the participant's responses
 
 % For each item, add comment between parenthesis only if provided
 \begin{itemize}[leftmargin=2cm]
-\item [QUESTION_1]: [ANSWER_1]
-\item [QUESTION_2]: [ANSWER_2]
-\item [QUESTION_3]: [ANSWER_3]
+\item Q1. [QUESTION_1]: [ANSWER_1]
+\item Q2. [QUESTION_2]: [ANSWER_2]
+\item Q3. [QUESTION_3]: [ANSWER_3]
 etc.
 \end{itemize}
 
