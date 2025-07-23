@@ -243,6 +243,23 @@ Le test RAADS-R (Ritvo Autism Asperger Diagnostic Scale-Revised) est un instrume
 \end{tikzpicture}
 \end{center}
 
+\vspace{0.5cm}
+
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Domain} & \textbf{Your Score} & \textbf{Clinical Threshold} & \textbf{Neurotypical Avg} & \textbf{Maximum} \\
+\midrule
+Social Relatedness & \socialScore & \threshSocialScore & \typicalSocialScore & \maxSocialScore \\
+Sensory/Motor & \sensoryScore & \theshSensoryScore16 & \typicalSensoryScore & \maxSensoryScore \\
+Restricted Interests & \restrictedScore & \threshRestrictedScore & \typicalRestrictedScore & \maxRestrictedScore \\
+Language & \languageScore & \threshLanguageScore & \typicalLanguageScore & \maxLanguageScore \\
+\midrule
+\textbf{Total Score} & \textbf{\totalScore} & \textbf{\threshTotalScore} & \textbf{\typicalTotalScore} & \textbf{\maxTotalScore} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 \section{Analyse détaillée par domaine}
 
 \subsection{Domaine Social (\socialScore/\maxSocialScore\ points)}
