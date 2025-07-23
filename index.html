@@ -155,7 +155,7 @@
                 return storedLang;
             }
             
-            return 'fr'; // Default fallback
+            return 'en'; // Default fallback
         }
 
         // Update URL with language parameter
@@ -198,6 +198,7 @@
             const langConfig = languages[currentLanguage];
             const flagElement = document.getElementById('current-language-flag');
             const nameElement = document.getElementById('current-language-name');
+            const dateFormat = new Intl.DateTimeFormat(currentLanguage, { dateStyle: 'short' });
             
             if (flagElement) flagElement.textContent = langConfig.flag;
             if (nameElement) nameElement.textContent = langConfig.name;
@@ -246,7 +247,7 @@
                 console.error('Error changing language:', error);
                 alert('Error loading language. Please try again.');
                 // Restore original language on error
-                currentLanguage = currentLanguage === 'fr' ? 'en' : 'fr';
+                currentLanguage = currentLanguage === 'en' ? 'fr' : 'en';
             } finally {
                 // Restore dropdown button
                 dropdownButton.innerHTML = originalText;
@@ -646,7 +647,7 @@
             
             const resultsText = `${copyText.header}
 ${copyText.separator}
-${copyText.date} ${new Date().toLocaleDateString('fr-FR')}
+${copyText.date} ${new Date().toLocaleDateString(dateFormat.locale, { dateStyle: 'short' })}
 
 ${copyText.totalScoreLabel} ${results.total}/240
 ${copyText.interpretationLabel} ${interpretation.level}
