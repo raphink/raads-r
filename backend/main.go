@@ -287,6 +287,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
             /* Ensure score text is visible in print */
             .score-bar {
                 color: #000 !important; /* Black text for print */
+				background-color: #3498db !important; /* Ensure bar color is visible */
                 border: 1px solid #000 !important; /* Add border for visibility */
             }
             
@@ -625,7 +626,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
     {{MARKDOWN_CONTENT}}
 
 	<div class="page-break"></div>
-	<h2>Questions and Answers</h2>
+	<h2>Appendix: Questions and Answers</h2>
 
 	{{LIST_OF_QUESTIONS}}
 
