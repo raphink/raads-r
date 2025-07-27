@@ -879,30 +879,25 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         function updateParticipantInfo() {
             const name = document.getElementById('participant-name').value || '[Name to be filled]';
             const age = document.getElementById('participant-age').value || '[Age]';
-            const profession = document.getElementById('participant-profession').value || '[Profession to be filled]';
             
-            // Update body attribute for CSS print header
-            document.body.setAttribute('data-participant-header', name + ' - ' + age + ' years');
+			// Update CSS custom property for print header
+            document.documentElement.style.setProperty('--participant-header', '"' + name + ' - ' + age + ' years"');
             
             // Update front page using CSS classes
             const participantName = document.querySelector('.participant-name');
             const participantAge = document.querySelector('.participant-age');
-            const participantProfession = document.querySelector('.participant-profession');
             
             if (participantName) participantName.textContent = name;
             if (participantAge) participantAge.textContent = age + ' years';
-            if (participantProfession) participantProfession.textContent = profession;
         }
         
         // Add event listeners when page loads
         document.addEventListener('DOMContentLoaded', function() {
             const nameInput = document.getElementById('participant-name');
             const ageInput = document.getElementById('participant-age');
-            const professionInput = document.getElementById('participant-profession');
             
             nameInput.addEventListener('input', updateParticipantInfo);
             ageInput.addEventListener('input', updateParticipantInfo);
-            professionInput.addEventListener('input', updateParticipantInfo);
             
             // Initial update
             updateParticipantInfo();
@@ -923,7 +918,6 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         <div class="participant-details">
             <div style="margin-bottom: 15px;"><strong>Participant:</strong> <span class="participant-name">[Name to be filled]</span></div>
             <div style="margin-bottom: 15px;"><strong>Age:</strong> <span class="participant-age">[Age] years</span></div>
-            <div style="margin-bottom: 15px;"><strong>Profession:</strong> <span class="participant-profession">[Profession to be filled]</span></div>
         </div>
         
         <div class="assessment-info">
@@ -946,7 +940,6 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         <ul style="margin: 10px 0; color: #2c3e50;">
             <li>Enter your name (or preferred identifier)</li>
             <li>Specify your age at the time of assessment</li>
-            <li>Add your profession or occupation</li>
             <li>Once filled, click the Print button above to generate your PDF</li>
         </ul>
     </div>
@@ -960,10 +953,6 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         <div class="participant-field">
             <label for="participant-age">Age:</label>
             <input type="number" id="participant-age" placeholder="Enter age" min="18" max="100" />
-        </div>
-        <div class="participant-field">
-            <label for="participant-profession">Profession:</label>
-            <input type="text" id="participant-profession" placeholder="Enter profession or occupation" />
         </div>
     </div>
 
@@ -1049,7 +1038,6 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         <ul style="margin: 10px 0; color: #2c3e50;">
             <li>Enter your name (or preferred identifier)</li>
             <li>Specify your age at the time of assessment</li>
-            <li>Add your profession or occupation</li>
             <li>Once filled, click the Print button above to generate your PDF</li>
         </ul>
     </div>
@@ -1108,7 +1096,6 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
 	// Participant information placeholders (will be updated by JavaScript)
 	result = strings.ReplaceAll(result, "{{PARTICIPANT_NAME}}", "[Name to be filled]")
 	result = strings.ReplaceAll(result, "{{PARTICIPANT_AGE}}", "[Age]")
-	result = strings.ReplaceAll(result, "{{PARTICIPANT_PROFESSION}}", "[Profession to be filled]")
 
 	// Assessment date for title page
 	assessmentDate := data.Metadata.TestDate.Format("January 2, 2006")
