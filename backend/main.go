@@ -234,7 +234,7 @@ func generatePDFHandler(c *gin.Context) {
 
 	// Step 2: Generate HTML report instead of LaTeX
 	log.Printf("🌐 Generating HTML report...")
-	htmlContent := generateHTMLReport(markdownContent, data)
+	htmlContent := generateHTMLReport(markdownContent, data, reportID)
 
 	log.Printf("✅ Generated HTML content (%d characters)", len(htmlContent))
 
@@ -266,7 +266,7 @@ func generatePDFHandler(c *gin.Context) {
 }
 
 // generateHTMLReport creates a print-ready HTML document with CSS styling and charts
-func generateHTMLReport(markdownContent string, data AssessmentData) string {
+func generateHTMLReport(markdownContent string, data AssessmentData, reportID string) string {
 	// Calculate total score from the data structure
 	totalScore := data.Scores.Total
 
@@ -283,6 +283,22 @@ func generateHTMLReport(markdownContent string, data AssessmentData) string {
             body { font-size: 12pt; line-height: 1.4; }
             .page-break { page-break-before: always; }
             .no-print { display: none; }
+            
+            /* Ensure score text is visible in print */
+            .score-bar {
+                color: #000 !important; /* Black text for print */
+                border: 1px solid #000 !important; /* Add border for visibility */
+            }
+            
+            .threshold-marker::after,
+            .average-marker::after {
+                color: #000 !important; /* Ensure marker labels are visible */
+            }
+            
+            /* Ensure chart containers have borders in print */
+            .chart-container-inner {
+                border: 2px solid #000 !important;
+            }
         }
         
         body {
@@ -509,8 +525,8 @@ func generateHTMLReport(markdownContent string, data AssessmentData) string {
     
     <h1>RAADS-R Assessment Report</h1>
     
+    <h2>Assessment Scores</h2>
     <div class="score-summary">
-        <h2>Assessment Scores</h2>
         <div class="score-grid">
             <div class="score-item">
                 <div class="score-value">{{TOTAL_SCORE}}</div>
@@ -535,8 +551,8 @@ func generateHTMLReport(markdownContent string, data AssessmentData) string {
         </div>
     </div>
     
+    <h2>Score Distribution by Domain</h2>
     <div class="chart-container">
-        <h2>Score Breakdown</h2>
         <div class="chart-wrapper">
             <div class="chart-item">
                 <div class="chart-label">Social</div>
@@ -606,11 +622,17 @@ func generateHTMLReport(markdownContent string, data AssessmentData) string {
     
     <div class="page-break"></div>
     
-    <div class="markdown-content">
-        <h2>Assessment Analysis</h2>
-        {{MARKDOWN_CONTENT}}
-    </div>
-    
+    {{MARKDOWN_CONTENT}}
+
+	<div class="page-break"></div>
+	<h2>Questions and Answers</h2>
+
+	{{LIST_OF_QUESTIONS}}
+
+	<div class="footer">
+		<p>Generated on {{GENERATED_AT}} by raphink.github.io/raads-r</p>
+		<p>Report ID: {{REPORT_ID}}</p>
+	</div>
 </body>
 </html>`
 
@@ -683,6 +705,23 @@ func generateHTMLReport(markdownContent string, data AssessmentData) string {
 	result = strings.ReplaceAll(result, "{{TOTAL_BAR_HEIGHT}}", fmt.Sprintf("%d", totalHeight))
 	result = strings.ReplaceAll(result, "{{TOTAL_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", totalThresholdHeight))
 	result = strings.ReplaceAll(result, "{{TOTAL_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", totalAverageHeight))
+
+	// replace list of questions
+	var questionsList strings.Builder
+	for _, qa := range data.QuestionsAndAnswers {
+		questionsList.WriteString(fmt.Sprintf("<div><strong>Q%d:</strong> %s<br><strong>Answer:</strong> %s<br>",
+			qa.ID, qa.Text, qa.AnswerText))
+		if qa.Comment != nil && *qa.Comment != "" {
+			questionsList.WriteString(fmt.Sprintf("<strong>Comment:</strong> %s<br>", *qa.Comment))
+		}
+		questionsList.WriteString("</div><hr>")
+	}
+	result = strings.ReplaceAll(result, "{{LIST_OF_QUESTIONS}}", questionsList.String())
+
+	// replace generated at and report ID
+	generatedAt := time.Now().UTC().Format("January 2, 2006 at 3:04 PM")
+	result = strings.ReplaceAll(result, "{{GENERATED_AT}}", generatedAt)
+	result = strings.ReplaceAll(result, "{{REPORT_ID}}", reportID)
 
 	return result
 }
@@ -765,66 +804,37 @@ ANALYSIS INSTRUCTIONS:
 
 REQUIRED MARKDOWN STRUCTURE:
 
-# Executive Summary
+## Executive Summary
 
 Provide a clear summary of the assessment results, including the overall interpretation and key findings.
 
-## Score Overview
+### Score Overview
 
-Summarize the domain scores and their clinical significance. Do not make a table, there's already one before.
+Summarize the domain scores and their clinical significance. Do NOT add a table there.
 
-# Detailed Analysis by Domain
+## Detailed Analysis by Domain
 
-## Social Domain Analysis
+### Social Domain Analysis
 
-Provide detailed analysis of the social domain score (%d/%d points). Include:
-- Comparison to clinical thresholds and neurotypical averages
-- Specific questions and responses that contributed to this score
-- Comments that provide insight into social experiences
-- Clinical interpretation of the pattern of responses
+### Sensory/Motor Domain Analysis  
 
-## Sensory/Motor Domain Analysis  
+### Restricted Interests Domain Analysis
 
-Provide detailed analysis of the sensory/motor domain score (%d/%d points). Include:
-- Analysis of sensory processing patterns
-- Motor coordination and proprioception findings
-- Specific examples from responses and comments
-- Clinical significance of the patterns observed
+### Language Domain Analysis
 
-## Restricted Interests Domain Analysis
+## Clinical Interpretation and Recommendations
 
-Provide detailed analysis of the restricted interests domain score (%d/%d points). Include:
-- Analysis of special interests and obsessions
-- Routine and ritual behaviors
-- Resistance to change patterns
-- Specific examples from participant responses
-
-## Language Domain Analysis
-
-Provide detailed analysis of the language domain score (%d/%d points). Include:
-- Communication patterns and pragmatic language use
-- Literal interpretation tendencies
-- Social communication challenges
-- Specific linguistic behaviors noted
-
-# Clinical Interpretation and Recommendations
-
-Provide comprehensive clinical interpretation based on the complete assessment profile. Include:
-- Overall diagnostic considerations
-- Strengths and challenges identified
-- Recommended next steps or referrals
-- Therapeutic considerations
-
-# Notable Response Patterns
+## Notable Response Patterns
 
 Highlight specific questions where responses were particularly informative, especially those with comments that provide personal insights.
 
-# Conclusion
+## Conclusion
 
 Provide a clear, evidence-based conclusion with actionable recommendations.
 
 IMPORTANT:
 - Write in professional clinical language
+- Use EXACT markdown structure, NO top extra title or section, NO tables
 - Base all analysis on the actual assessment data provided
 - Reference specific question numbers and responses where relevant
 - Include direct quotes from comments when they provide insight
