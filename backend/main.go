@@ -126,12 +126,65 @@ func main() {
 
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
+		origin := c.Request.Header.Get("Origin")
+
+		// Check if we're in development mode
+		isDevelopment := os.Getenv("GIN_MODE") != "release"
+
+		// Production-only origins (always allowed)
+		productionOrigins := []string{
+			"https://raphink.github.io",
+		}
+
+		// Development-only origins (only allowed in dev mode)
+		developmentOrigins := []string{
+			"http://localhost:3000",
+			"http://localhost:8000",
+			"http://localhost:8080",
+			"http://127.0.0.1:3000",
+			"http://127.0.0.1:8000",
+			"http://127.0.0.1:8080",
+			"file://", // For local file access during development
+		}
+
+		// Check if origin is allowed
+		allowed := false
+
+		// Always check production origins
+		for _, allowedOrigin := range productionOrigins {
+			if origin == allowedOrigin || strings.HasPrefix(origin, allowedOrigin) {
+				allowed = true
+				break
+			}
+		}
+
+		// Only check development origins in development mode
+		if !allowed && isDevelopment {
+			for _, allowedOrigin := range developmentOrigins {
+				if origin == allowedOrigin || strings.HasPrefix(origin, allowedOrigin) {
+					allowed = true
+					break
+				}
+			}
+
+			// Additional fallback for development - allow any localhost origin
+			if !allowed && (strings.Contains(origin, "localhost") || strings.Contains(origin, "127.0.0.1")) {
+				allowed = true
+			}
+		}
+
+		// Set CORS headers
+		if allowed {
+			c.Header("Access-Control-Allow-Origin", origin)
+		} else {
+			// In production, only allow raphink.github.io, reject everything else
+			c.Header("Access-Control-Allow-Origin", "https://raphink.github.io")
+		}
+
 		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		c.Header("Access-Control-Allow-Credentials", "false")
 		c.Header("Access-Control-Max-Age", "86400")
-		// only allow from raphink.github.io
-		c.Header("Access-Control-Allow-Origin", "https://raphink.github.io")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
