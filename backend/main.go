@@ -880,6 +880,8 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
 <body>
     <div class="no-print">
         <button class="print-btn" onclick="window.print()">🖨️ Print Report</button>
+
+        <button class="close-btn" onclick="window.close()">❌ Close Report</button>
     </div>
     
     <!-- Title Page -->
