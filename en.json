@@ -51,8 +51,12 @@
         "restart": "🔄 Restart Test",
         "copyResults": "📋 Copy Results",
         "copyJson": "📄 Copy Full JSON",
+        "generateReport": "📊 Generate Professional Report",
         "copied": "✅ Copied!",
-        "jsonCopied": "✅ JSON Copied!"
+        "jsonCopied": "✅ JSON Copied!",
+        "reportGenerating": "🔄 Generating Report...",
+        "reportError": "❌ Error Generating Report",
+        "reportReady": "✅ Report Ready!"
       },
       "interpretations": {
         "none": {

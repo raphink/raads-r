@@ -51,8 +51,12 @@
         "restart": "🔄 Refaire le test",
         "copyResults": "📋 Copier les résultats",
         "copyJson": "📄 Copier JSON complet",
+        "generateReport": "📊 Générer un rapport professionnel",
         "copied": "✅ Copié!",
-        "jsonCopied": "✅ JSON copié!"
+        "jsonCopied": "✅ JSON copié!",
+        "reportGenerating": "🔄 Génération du rapport...",
+        "reportError": "❌ Erreur lors de la génération",
+        "reportReady": "✅ Rapport prêt !"
       },
       "interpretations": {
         "none": {

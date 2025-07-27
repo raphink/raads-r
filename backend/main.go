@@ -279,7 +279,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
                     border-bottom: 2px solid #3498db;
                 }
                 @top-center {
-                    content: attr(data-participant-header);
+                    content: var(--participant-header, "[Name to be filled] - [Age] years");
                     font-size: 12pt;
                     font-weight: bold;
                     color: #2c3e50;
@@ -877,7 +877,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         });
     </script>
 </head>
-<body data-participant-header="[Name to be filled] - [Age] years">
+<body>
     <div class="no-print">
         <button class="print-btn" onclick="window.print()">🖨️ Print Report</button>
     </div>
