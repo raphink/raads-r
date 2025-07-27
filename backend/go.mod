@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/storage v1.36.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.5.0
-	github.com/yuin/goldmark v1.7.13
+	github.com/yuin/goldmark v1.4.13
 )
 
 require (
@@ -51,9 +51,9 @@ require (
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/api v0.155.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect

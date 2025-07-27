@@ -2,19 +2,18 @@ package main
 
 import (
 	"bytes"
-	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/yuin/goldmark"
 )
 
 type AssessmentData struct {
@@ -137,9 +136,7 @@ func main() {
 
 	log.Printf("🚀 RAADS-R PDF Service starting on port %s", port)
 	log.Printf("📊 Using Claude API for LaTeX generation")
-	log.Printf("📄 Using Dynamic Documents API for PDF compilation")
 	log.Printf("☁️  Using GCS bucket: %s", gcsBucket)
-
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
@@ -235,48 +232,471 @@ func generatePDFHandler(c *gin.Context) {
 		log.Printf("📝 Dumped Markdown to report.md for debugging")
 	}
 
-	// Step 2: Inject Markdown into LaTeX template
-	log.Printf("📝 Injecting Markdown into LaTeX template...")
-	latexContent := injectMarkdownIntoLaTeXTemplate(markdownContent, data)
+	// Step 2: Generate HTML report instead of LaTeX
+	log.Printf("🌐 Generating HTML report...")
+	htmlContent := generateHTMLReport(markdownContent, data)
 
-	log.Printf("✅ Generated LaTeX content (%d characters)", len(latexContent))
+	log.Printf("✅ Generated HTML content (%d characters)", len(htmlContent))
 
-	// Helper function for min
-	minFunc := func(a, b int) int {
-		if a < b {
-			return a
-		}
-		return b
-	}
-
-	log.Printf("📄 LaTeX content preview:\n%s\n", latexContent[:minFunc(500, len(latexContent))]) // Preview first 500 chars
-
-	// Dump the LaTeX content to a file for debugging
-	if err := os.WriteFile("report.tex", []byte(latexContent), 0644); err != nil {
-		log.Printf("❌ Error writing LaTeX to file: %v", err)
+	// Dump the HTML content to a file for debugging
+	if err := os.WriteFile("report.html", []byte(htmlContent), 0644); err != nil {
+		log.Printf("❌ Error writing HTML to file: %v", err)
 	} else {
-		log.Printf("📝 Dumped LaTeX to report.tex for debugging")
+		log.Printf("📝 Dumped HTML to report.html for debugging")
 	}
 
-	// Step 2: Generate PDF with Dynamic Documents API
-	log.Printf("📄 Compiling PDF with Dynamic Documents API...")
-	pdfURL, err := generatePDFWithDynamicDocs(latexContent, reportID)
-	if err != nil {
-		log.Printf("❌ Error generating PDF: %v", err)
-		c.JSON(500, gin.H{"error": "Failed to generate PDF: " + err.Error()})
-		return
-	}
-
-	log.Printf("🎉 Successfully generated PDF: %s", pdfURL)
+	// Step 3: Return HTML for client-side PDF generation
+	log.Printf("📄 Returning HTML for client-side printing...")
 
 	response := PDFResponse{
 		Success:     true,
-		PDFURL:      pdfURL,
+		PDFURL:      "", // No PDF URL needed - client will generate
 		GeneratedAt: time.Now().UTC(),
 		ReportID:    reportID,
 	}
 
-	c.JSON(200, response)
+	// Return HTML content for client-side PDF generation
+	c.JSON(200, gin.H{
+		"success":      response.Success,
+		"report_id":    response.ReportID,
+		"generated_at": response.GeneratedAt,
+		"html_content": htmlContent,
+		"print_ready":  true,
+	})
+}
+
+// generateHTMLReport creates a print-ready HTML document with CSS styling and charts
+func generateHTMLReport(markdownContent string, data AssessmentData) string {
+	// Calculate total score from the data structure
+	totalScore := data.Scores.Total
+
+	// Create HTML template with placeholders
+	htmlTemplate := `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAADS-R Assessment Report</title>
+    <style>
+        /* Print-optimized CSS */
+        @media print {
+            body { font-size: 12pt; line-height: 1.4; }
+            .page-break { page-break-before: always; }
+            .no-print { display: none; }
+        }
+        
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background: white;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        
+        h1 {
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .score-summary {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .chart-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .chart-wrapper {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 250px;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        
+        .chart-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 120px;
+            position: relative;
+        }
+        
+        .chart-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .chart-container-inner {
+            position: relative;
+            width: 60px;
+            height: 180px;
+            border: 1px solid #bbb;
+            background: #e8e8e8; /* Grey background like TikZ */
+        }
+        
+        .score-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #3498db;
+            border-radius: 2px 2px 0 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            padding-bottom: 3px;
+        }
+        
+        .threshold-marker {
+            position: absolute;
+            left: -5px;
+            right: -5px;
+            height: 2px;
+            background-color: #e74c3c;
+            border: 1px solid #c0392b;
+        }
+        
+        .threshold-marker::after {
+            content: attr(data-label);
+            position: absolute;
+            right: -25px;
+            top: -8px;
+            font-size: 9px;
+            color: #e74c3c;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .average-marker {
+            position: absolute;
+            left: -5px;
+            right: -5px;
+            height: 2px;
+            background-color: #27ae60;
+            border: 1px solid #229954;
+        }
+        
+        .average-marker::after {
+            content: attr(data-label);
+            position: absolute;
+            right: -25px;
+            top: -8px;
+            font-size: 9px;
+            color: #27ae60;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .max-score-label {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .markdown-content {
+            line-height: 1.6;
+            margin: 30px 0;
+        }
+        
+        .markdown-content p {
+            margin: 1em 0;
+        }
+        
+        .markdown-content ul {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        
+        .markdown-content li {
+            margin: 0.5em 0;
+        }
+        
+        .print-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        
+        .print-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="print-btn" onclick="window.print()">🖨️ Print Report</button>
+    </div>
+    
+    <h1>RAADS-R Assessment Report</h1>
+    
+    <div class="score-summary">
+        <h2>Assessment Scores</h2>
+        <div class="score-grid">
+            <div class="score-item">
+                <div class="score-value">{{TOTAL_SCORE}}</div>
+                <div class="score-label">Total Score</div>
+            </div>
+            <div class="score-item">
+                <div class="score-value">{{SOCIAL_SCORE}}</div>
+                <div class="score-label">Social</div>
+            </div>
+            <div class="score-item">
+                <div class="score-value">{{LANGUAGE_SCORE}}</div>
+                <div class="score-label">Language</div>
+            </div>
+            <div class="score-item">
+                <div class="score-value">{{SENSORY_SCORE}}</div>
+                <div class="score-label">Sensory/Motor</div>
+            </div>
+            <div class="score-item">
+                <div class="score-value">{{RESTRICTED_SCORE}}</div>
+                <div class="score-label">Restricted Interests</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <h2>Score Breakdown</h2>
+        <div class="chart-wrapper">
+            <div class="chart-item">
+                <div class="chart-label">Social</div>
+                <div class="chart-container-inner">
+                    <div class="max-score-label">{{SOCIAL_MAX}}</div>
+                    <div class="score-bar" style="height: {{SOCIAL_BAR_HEIGHT}}%;">{{JS_SOCIAL_SCORE}}</div>
+                    <div class="threshold-marker" style="bottom: {{SOCIAL_THRESHOLD_HEIGHT}}%;" data-label="31"></div>
+                    <div class="average-marker" style="bottom: {{SOCIAL_AVERAGE_HEIGHT}}%;" data-label="11"></div>
+                </div>
+            </div>
+            <div class="chart-item">
+                <div class="chart-label">Language</div>
+                <div class="chart-container-inner">
+                    <div class="max-score-label">{{LANGUAGE_MAX}}</div>
+                    <div class="score-bar" style="height: {{LANGUAGE_BAR_HEIGHT}}%;">{{JS_LANGUAGE_SCORE}}</div>
+                    <div class="threshold-marker" style="bottom: {{LANGUAGE_THRESHOLD_HEIGHT}}%;" data-label="4"></div>
+                    <div class="average-marker" style="bottom: {{LANGUAGE_AVERAGE_HEIGHT}}%;" data-label="2"></div>
+                </div>
+            </div>
+            <div class="chart-item">
+                <div class="chart-label">Sensory/Motor</div>
+                <div class="chart-container-inner">
+                    <div class="max-score-label">{{SENSORY_MAX}}</div>
+                    <div class="score-bar" style="height: {{SENSORY_BAR_HEIGHT}}%;">{{JS_SENSORY_SCORE}}</div>
+                    <div class="threshold-marker" style="bottom: {{SENSORY_THRESHOLD_HEIGHT}}%;" data-label="16"></div>
+                    <div class="average-marker" style="bottom: {{SENSORY_AVERAGE_HEIGHT}}%;" data-label="6"></div>
+                </div>
+            </div>
+            <div class="chart-item">
+                <div class="chart-label">Restricted</div>
+                <div class="chart-container-inner">
+                    <div class="max-score-label">{{RESTRICTED_MAX}}</div>
+                    <div class="score-bar" style="height: {{RESTRICTED_BAR_HEIGHT}}%;">{{JS_RESTRICTED_SCORE}}</div>
+                    <div class="threshold-marker" style="bottom: {{RESTRICTED_THRESHOLD_HEIGHT}}%;" data-label="24"></div>
+                    <div class="average-marker" style="bottom: {{RESTRICTED_AVERAGE_HEIGHT}}%;" data-label="8"></div>
+                </div>
+            </div>
+            <div class="chart-item">
+                <div class="chart-label">Total</div>
+                <div class="chart-container-inner">
+                    <div class="max-score-label">{{TOTAL_MAX}}</div>
+                    <div class="score-bar" style="height: {{TOTAL_BAR_HEIGHT}}%;">{{JS_TOTAL_SCORE}}</div>
+                    <div class="threshold-marker" style="bottom: {{TOTAL_THRESHOLD_HEIGHT}}%;" data-label="65"></div>
+                    <div class="average-marker" style="bottom: {{TOTAL_AVERAGE_HEIGHT}}%;" data-label="25"></div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #3498db;"></div>
+                <span>Your Score</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                <span>Autistic Threshold</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #27ae60;"></div>
+                <span>Neurotypical Average</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e8e8e8;"></div>
+                <span>Maximum Possible</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <div class="markdown-content">
+        <h2>Assessment Analysis</h2>
+        {{MARKDOWN_CONTENT}}
+    </div>
+    
+</body>
+</html>`
+
+	// Convert markdown to HTML using goldmark
+	htmlContent := convertMarkdownToHTML(markdownContent)
+
+	// Calculate bar heights for chart based on actual max scores per domain
+	// Use the MaxXXX values from the data structure for proper scaling
+
+	// Calculate percentages for bar heights (based on actual max scores)
+	socialHeight := (data.Scores.Social * 100) / data.Scores.MaxSocial
+	socialThresholdHeight := (31 * 100) / data.Scores.MaxSocial
+	socialAverageHeight := (11 * 100) / data.Scores.MaxSocial
+
+	languageHeight := (data.Scores.Language * 100) / data.Scores.MaxLanguage
+	languageThresholdHeight := (4 * 100) / data.Scores.MaxLanguage
+	languageAverageHeight := (2 * 100) / data.Scores.MaxLanguage
+
+	sensoryHeight := (data.Scores.Sensory * 100) / data.Scores.MaxSensory
+	sensoryThresholdHeight := (16 * 100) / data.Scores.MaxSensory
+	sensoryAverageHeight := (6 * 100) / data.Scores.MaxSensory
+
+	restrictedHeight := (data.Scores.Restricted * 100) / data.Scores.MaxRestricted
+	restrictedThresholdHeight := (24 * 100) / data.Scores.MaxRestricted
+	restrictedAverageHeight := (8 * 100) / data.Scores.MaxRestricted
+
+	totalHeight := (totalScore * 100) / data.Scores.MaxTotal
+	totalThresholdHeight := (65 * 100) / data.Scores.MaxTotal
+	totalAverageHeight := (25 * 100) / data.Scores.MaxTotal
+
+	// Replace placeholders with actual values
+	result := strings.ReplaceAll(htmlTemplate, "{{TOTAL_SCORE}}", fmt.Sprintf("%d", totalScore))
+	result = strings.ReplaceAll(result, "{{LANGUAGE_SCORE}}", fmt.Sprintf("%d", data.Scores.Language))
+	result = strings.ReplaceAll(result, "{{SOCIAL_SCORE}}", fmt.Sprintf("%d", data.Scores.Social))
+	result = strings.ReplaceAll(result, "{{SENSORY_SCORE}}", fmt.Sprintf("%d", data.Scores.Sensory))
+	result = strings.ReplaceAll(result, "{{RESTRICTED_SCORE}}", fmt.Sprintf("%d", data.Scores.Restricted))
+	result = strings.ReplaceAll(result, "{{MARKDOWN_CONTENT}}", htmlContent)
+
+	// Replace max score placeholders
+	result = strings.ReplaceAll(result, "{{SOCIAL_MAX}}", fmt.Sprintf("%d", data.Scores.MaxSocial))
+	result = strings.ReplaceAll(result, "{{LANGUAGE_MAX}}", fmt.Sprintf("%d", data.Scores.MaxLanguage))
+	result = strings.ReplaceAll(result, "{{SENSORY_MAX}}", fmt.Sprintf("%d", data.Scores.MaxSensory))
+	result = strings.ReplaceAll(result, "{{RESTRICTED_MAX}}", fmt.Sprintf("%d", data.Scores.MaxRestricted))
+	result = strings.ReplaceAll(result, "{{TOTAL_MAX}}", fmt.Sprintf("%d", data.Scores.MaxTotal))
+
+	// Replace score placeholders
+	result = strings.ReplaceAll(result, "{{JS_SOCIAL_SCORE}}", fmt.Sprintf("%d", data.Scores.Social))
+	result = strings.ReplaceAll(result, "{{JS_LANGUAGE_SCORE}}", fmt.Sprintf("%d", data.Scores.Language))
+	result = strings.ReplaceAll(result, "{{JS_SENSORY_SCORE}}", fmt.Sprintf("%d", data.Scores.Sensory))
+	result = strings.ReplaceAll(result, "{{JS_RESTRICTED_SCORE}}", fmt.Sprintf("%d", data.Scores.Restricted))
+	result = strings.ReplaceAll(result, "{{JS_TOTAL_SCORE}}", fmt.Sprintf("%d", totalScore))
+
+	// Replace bar height placeholders
+	result = strings.ReplaceAll(result, "{{SOCIAL_BAR_HEIGHT}}", fmt.Sprintf("%d", socialHeight))
+	result = strings.ReplaceAll(result, "{{SOCIAL_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", socialThresholdHeight))
+	result = strings.ReplaceAll(result, "{{SOCIAL_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", socialAverageHeight))
+
+	result = strings.ReplaceAll(result, "{{LANGUAGE_BAR_HEIGHT}}", fmt.Sprintf("%d", languageHeight))
+	result = strings.ReplaceAll(result, "{{LANGUAGE_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", languageThresholdHeight))
+	result = strings.ReplaceAll(result, "{{LANGUAGE_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", languageAverageHeight))
+
+	result = strings.ReplaceAll(result, "{{SENSORY_BAR_HEIGHT}}", fmt.Sprintf("%d", sensoryHeight))
+	result = strings.ReplaceAll(result, "{{SENSORY_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", sensoryThresholdHeight))
+	result = strings.ReplaceAll(result, "{{SENSORY_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", sensoryAverageHeight))
+
+	result = strings.ReplaceAll(result, "{{RESTRICTED_BAR_HEIGHT}}", fmt.Sprintf("%d", restrictedHeight))
+	result = strings.ReplaceAll(result, "{{RESTRICTED_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", restrictedThresholdHeight))
+	result = strings.ReplaceAll(result, "{{RESTRICTED_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", restrictedAverageHeight))
+
+	result = strings.ReplaceAll(result, "{{TOTAL_BAR_HEIGHT}}", fmt.Sprintf("%d", totalHeight))
+	result = strings.ReplaceAll(result, "{{TOTAL_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", totalThresholdHeight))
+	result = strings.ReplaceAll(result, "{{TOTAL_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", totalAverageHeight))
+
+	return result
+}
+
+// convertMarkdownToHTML converts markdown to HTML using goldmark
+func convertMarkdownToHTML(markdown string) string {
+	var buf bytes.Buffer
+	md := goldmark.New()
+	if err := md.Convert([]byte(markdown), &buf); err != nil {
+		log.Printf("❌ Error converting markdown to HTML: %v", err)
+		// Fallback to simple text conversion
+		return fmt.Sprintf("<p>%s</p>", strings.ReplaceAll(markdown, "\n", "<br>"))
+	}
+	return buf.String()
 }
 
 func validateAssessmentData(data AssessmentData) error {
@@ -300,119 +720,178 @@ func validateAssessmentData(data AssessmentData) error {
 	return nil
 }
 
-func generatePDFWithDynamicDocs(latexContent, reportID string) (string, error) {
-	// Encode LaTeX content as base64
-	base64Content := base64.StdEncoding.EncodeToString([]byte(latexContent))
-
-	log.Printf("📝 Encoded LaTeX to base64 (%d characters)", len(base64Content))
-
-	dynamicDocsReq := DynamicDocsRequest{
-		Template:     base64Content,
-		Engine:       "pdflatex",
-		OutputFormat: "pdf",
-		Options: map[string]string{
-			"template_encoding": "base64",
-		},
-	}
-
-	jsonData, err := json.Marshal(dynamicDocsReq)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal Dynamic Docs request: %w", err)
-	}
-
-	apiURL := "https://advicement.io/api/documents/compile"
-	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", fmt.Errorf("failed to create Dynamic Docs request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+dynamicDocsAPIKey)
-
-	log.Printf("🔄 Sending request to Dynamic Documents API...")
-
-	client := &http.Client{Timeout: 180 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to call Dynamic Docs API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if resp.StatusCode != 200 {
-		log.Printf("❌ Dynamic Docs API error response: %s", string(body))
-		return "", fmt.Errorf("Dynamic Docs API error %d: %s", resp.StatusCode, string(body))
-	}
-
-	log.Printf("✅ Successfully received PDF from Dynamic Documents API (%d bytes)", len(body))
-
-	// Check if response is JSON (contains download URL) or binary (PDF data)
-	contentType := resp.Header.Get("Content-Type")
-	if contentType == "application/json" {
-		var jsonResp map[string]interface{}
-		if err := json.Unmarshal(body, &jsonResp); err == nil {
-			if downloadURL, ok := jsonResp["download_url"].(string); ok {
-				log.Printf("📎 Using PDF download URL from Dynamic Docs API")
-				return downloadURL, nil
-			}
-			if errorMsg, ok := jsonResp["error"].(string); ok {
-				return "", fmt.Errorf("Dynamic Docs API error: %s", errorMsg)
-			}
+func generateMarkdownReportWithClaude(data AssessmentData) (string, error) {
+	// Count responses with comments
+	commentsCount := 0
+	for _, qa := range data.QuestionsAndAnswers {
+		if qa.Comment != nil && *qa.Comment != "" {
+			commentsCount++
 		}
 	}
 
-	// If response is binary PDF data, upload to GCS
-	log.Printf("☁️  Uploading PDF to Google Cloud Storage...")
-	pdfURL, err := uploadToGCS(body, reportID)
+	// Calculate completion rate
+	completionRate := float64(data.Metadata.AnsweredQuestions) / float64(data.Metadata.TotalQuestions) * 100
+
+	// Serialize the complete assessment data for Claude to analyze
+	assessmentJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		return "", fmt.Errorf("failed to upload PDF to GCS: %w", err)
+		return "", fmt.Errorf("failed to serialize assessment data: %w", err)
 	}
 
-	return pdfURL, nil
-}
+	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. Use the complete assessment data to provide detailed analysis of individual responses and comments.
 
-func uploadToGCS(pdfData []byte, reportID string) (string, error) {
-	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
+COMPLETE ASSESSMENT DATA (JSON):
+%s
+
+SUMMARY:
+- Test Date: %s
+- Total Score: %d/%d (Clinical threshold: 65, Neurotypical average: 26)
+- Social Score: %d/%d (Clinical threshold: 30, Neurotypical average: 12.5)
+- Sensory Score: %d/%d (Clinical threshold: 15, Neurotypical average: 6.5)
+- Restricted Score: %d/%d (Clinical threshold: 14, Neurotypical average: 4.5)
+- Language Score: %d/%d (Clinical threshold: 3, Neurotypical average: 2.5)
+- Interpretation: %s - %s
+- Questions answered: %d/%d (%.1f%%)
+- Comments provided: %d
+
+ANALYSIS INSTRUCTIONS:
+1. Review each individual question and answer in the JSON data
+2. Pay special attention to comments provided - these give insight into personal experiences
+3. Analyze patterns across domains (Social, Sensory/Motor, Restricted Interests, Language)
+4. Look for specific behaviors and traits mentioned in comments
+5. Provide clinical insights based on individual responses, not just aggregate scores
+6. Reference specific question numbers and responses where relevant
+7. Provide evidence-based clinical interpretation
+
+REQUIRED MARKDOWN STRUCTURE:
+
+# Executive Summary
+
+Provide a clear summary of the assessment results, including the overall interpretation and key findings.
+
+## Score Overview
+
+Summarize the domain scores and their clinical significance. Do not make a table, there's already one before.
+
+# Detailed Analysis by Domain
+
+## Social Domain Analysis
+
+Provide detailed analysis of the social domain score (%d/%d points). Include:
+- Comparison to clinical thresholds and neurotypical averages
+- Specific questions and responses that contributed to this score
+- Comments that provide insight into social experiences
+- Clinical interpretation of the pattern of responses
+
+## Sensory/Motor Domain Analysis  
+
+Provide detailed analysis of the sensory/motor domain score (%d/%d points). Include:
+- Analysis of sensory processing patterns
+- Motor coordination and proprioception findings
+- Specific examples from responses and comments
+- Clinical significance of the patterns observed
+
+## Restricted Interests Domain Analysis
+
+Provide detailed analysis of the restricted interests domain score (%d/%d points). Include:
+- Analysis of special interests and obsessions
+- Routine and ritual behaviors
+- Resistance to change patterns
+- Specific examples from participant responses
+
+## Language Domain Analysis
+
+Provide detailed analysis of the language domain score (%d/%d points). Include:
+- Communication patterns and pragmatic language use
+- Literal interpretation tendencies
+- Social communication challenges
+- Specific linguistic behaviors noted
+
+# Clinical Interpretation and Recommendations
+
+Provide comprehensive clinical interpretation based on the complete assessment profile. Include:
+- Overall diagnostic considerations
+- Strengths and challenges identified
+- Recommended next steps or referrals
+- Therapeutic considerations
+
+# Notable Response Patterns
+
+Highlight specific questions where responses were particularly informative, especially those with comments that provide personal insights.
+
+# Conclusion
+
+Provide a clear, evidence-based conclusion with actionable recommendations.
+
+IMPORTANT:
+- Write in professional clinical language
+- Base all analysis on the actual assessment data provided
+- Reference specific question numbers and responses where relevant
+- Include direct quotes from comments when they provide insight
+- Provide evidence-based interpretations
+- Keep analysis objective and clinical
+- Do not make diagnostic statements beyond the scope of the RAADS-R`,
+		string(assessmentJSON),
+		data.Metadata.TestDate.Format("January 2, 2006"),
+		data.Scores.Total, data.Scores.MaxTotal,
+		data.Scores.Social, data.Scores.MaxSocial,
+		data.Scores.Sensory, data.Scores.MaxSensory,
+		data.Scores.Restricted, data.Scores.MaxRestricted,
+		data.Scores.Language, data.Scores.MaxLanguage,
+		data.Interpretation.Level,
+		data.Interpretation.Description,
+		data.Metadata.AnsweredQuestions, data.Metadata.TotalQuestions, completionRate,
+		commentsCount,
+		data.Scores.Social, data.Scores.MaxSocial,
+		data.Scores.Sensory, data.Scores.MaxSensory,
+		data.Scores.Restricted, data.Scores.MaxRestricted,
+		data.Scores.Language, data.Scores.MaxLanguage)
+
+	claudeReq := ClaudeRequest{
+		Model:     "claude-sonnet-4-20250514",
+		MaxTokens: 8000,
+		Messages: []Message{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(claudeReq)
 	if err != nil {
-		return "", fmt.Errorf("failed to create GCS client: %w", err)
-	}
-	defer client.Close()
-
-	bucket := client.Bucket(gcsBucket)
-	filename := fmt.Sprintf("reports/raads_report_%s_%s.pdf",
-		time.Now().Format("2006-01-02"),
-		reportID)
-
-	obj := bucket.Object(filename)
-
-	w := obj.NewWriter(ctx)
-	w.ContentType = "application/pdf"
-	w.CacheControl = "public, max-age=3600"
-	w.Metadata = map[string]string{
-		"report-id":  reportID,
-		"service":    "raads-r-pdf",
-		"created-at": time.Now().UTC().Format(time.RFC3339),
+		return "", fmt.Errorf("failed to marshal Claude request: %w", err)
 	}
 
-	// Make the object publicly readable
-	w.ACL = []storage.ACLRule{{Entity: storage.AllUsers, Role: storage.RoleReader}}
-
-	if _, err := w.Write(pdfData); err != nil {
-		w.Close()
-		return "", fmt.Errorf("failed to write PDF to GCS: %w", err)
+	req, err := http.NewRequest("POST", "https://api.anthropic.com/v1/messages", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", fmt.Errorf("failed to create Claude request: %w", err)
 	}
 
-	if err := w.Close(); err != nil {
-		return "", fmt.Errorf("failed to close GCS writer: %w", err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", claudeAPIKey)
+	req.Header.Set("anthropic-version", "2023-06-01")
+
+	client := &http.Client{Timeout: 90 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to call Claude API: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("Claude API error %d: %s", resp.StatusCode, string(body))
 	}
 
-	log.Printf("✅ Uploaded PDF to GCS: %s", filename)
+	var claudeResp ClaudeResponse
+	if err := json.NewDecoder(resp.Body).Decode(&claudeResp); err != nil {
+		return "", fmt.Errorf("failed to decode Claude response: %w", err)
+	}
 
-	// Return public URL
-	return fmt.Sprintf("https://storage.googleapis.com/%s/%s", gcsBucket, filename), nil
+	if len(claudeResp.Content) == 0 {
+		return "", fmt.Errorf("empty response from Claude API")
+	}
+
+	return claudeResp.Content[0].Text, nil
 }
