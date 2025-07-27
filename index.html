@@ -212,6 +212,14 @@
     </div>
 
     <script>
+        // Environment configuration
+        const CONFIG = {
+            API_BASE: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:8080'
+                : 'https://raads-pdf-service-3n4fdvjefq-oa.a.run.app',
+            TIMEOUT: 60000  // 1 minute timeout for report generation
+        };
+
         let lang = null;
         let currentLanguage = 'en'; // Default language
         let questions = [];
@@ -953,7 +961,7 @@ ${copyText.disclaimer}`;
                     const fullData = generateFullJSON();
                     
                     // Call the backend API
-                    const response = await fetch('https://raads-pdf-service-3n4fdvjefq-oa.a.run.app/generate-pdf', {
+                    const response = await fetch(`${CONFIG.API_BASE}/generate-pdf`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
