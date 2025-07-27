@@ -80,13 +80,6 @@ type ContentBlock struct {
 	Text string `json:"text"`
 }
 
-type DynamicDocsRequest struct {
-	Template     string            `json:"template"`
-	Engine       string            `json:"engine"`
-	OutputFormat string            `json:"output_format"`
-	Options      map[string]string `json:"options,omitempty"`
-}
-
 type PDFResponse struct {
 	Success     bool      `json:"success"`
 	PDFURL      string    `json:"pdf_url"`
@@ -95,22 +88,13 @@ type PDFResponse struct {
 }
 
 var (
-	claudeAPIKey      = os.Getenv("CLAUDE_API_KEY")
-	dynamicDocsAPIKey = os.Getenv("DYNAMIC_DOCS_API_KEY")
-	gcsBucket         = os.Getenv("GCS_BUCKET")
-	projectID         = os.Getenv("GOOGLE_CLOUD_PROJECT")
+	claudeAPIKey = os.Getenv("CLAUDE_API_KEY")
 )
 
 func main() {
 	// Validate required environment variables
 	if claudeAPIKey == "" {
 		log.Fatal("CLAUDE_API_KEY environment variable is required")
-	}
-	if dynamicDocsAPIKey == "" {
-		log.Fatal("DYNAMIC_DOCS_API_KEY environment variable is required")
-	}
-	if gcsBucket == "" {
-		log.Fatal("GCS_BUCKET environment variable is required")
 	}
 
 	// Set Gin mode based on environment
@@ -127,7 +111,6 @@ func main() {
 	// Routes
 	r.GET("/health", healthCheck)
 	r.POST("/generate-pdf", generatePDFHandler)
-	r.GET("/status/:reportId", getReportStatus)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -135,8 +118,7 @@ func main() {
 	}
 
 	log.Printf("🚀 RAADS-R PDF Service starting on port %s", port)
-	log.Printf("📊 Using Claude API for LaTeX generation")
-	log.Printf("☁️  Using GCS bucket: %s", gcsBucket)
+	log.Printf("📊 Using Claude API for report generation")
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
@@ -180,15 +162,6 @@ func healthCheck(c *gin.Context) {
 		"service":   "raads-r-pdf-service",
 		"timestamp": time.Now().UTC(),
 		"version":   "1.0.0",
-	})
-}
-
-func getReportStatus(c *gin.Context) {
-	reportID := c.Param("reportId")
-	// This could be extended to check report status from a database
-	c.JSON(200, gin.H{
-		"report_id": reportID,
-		"status":    "completed",
 	})
 }
 
