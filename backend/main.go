@@ -725,6 +725,21 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
             background: #2980b9;
         }
         
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0 20px 10px;
+        }
+        
+        .close-btn:hover {
+            background: #c0392b;
+        }
+        
         /* Participant information styling */
         .participant-info {
             background: #f8f9fa;
