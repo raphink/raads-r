@@ -985,6 +985,7 @@ ${copyText.disclaimer}`;
             const interpretation = getInterpretation(results.total);
 
             const fullData = {
+                language: currentLanguage, // Add current language for backend
                 metadata: {
                     testName: "RAADS-R",
                     testDate: new Date().toISOString(),

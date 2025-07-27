@@ -17,6 +17,7 @@ import (
 )
 
 type AssessmentData struct {
+	Language            string              `json:"language"`
 	Metadata            Metadata            `json:"metadata"`
 	Scores              Scores              `json:"scores"`
 	Interpretation      Interpretation      `json:"interpretation"`
@@ -297,18 +298,118 @@ func generatePDFHandler(c *gin.Context) {
 	})
 }
 
-// generateHTMLReport creates a print-ready HTML document with CSS styling and charts
-func generateHTMLReport(markdownContent string, data AssessmentData, reportID string) string {
-	// Calculate total score from the data structure
-	totalScore := data.Scores.Total
+// getLanguageStrings returns localized strings for the given language
+func getLanguageStrings(language string) map[string]string {
+	if language == "fr" {
+		return map[string]string{
+			"lang":                   "fr",
+			"title":                  "Rapport d'évaluation RAADS-R",
+			"print_report":           "🖨️ Imprimer le rapport",
+			"close_report":           "❌ Fermer le rapport",
+			"assessment_report":      "RAPPORT D'ÉVALUATION",
+			"scale_subtitle":         "Échelle diagnostique d'Asperger et d'autisme de Ritvo - Révisée",
+			"participant":            "Participant :",
+			"age":                    "Âge :",
+			"name_placeholder":       "[Nom à remplir]",
+			"age_placeholder":        "[Âge]",
+			"age_suffix":             " ans",
+			"assessment_summary":     "Résumé de l'évaluation",
+			"total_score":            "Score total :",
+			"assessment_date":        "Date d'évaluation :",
+			"footer_disclaimer":      "Ce rapport a été généré en utilisant l'outil d'évaluation RAADS-R<br><em>Ceci n'est pas un diagnostic clinique et ne doit pas remplacer une évaluation professionnelle</em>",
+			"instructions_title":     "📝 Instructions",
+			"before_printing":        "Avant d'imprimer :",
+			"fill_info":              "Veuillez remplir vos informations personnelles ci-dessous. Ces informations apparaîtront dans le rapport imprimé mais <em>ne seront pas sauvegardées</em>.",
+			"enter_name":             "Entrez votre nom (ou identifiant préféré)",
+			"specify_age":            "Spécifiez votre âge au moment de l'évaluation",
+			"click_print":            "Une fois rempli, cliquez sur le bouton Imprimer ci-dessus pour générer votre PDF",
+			"participant_info":       "Informations du participant",
+			"name_label":             "Nom :",
+			"age_label":              "Âge :",
+			"name_input_placeholder": "Entrez le nom du participant",
+			"age_input_placeholder":  "Entrez l'âge",
+			"assessment_results":     "Résultats de l'évaluation",
+			"score_distribution":     "Répartition des scores par domaine",
+			"social":                 "Social",
+			"language":               "Langage",
+			"sensory_motor":          "Sensoriel/Moteur",
+			"restricted":             "Restreint",
+			"total":                  "Total",
+			"your_score":             "Votre score",
+			"autistic_threshold":     "Seuil autistique",
+			"neurotypical_average":   "Moyenne neurotypique",
+			"maximum_possible":       "Maximum possible",
+			"appendix_title":         "Annexe : Questions et réponses",
+			"appendix_description":   "Réponses complètes de l'évaluation avec les commentaires du participant lorsqu'ils sont fournis.",
+			"generated_on":           "Généré le",
+			"by":                     "par",
+			"report_id":              "ID du rapport :",
+			"header_report_title":    "Rapport d'évaluation RAADS-R",
+			"footer_generated_by":    "Généré par raphink.github.io/raads-r",
+			"header_participant":     "[Nom à remplir] - [Âge] ans",
+		}
+	}
 
-	// Create HTML template with placeholders
-	htmlTemplate := `<!DOCTYPE html>
-<html lang="en">
+	// Default to English
+	return map[string]string{
+		"lang":                   "en",
+		"title":                  "RAADS-R Assessment Report",
+		"print_report":           "🖨️ Print Report",
+		"close_report":           "❌ Close Report",
+		"assessment_report":      "ASSESSMENT REPORT",
+		"scale_subtitle":         "Ritvo Autism Asperger Diagnostic Scale - Revised",
+		"participant":            "Participant:",
+		"age":                    "Age:",
+		"name_placeholder":       "[Name to be filled]",
+		"age_placeholder":        "[Age]",
+		"age_suffix":             " years",
+		"assessment_summary":     "Assessment Summary",
+		"total_score":            "Total Score:",
+		"assessment_date":        "Assessment Date:",
+		"footer_disclaimer":      "This report was generated using the RAADS-R assessment tool<br><em>This is not a clinical diagnosis and should not replace professional evaluation</em>",
+		"instructions_title":     "📝 Instructions",
+		"before_printing":        "Before printing:",
+		"fill_info":              "Please fill in your personal information below. This information will appear in the printed report but <em>will not be saved</em>.",
+		"enter_name":             "Enter your name (or preferred identifier)",
+		"specify_age":            "Specify your age at the time of assessment",
+		"click_print":            "Once filled, click the Print button above to generate your PDF",
+		"participant_info":       "Participant Information",
+		"name_label":             "Name:",
+		"age_label":              "Age:",
+		"name_input_placeholder": "Enter participant name",
+		"age_input_placeholder":  "Enter age",
+		"assessment_results":     "Assessment Results",
+		"score_distribution":     "Score Distribution by Domain",
+		"social":                 "Social",
+		"language":               "Language",
+		"sensory_motor":          "Sensory/Motor",
+		"restricted":             "Restricted",
+		"total":                  "Total",
+		"your_score":             "Your Score",
+		"autistic_threshold":     "Autistic Threshold",
+		"neurotypical_average":   "Neurotypical Average",
+		"maximum_possible":       "Maximum Possible",
+		"appendix_title":         "Appendix: Questions and Answers",
+		"appendix_description":   "Complete assessment responses with participant comments where provided.",
+		"generated_on":           "Generated on",
+		"by":                     "by",
+		"report_id":              "Report ID:",
+		"header_report_title":    "RAADS-R Assessment Report",
+		"footer_generated_by":    "Generated by raphink.github.io/raads-r",
+		"header_participant":     "[Name to be filled] - [Age] years",
+	}
+}
+
+// getHTMLTemplate returns the HTML template with language-specific strings
+func getHTMLTemplate(language string) string {
+	langStrings := getLanguageStrings(language)
+
+	template := `<!DOCTYPE html>
+<html lang="{{LANG}}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAADS-R Assessment Report</title>
+    <title>{{TITLE}}</title>
     <style>
         /* Print-optimized CSS */
         @media print {
@@ -331,14 +432,14 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
             @page {
                 margin: 5cm 2cm 4cm 2cm;
                 @top-left {
-                    content: "RAADS-R Assessment Report";
+                    content: "{{HEADER_REPORT_TITLE}}";
                     font-size: 12pt;
                     font-weight: bold;
                     color: #2c3e50;
                     border-bottom: 2px solid #3498db;
                 }
                 @top-center {
-                    content: var(--participant-header, "[Name to be filled] - [Age] years");
+                    content: var(--participant-header, "{{HEADER_PARTICIPANT}}");
                     font-size: 12pt;
                     font-weight: bold;
                     color: #2c3e50;
@@ -352,7 +453,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
                     border-bottom: 2px solid #3498db;
                 }
                 @bottom-center {
-                    content: "Generated by raphink.github.io/raads-r";
+                    content: "{{FOOTER_GENERATED_BY}}";
                     font-size: 9pt;
                     color: #666;
                     border-top: 1px solid #ddd;
@@ -924,18 +1025,18 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
     <script>
         // Update participant information dynamically
         function updateParticipantInfo() {
-            const name = document.getElementById('participant-name').value || '[Name to be filled]';
-            const age = document.getElementById('participant-age').value || '[Age]';
+            const name = document.getElementById('participant-name').value || '{{NAME_PLACEHOLDER}}';
+            const age = document.getElementById('participant-age').value || '{{AGE_PLACEHOLDER}}';
             
 			// Update CSS custom property for print header
-            document.documentElement.style.setProperty('--participant-header', '"' + name + ' - ' + age + ' years"');
+            document.documentElement.style.setProperty('--participant-header', '"' + name + ' - ' + age + '{{AGE_SUFFIX}}"');
             
             // Update front page using CSS classes
             const participantName = document.querySelector('.participant-name');
             const participantAge = document.querySelector('.participant-age');
             
             if (participantName) participantName.textContent = name;
-            if (participantAge) participantAge.textContent = age + ' years';
+            if (participantAge) participantAge.textContent = age + '{{AGE_SUFFIX}}';
         }
         
         // Add event listeners when page loads
@@ -953,66 +1054,61 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
 </head>
 <body>
     <div class="no-print">
-        <button class="print-btn" onclick="window.print()">🖨️ Print Report</button>
-
-        <button class="close-btn" onclick="window.close()">❌ Close Report</button>
+        <button class="print-btn" onclick="window.print()">{{PRINT_REPORT}}</button>
+        <button class="close-btn" onclick="window.close()">{{CLOSE_REPORT}}</button>
     </div>
     
     <!-- Title Page -->
-        <!-- Front Page (Only visible when printing) -->
     <div class="title-page">
-        <h1>ASSESSMENT REPORT</h1>
-        <div class="subtitle">Ritvo Autism Asperger Diagnostic Scale - Revised</div>
+        <h1>{{ASSESSMENT_REPORT}}</h1>
+        <div class="subtitle">{{SCALE_SUBTITLE}}</div>
         
         <div class="participant-details">
-            <div style="margin-bottom: 15px;"><strong>Participant:</strong> <span class="participant-name">[Name to be filled]</span></div>
-            <div style="margin-bottom: 15px;"><strong>Age:</strong> <span class="participant-age">[Age] years</span></div>
+            <div style="margin-bottom: 15px;"><strong>{{PARTICIPANT}}</strong> <span class="participant-name">{{NAME_PLACEHOLDER}}</span></div>
+            <div style="margin-bottom: 15px;"><strong>{{AGE}}</strong> <span class="participant-age">{{AGE_PLACEHOLDER}}{{AGE_SUFFIX}}</span></div>
         </div>
         
         <div class="assessment-info">
-            <div style="font-size: 16pt; margin-bottom: 20px; font-weight: bold;">Assessment Summary</div>
-            <div style="font-size: 14pt; margin-bottom: 10px;">Total Score: <span style="font-weight: bold; font-size: 18pt;">{{TOTAL_SCORE}}/240</span></div>
-            <div style="font-size: 14pt;">Assessment Date: <span style="font-weight: bold;">{{ASSESSMENT_DATE}}</span></div>
+            <div style="font-size: 16pt; margin-bottom: 20px; font-weight: bold;">{{ASSESSMENT_SUMMARY}}</div>
+            <div style="font-size: 14pt; margin-bottom: 10px;">{{TOTAL_SCORE}} <span style="font-weight: bold; font-size: 18pt;">{{TOTAL_SCORE_VALUE}}/240</span></div>
+            <div style="font-size: 14pt;">{{ASSESSMENT_DATE}} <span style="font-weight: bold;">{{ASSESSMENT_DATE_VALUE}}</span></div>
         </div>
         <div class="footer-info">
-            This report was generated using the RAADS-R assessment tool<br>
-            <em>This is not a clinical diagnosis and should not replace professional evaluation</em>
+            {{FOOTER_DISCLAIMER}}
         </div>
     </div>
 
     <div class="no-print" style="background: #e8f4f8; border: 1px solid #3498db; border-radius: 8px; padding: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #2c3e50;">📝 Instructions</h3>
+        <h3 style="margin-top: 0; color: #2c3e50;">{{INSTRUCTIONS_TITLE}}</h3>
         <p style="margin: 10px 0; color: #2c3e50;">
-            <strong>Before printing:</strong> Please fill in your personal information below. 
-            This information will appear in the printed report but <em>will not be saved</em>.
+            <strong>{{BEFORE_PRINTING}}</strong> {{FILL_INFO}}
         </p>
         <ul style="margin: 10px 0; color: #2c3e50;">
-            <li>Enter your name (or preferred identifier)</li>
-            <li>Specify your age at the time of assessment</li>
-            <li>Once filled, click the Print button above to generate your PDF</li>
+            <li>{{ENTER_NAME}}</li>
+            <li>{{SPECIFY_AGE}}</li>
+            <li>{{CLICK_PRINT}}</li>
         </ul>
     </div>
 
     <div class="participant-info no-print">
-        <h3 style="margin-top: 0; color: #2c3e50;">Participant Information</h3>
+        <h3 style="margin-top: 0; color: #2c3e50;">{{PARTICIPANT_INFO}}</h3>
         <div class="participant-field">
-            <label for="participant-name">Name:</label>
-            <input type="text" id="participant-name" placeholder="Enter participant name" />
+            <label for="participant-name">{{NAME_LABEL}}</label>
+            <input type="text" id="participant-name" placeholder="{{NAME_INPUT_PLACEHOLDER}}" />
         </div>
         <div class="participant-field">
-            <label for="participant-age">Age:</label>
-            <input type="number" id="participant-age" placeholder="Enter age" min="18" max="100" />
+            <label for="participant-age">{{AGE_LABEL}}</label>
+            <input type="number" id="participant-age" placeholder="{{AGE_INPUT_PLACEHOLDER}}" min="18" max="100" />
         </div>
     </div>
 
-    <h1 style="margin-top: 40px;">Assessment Results</h1>
+    <h1 style="margin-top: 40px;">{{ASSESSMENT_RESULTS}}</h1>
 
-    
-    <h2>Score Distribution by Domain</h2>
+    <h2>{{SCORE_DISTRIBUTION}}</h2>
     <div class="chart-container">
         <div class="chart-wrapper">
             <div class="chart-item">
-                <div class="chart-label">Social</div>
+                <div class="chart-label">{{SOCIAL}}</div>
                 <div class="chart-container-inner">
                     <div class="max-score-label">{{SOCIAL_MAX}}</div>
                     <div class="score-bar" style="height: {{SOCIAL_BAR_HEIGHT}}%;">{{JS_SOCIAL_SCORE}}</div>
@@ -1021,7 +1117,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
                 </div>
             </div>
             <div class="chart-item">
-                <div class="chart-label">Language</div>
+                <div class="chart-label">{{LANGUAGE}}</div>
                 <div class="chart-container-inner">
                     <div class="max-score-label">{{LANGUAGE_MAX}}</div>
                     <div class="score-bar" style="height: {{LANGUAGE_BAR_HEIGHT}}%;">{{JS_LANGUAGE_SCORE}}</div>
@@ -1030,7 +1126,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
                 </div>
             </div>
             <div class="chart-item">
-                <div class="chart-label">Sensory/Motor</div>
+                <div class="chart-label">{{SENSORY_MOTOR}}</div>
                 <div class="chart-container-inner">
                     <div class="max-score-label">{{SENSORY_MAX}}</div>
                     <div class="score-bar" style="height: {{SENSORY_BAR_HEIGHT}}%;">{{JS_SENSORY_SCORE}}</div>
@@ -1039,7 +1135,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
                 </div>
             </div>
             <div class="chart-item">
-                <div class="chart-label">Restricted</div>
+                <div class="chart-label">{{RESTRICTED}}</div>
                 <div class="chart-container-inner">
                     <div class="max-score-label">{{RESTRICTED_MAX}}</div>
                     <div class="score-bar" style="height: {{RESTRICTED_BAR_HEIGHT}}%;">{{JS_RESTRICTED_SCORE}}</div>
@@ -1048,7 +1144,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
                 </div>
             </div>
             <div class="chart-item">
-                <div class="chart-label">Total</div>
+                <div class="chart-label">{{TOTAL}}</div>
                 <div class="chart-container-inner">
                     <div class="max-score-label">{{TOTAL_MAX}}</div>
                     <div class="score-bar" style="height: {{TOTAL_BAR_HEIGHT}}%;">{{JS_TOTAL_SCORE}}</div>
@@ -1060,19 +1156,19 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         <div class="chart-legend">
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #3498db;"></div>
-                <span>Your Score</span>
+                <span>{{YOUR_SCORE}}</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #e74c3c;"></div>
-                <span>Autistic Threshold</span>
+                <span>{{AUTISTIC_THRESHOLD}}</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #27ae60;"></div>
-                <span>Neurotypical Average</span>
+                <span>{{NEUROTYPICAL_AVERAGE}}</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #e8e8e8;"></div>
-                <span>Maximum Possible</span>
+                <span>{{MAXIMUM_POSSIBLE}}</span>
             </div>
         </div>
     </div>
@@ -1081,133 +1177,185 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
 
 	<div class="page-break"></div>
 	<div class="appendix-container">
-		<h2>Appendix: Questions and Answers</h2>
-		<p style="color: #666; margin-bottom: 20px;">Complete assessment responses with participant comments where provided.</p>
+		<h2>{{APPENDIX_TITLE}}</h2>
+		<p style="color: #666; margin-bottom: 20px;">{{APPENDIX_DESCRIPTION}}</p>
 		{{LIST_OF_QUESTIONS}}
 	</div>
 
 	<div class="footer">
-		<p>Generated on {{GENERATED_AT}} by raphink.github.io/raads-r</p>
-		<p>Report ID: {{REPORT_ID}}</p>
+		<p>{{GENERATED_ON}} {{GENERATED_AT}} {{BY}} raphink.github.io/raads-r</p>
+		<p>{{REPORT_ID}} {{REPORT_ID_VALUE}}</p>
 	</div>
 </body>
 </html>`
 
-	// Convert markdown to HTML using goldmark
-	htmlContent := convertMarkdownToHTML(markdownContent)
-
-	// Calculate bar heights for chart based on actual max scores per domain
-	// Use the MaxXXX values from the data structure for proper scaling
-
-	// Calculate percentages for bar heights (based on actual max scores)
-	socialHeight := (data.Scores.Social * 100) / data.Scores.MaxSocial
-	socialThresholdHeight := (31 * 100) / data.Scores.MaxSocial
-	socialAverageHeight := (11 * 100) / data.Scores.MaxSocial
-
-	languageHeight := (data.Scores.Language * 100) / data.Scores.MaxLanguage
-	languageThresholdHeight := (4 * 100) / data.Scores.MaxLanguage
-	languageAverageHeight := (2 * 100) / data.Scores.MaxLanguage
-
-	sensoryHeight := (data.Scores.Sensory * 100) / data.Scores.MaxSensory
-	sensoryThresholdHeight := (16 * 100) / data.Scores.MaxSensory
-	sensoryAverageHeight := (6 * 100) / data.Scores.MaxSensory
-
-	restrictedHeight := (data.Scores.Restricted * 100) / data.Scores.MaxRestricted
-	restrictedThresholdHeight := (24 * 100) / data.Scores.MaxRestricted
-	restrictedAverageHeight := (8 * 100) / data.Scores.MaxRestricted
-
-	totalHeight := (totalScore * 100) / data.Scores.MaxTotal
-	totalThresholdHeight := (65 * 100) / data.Scores.MaxTotal
-	totalAverageHeight := (25 * 100) / data.Scores.MaxTotal
-
-	// Replace placeholders with actual values
-	result := strings.ReplaceAll(htmlTemplate, "{{TOTAL_SCORE}}", fmt.Sprintf("%d", totalScore))
-	result = strings.ReplaceAll(result, "{{LANGUAGE_SCORE}}", fmt.Sprintf("%d", data.Scores.Language))
-	result = strings.ReplaceAll(result, "{{SOCIAL_SCORE}}", fmt.Sprintf("%d", data.Scores.Social))
-	result = strings.ReplaceAll(result, "{{SENSORY_SCORE}}", fmt.Sprintf("%d", data.Scores.Sensory))
-	result = strings.ReplaceAll(result, "{{RESTRICTED_SCORE}}", fmt.Sprintf("%d", data.Scores.Restricted))
-	result = strings.ReplaceAll(result, "{{MARKDOWN_CONTENT}}", htmlContent)
-
-	// Participant information placeholders (will be updated by JavaScript)
-	result = strings.ReplaceAll(result, "{{PARTICIPANT_NAME}}", "[Name to be filled]")
-	result = strings.ReplaceAll(result, "{{PARTICIPANT_AGE}}", "[Age]")
-
-	// Assessment date for title page
-	assessmentDate := data.Metadata.TestDate.Format("January 2, 2006")
-	result = strings.ReplaceAll(result, "{{ASSESSMENT_DATE}}", assessmentDate)
-
-	// Replace max score placeholders
-	result = strings.ReplaceAll(result, "{{SOCIAL_MAX}}", fmt.Sprintf("%d", data.Scores.MaxSocial))
-	result = strings.ReplaceAll(result, "{{LANGUAGE_MAX}}", fmt.Sprintf("%d", data.Scores.MaxLanguage))
-	result = strings.ReplaceAll(result, "{{SENSORY_MAX}}", fmt.Sprintf("%d", data.Scores.MaxSensory))
-	result = strings.ReplaceAll(result, "{{RESTRICTED_MAX}}", fmt.Sprintf("%d", data.Scores.MaxRestricted))
-	result = strings.ReplaceAll(result, "{{TOTAL_MAX}}", fmt.Sprintf("%d", data.Scores.MaxTotal))
-
-	// Replace score placeholders
-	result = strings.ReplaceAll(result, "{{JS_SOCIAL_SCORE}}", fmt.Sprintf("%d", data.Scores.Social))
-	result = strings.ReplaceAll(result, "{{JS_LANGUAGE_SCORE}}", fmt.Sprintf("%d", data.Scores.Language))
-	result = strings.ReplaceAll(result, "{{JS_SENSORY_SCORE}}", fmt.Sprintf("%d", data.Scores.Sensory))
-	result = strings.ReplaceAll(result, "{{JS_RESTRICTED_SCORE}}", fmt.Sprintf("%d", data.Scores.Restricted))
-	result = strings.ReplaceAll(result, "{{JS_TOTAL_SCORE}}", fmt.Sprintf("%d", totalScore))
-
-	// Replace bar height placeholders
-	result = strings.ReplaceAll(result, "{{SOCIAL_BAR_HEIGHT}}", fmt.Sprintf("%d", socialHeight))
-	result = strings.ReplaceAll(result, "{{SOCIAL_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", socialThresholdHeight))
-	result = strings.ReplaceAll(result, "{{SOCIAL_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", socialAverageHeight))
-
-	result = strings.ReplaceAll(result, "{{LANGUAGE_BAR_HEIGHT}}", fmt.Sprintf("%d", languageHeight))
-	result = strings.ReplaceAll(result, "{{LANGUAGE_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", languageThresholdHeight))
-	result = strings.ReplaceAll(result, "{{LANGUAGE_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", languageAverageHeight))
-
-	result = strings.ReplaceAll(result, "{{SENSORY_BAR_HEIGHT}}", fmt.Sprintf("%d", sensoryHeight))
-	result = strings.ReplaceAll(result, "{{SENSORY_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", sensoryThresholdHeight))
-	result = strings.ReplaceAll(result, "{{SENSORY_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", sensoryAverageHeight))
-
-	result = strings.ReplaceAll(result, "{{RESTRICTED_BAR_HEIGHT}}", fmt.Sprintf("%d", restrictedHeight))
-	result = strings.ReplaceAll(result, "{{RESTRICTED_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", restrictedThresholdHeight))
-	result = strings.ReplaceAll(result, "{{RESTRICTED_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", restrictedAverageHeight))
-
-	result = strings.ReplaceAll(result, "{{TOTAL_BAR_HEIGHT}}", fmt.Sprintf("%d", totalHeight))
-	result = strings.ReplaceAll(result, "{{TOTAL_THRESHOLD_HEIGHT}}", fmt.Sprintf("%d", totalThresholdHeight))
-	result = strings.ReplaceAll(result, "{{TOTAL_AVERAGE_HEIGHT}}", fmt.Sprintf("%d", totalAverageHeight))
-
-	// replace list of questions
-	var questionsList strings.Builder
-	for _, qa := range data.QuestionsAndAnswers {
-		// Determine category class for color coding
-		categoryClass := strings.ToLower(qa.Category)
-
-		questionsList.WriteString(fmt.Sprintf(`<div class="question-item">
-			<div class="question-header">
-				<span class="question-number">Q%d</span>
-				<span class="question-category %s">%s</span>
-			</div>
-			<div class="question-text">%s</div>
-			<div class="answer-section">
-				<div class="answer-text">Answer: %s<span class="score-badge">%d pts</span></div>`,
-			qa.ID, categoryClass, qa.Category, qa.Text, qa.AnswerText, qa.Score))
-
-		if qa.Comment != nil && *qa.Comment != "" {
-			questionsList.WriteString(fmt.Sprintf(`
-				<div class="comment-text">💭 Comment: %s</div>`, *qa.Comment))
-		}
-
-		questionsList.WriteString("</div></div>")
+	// Replace language placeholders with actual strings
+	for key, value := range langStrings {
+		placeholder := "{{" + strings.ToUpper(key) + "}}"
+		template = strings.ReplaceAll(template, placeholder, value)
 	}
-	result = strings.ReplaceAll(result, "{{LIST_OF_QUESTIONS}}", questionsList.String())
 
-	// replace generated at and report ID
-	generatedAt := time.Now().UTC().Format("January 2, 2006 at 3:04 PM")
-	result = strings.ReplaceAll(result, "{{GENERATED_AT}}", generatedAt)
-	result = strings.ReplaceAll(result, "{{REPORT_ID}}", reportID)
-
-	return result
+	return template
 }
 
-// convertMarkdownToHTML converts markdown to HTML using goldmark
-func convertMarkdownToHTML(markdown string) string {
-	var buf bytes.Buffer
+// generateHTMLReport creates a print-ready HTML document with CSS styling and charts
+func generateHTMLReport(markdownContent string, data AssessmentData, reportID string) string {
+	// Calculate total score from the data structure
+	totalScore := data.Scores.Total
+
+	// Get the HTML template based on language
+	htmlTemplate := getHTMLTemplate(data.Language)
+
+	// Replace score placeholders
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{TOTAL_SCORE}}", fmt.Sprintf("%d", totalScore))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{JS_TOTAL_SCORE}}", fmt.Sprintf("%d", totalScore))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{JS_SOCIAL_SCORE}}", fmt.Sprintf("%d", data.Scores.Social))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{JS_LANGUAGE_SCORE}}", fmt.Sprintf("%d", data.Scores.Language))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{JS_SENSORY_SCORE}}", fmt.Sprintf("%d", data.Scores.Sensory))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{JS_RESTRICTED_SCORE}}", fmt.Sprintf("%d", data.Scores.Restricted))
+
+	// Maximum scores for each domain
+	socialMax := 117    // 39 questions × 3 points
+	languageMax := 21   // 7 questions × 3 points
+	sensoryMax := 42    // 14 questions × 3 points
+	restrictedMax := 60 // 20 questions × 3 points
+	totalMax := 240     // Total maximum
+
+	// Replace max score placeholders
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SOCIAL_MAX}}", fmt.Sprintf("%d", socialMax))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{LANGUAGE_MAX}}", fmt.Sprintf("%d", languageMax))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SENSORY_MAX}}", fmt.Sprintf("%d", sensoryMax))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{RESTRICTED_MAX}}", fmt.Sprintf("%d", restrictedMax))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{TOTAL_MAX}}", fmt.Sprintf("%d", totalMax))
+
+	// Calculate bar heights as percentages
+	socialBarHeight := float64(data.Scores.Social) / float64(socialMax) * 100
+	languageBarHeight := float64(data.Scores.Language) / float64(languageMax) * 100
+	sensoryBarHeight := float64(data.Scores.Sensory) / float64(sensoryMax) * 100
+	restrictedBarHeight := float64(data.Scores.Restricted) / float64(restrictedMax) * 100
+	totalBarHeight := float64(totalScore) / float64(totalMax) * 100
+
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SOCIAL_BAR_HEIGHT}}", fmt.Sprintf("%.1f", socialBarHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{LANGUAGE_BAR_HEIGHT}}", fmt.Sprintf("%.1f", languageBarHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SENSORY_BAR_HEIGHT}}", fmt.Sprintf("%.1f", sensoryBarHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{RESTRICTED_BAR_HEIGHT}}", fmt.Sprintf("%.1f", restrictedBarHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{TOTAL_BAR_HEIGHT}}", fmt.Sprintf("%.1f", totalBarHeight))
+
+	// Threshold heights as percentages (autism threshold markers)
+	socialThresholdHeight := float64(31) / float64(socialMax) * 100         // Social threshold: 31
+	languageThresholdHeight := float64(4) / float64(languageMax) * 100      // Language threshold: 4
+	sensoryThresholdHeight := float64(16) / float64(sensoryMax) * 100       // Sensory/Motor threshold: 16
+	restrictedThresholdHeight := float64(24) / float64(restrictedMax) * 100 // Restricted threshold: 24
+	totalThresholdHeight := float64(65) / float64(totalMax) * 100           // Total threshold: 65
+
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SOCIAL_THRESHOLD_HEIGHT}}", fmt.Sprintf("%.1f", socialThresholdHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{LANGUAGE_THRESHOLD_HEIGHT}}", fmt.Sprintf("%.1f", languageThresholdHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SENSORY_THRESHOLD_HEIGHT}}", fmt.Sprintf("%.1f", sensoryThresholdHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{RESTRICTED_THRESHOLD_HEIGHT}}", fmt.Sprintf("%.1f", restrictedThresholdHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{TOTAL_THRESHOLD_HEIGHT}}", fmt.Sprintf("%.1f", totalThresholdHeight))
+
+	// Average heights as percentages (neurotypical average markers)
+	socialAverageHeight := float64(11) / float64(socialMax) * 100        // Social average: 11
+	languageAverageHeight := float64(2) / float64(languageMax) * 100     // Language average: 2
+	sensoryAverageHeight := float64(6) / float64(sensoryMax) * 100       // Sensory/Motor average: 6
+	restrictedAverageHeight := float64(8) / float64(restrictedMax) * 100 // Restricted average: 8
+	totalAverageHeight := float64(25) / float64(totalMax) * 100          // Total average: 25
+
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SOCIAL_AVERAGE_HEIGHT}}", fmt.Sprintf("%.1f", socialAverageHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{LANGUAGE_AVERAGE_HEIGHT}}", fmt.Sprintf("%.1f", languageAverageHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{SENSORY_AVERAGE_HEIGHT}}", fmt.Sprintf("%.1f", sensoryAverageHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{RESTRICTED_AVERAGE_HEIGHT}}", fmt.Sprintf("%.1f", restrictedAverageHeight))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{TOTAL_AVERAGE_HEIGHT}}", fmt.Sprintf("%.1f", totalAverageHeight))
+
+	// Replace markdown content
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{MARKDOWN_CONTENT}}", markdownToHTML(markdownContent))
+
+	// Generate list of questions and answers
+	questionsHTML := generateQuestionsHTML(data.QuestionsAndAnswers, data.Language)
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{LIST_OF_QUESTIONS}}", questionsHTML)
+
+	// Replace metadata placeholders
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{TOTAL_SCORE_VALUE}}", fmt.Sprintf("%d", totalScore))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{ASSESSMENT_DATE_VALUE}}", data.Metadata.TestDate.Format("January 2, 2006"))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{REPORT_ID_VALUE}}", reportID)
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{ASSESSMENT_DATE}}", data.Metadata.TestDate.Format("January 2, 2006"))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{GENERATED_AT}}", time.Now().Format("January 2, 2006 at 3:04 PM"))
+	htmlTemplate = strings.ReplaceAll(htmlTemplate, "{{REPORT_ID}}", reportID)
+
+	return htmlTemplate
+}
+
+// generateQuestionsHTML creates HTML for all questions and answers
+func generateQuestionsHTML(questionsAndAnswers []QuestionAndAnswer, language string) string {
+	var html strings.Builder
+
+	// Answer text mappings for different languages
+	answerTexts := map[string]map[int]string{
+		"en": {
+			0: "Never true",
+			1: "Sometimes true",
+			2: "Often true",
+			3: "Always true",
+		},
+		"fr": {
+			0: "Jamais vrai",
+			1: "Parfois vrai",
+			2: "Souvent vrai",
+			3: "Toujours vrai",
+		},
+	}
+
+	answers := answerTexts["en"] // Default to English
+	if lang, exists := answerTexts[language]; exists {
+		answers = lang
+	}
+
+	for _, qa := range questionsAndAnswers {
+		// Get category class name
+		categoryClass := getCategoryClass(qa.Category)
+
+		html.WriteString(`<div class="question-item">`)
+		html.WriteString(`<div class="question-header">`)
+		html.WriteString(`<div class="question-number">` + fmt.Sprintf("%d", qa.ID) + `</div>`)
+		html.WriteString(`<div class="question-category ` + categoryClass + `">` + qa.Category + `</div>`)
+		html.WriteString(`</div>`)
+		html.WriteString(`<div class="question-text">` + qa.Text + `</div>`)
+		html.WriteString(`<div class="answer-section">`)
+
+		answerText := answers[qa.Answer]
+		html.WriteString(`<div class="answer-text">` + answerText + `<span class="score-badge">` + fmt.Sprintf("%d", qa.Answer) + ` pts</span></div>`)
+
+		if qa.Comment != nil && *qa.Comment != "" {
+			html.WriteString(`<div class="comment-text">"` + *qa.Comment + `"</div>`)
+		}
+
+		html.WriteString(`</div>`)
+		html.WriteString(`</div>`)
+	}
+
+	return html.String()
+}
+
+// getCategoryClass returns the CSS class for a question category
+func getCategoryClass(category string) string {
+	switch category {
+	case "Social Relatedness", "Relations sociales":
+		return "social"
+	case "Language", "Langage":
+		return "language"
+	case "Sensory/Motor", "Sensoriel/Moteur":
+		return "sensory"
+	case "Restricted/Repetitive", "Restreint/Répétitif":
+		return "restricted"
+	default:
+		return ""
+	}
+}
+
+// markdownToHTML converts markdown to HTML
+func markdownToHTML(markdown string) string {
 	md := goldmark.New()
+	var buf bytes.Buffer
 	if err := md.Convert([]byte(markdown), &buf); err != nil {
 		log.Printf("❌ Error converting markdown to HTML: %v", err)
 		// Fallback to simple text conversion
@@ -1217,6 +1365,10 @@ func convertMarkdownToHTML(markdown string) string {
 }
 
 func validateAssessmentData(data AssessmentData) error {
+	if data.Language != "en" && data.Language != "fr" {
+		return fmt.Errorf("invalid language: %s", data.Language)
+	}
+
 	if len(data.QuestionsAndAnswers) == 0 {
 		return fmt.Errorf("no questions and answers provided")
 	}
@@ -1255,7 +1407,13 @@ func generateMarkdownReportWithClaude(data AssessmentData) (string, error) {
 		return "", fmt.Errorf("failed to serialize assessment data: %w", err)
 	}
 
-	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. Use the complete assessment data to provide detailed analysis of individual responses and comments.
+	// Determine language for Claude response
+	language := "English"
+	if data.Language == "fr" {
+		language = "French"
+	}
+
+	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. RESPOND ENTIRELY IN %s LANGUAGE using appropriate clinical terminology.
 
 COMPLETE ASSESSMENT DATA (JSON):
 %s
@@ -1311,7 +1469,7 @@ Highlight specific questions where responses were particularly informative, espe
 Provide a clear, evidence-based conclusion with actionable recommendations.
 
 IMPORTANT:
-- Write in professional clinical language
+- Write in professional clinical language IN %s
 - Use EXACT markdown structure, NO top extra title or section, NO tables
 - Base all analysis on the actual assessment data provided
 - Reference specific question numbers and responses where relevant
@@ -1319,6 +1477,7 @@ IMPORTANT:
 - Provide evidence-based interpretations
 - Keep analysis objective and clinical
 - Do not make diagnostic statements beyond the scope of the RAADS-R`,
+		language,
 		string(assessmentJSON),
 		data.Metadata.TestDate.Format("January 2, 2006"),
 		data.Scores.Total, data.Scores.MaxTotal,
@@ -1330,10 +1489,7 @@ IMPORTANT:
 		data.Interpretation.Description,
 		data.Metadata.AnsweredQuestions, data.Metadata.TotalQuestions, completionRate,
 		commentsCount,
-		data.Scores.Social, data.Scores.MaxSocial,
-		data.Scores.Sensory, data.Scores.MaxSensory,
-		data.Scores.Restricted, data.Scores.MaxRestricted,
-		data.Scores.Language, data.Scores.MaxLanguage)
+		language)
 
 	claudeReq := ClaudeRequest{
 		Model:     "claude-sonnet-4-20250514",
