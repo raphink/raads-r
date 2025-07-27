@@ -111,6 +111,18 @@
         "160+": "Preuve très solide de TSA"
       },
       "disclaimer": "IMPORTANT: Ce test est un outil d'aide au diagnostic uniquement.\nConsultez un professionnel de santé qualifié pour un diagnostic officiel."
+    },
+    "cachedReports": {
+      "title": "📁 Rapports en cache",
+      "description": "Vos rapports générés sont mis en cache localement pendant 30 jours. Vous pouvez les rouvrir même après avoir fermé votre navigateur.",
+      "close": "Fermer",
+      "noReports": "Aucun rapport en cache trouvé.",
+      "reportFrom": "Rapport du",
+      "score": "Score :",
+      "open": "📄 Ouvrir",
+      "delete": "🗑️ Supprimer",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce rapport en cache ?",
+      "notFound": "Rapport introuvable ou expiré."
     }
   },
   "options": [
