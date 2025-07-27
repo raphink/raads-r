@@ -1028,20 +1028,6 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         </div>
     </div>
     
-
-    <div class="no-print" style="background: #e8f4f8; border: 1px solid #3498db; border-radius: 8px; padding: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #2c3e50;">📝 Instructions</h3>
-        <p style="margin: 10px 0; color: #2c3e50;">
-            <strong>Before printing:</strong> Please fill in your personal information below. 
-            This information will appear in the printed report but these instructions will not.
-        </p>
-        <ul style="margin: 10px 0; color: #2c3e50;">
-            <li>Enter your name (or preferred identifier)</li>
-            <li>Specify your age at the time of assessment</li>
-            <li>Once filled, click the Print button above to generate your PDF</li>
-        </ul>
-    </div>
-    
     {{MARKDOWN_CONTENT}}
 
 	<div class="page-break"></div>
