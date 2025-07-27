@@ -111,6 +111,18 @@
         "160+": "Very strong evidence of ASD"
       },
       "disclaimer": "IMPORTANT: This test is a diagnostic aid tool only.\nConsult a qualified healthcare professional for an official diagnosis."
+    },
+    "cachedReports": {
+      "title": "📁 Cached Reports",
+      "description": "Your generated reports are cached locally for 30 days. You can reopen them even after closing your browser.",
+      "close": "Close",
+      "noReports": "No cached reports found.",
+      "reportFrom": "Report from",
+      "score": "Score:",
+      "open": "📄 Open",
+      "delete": "🗑️ Delete",
+      "confirmDelete": "Are you sure you want to delete this cached report?",
+      "notFound": "Report not found or has expired."
     }
   },
   "options": [

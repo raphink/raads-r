@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title"></title>
+    <title id="page-title" data-translate="meta.title"></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -45,12 +45,11 @@
         <div class="alert alert-primary border-start border-primary border-4" role="alert">
             <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <h1 id="main-title" class="h2 mb-2 text-primary">RAADS-R</h1>
-                    <p id="main-subtitle" class="mb-0"></p>
+                    <h1 id="main-title" class="h2 mb-2 text-primary" data-translate="ui.header.title">RAADS-R</h1>
+                    <p id="main-subtitle" class="mb-0" data-translate="ui.header.subtitle"></p>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <button id="cached-reports-btn" class="btn btn-outline-info btn-sm" onclick="showCachedReports()">
-                        📁 Cached Reports
+                    <button id="cached-reports-btn" class="btn btn-outline-info btn-sm" onclick="showCachedReports()" style="display: none;">
                     </button>
                     <a href="https://github.com/raphink/raads-r" target="_blank" class="btn btn-outline-secondary btn-sm" title="View on GitHub">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -75,8 +74,8 @@
             <!-- Progress Bar -->
             <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <small class="text-muted"><span id="progress-label-question">Question</span> <span id="current-q">1</span> <span id="progress-label-of">sur</span> <span id="total-q">80</span></small>
-                    <small class="text-muted"><span id="progress-percent">0</span>% <span id="progress-label-completed"></span></small>
+                    <small class="text-muted"><span id="progress-label-question" data-translate="ui.progress.question">Question</span> <span id="current-q">1</span> <span id="progress-label-of" data-translate="ui.progress.of">sur</span> <span id="total-q">80</span></small>
+                    <small class="text-muted"><span id="progress-percent">0</span>% <span id="progress-label-completed" data-translate="ui.progress.completed"></span></small>
                 </div>
                 <div class="progress">
                     <div id="progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
@@ -95,27 +94,27 @@
 
                     <!-- Comment Field -->
                     <div class="mb-3">
-                        <label for="question-comment" id="comment-label" class="form-label"></label>
-                        <textarea class="form-control" id="question-comment" rows="2" placeholder=""></textarea>
+                        <label for="question-comment" id="comment-label" class="form-label" data-translate="ui.form.commentLabel"></label>
+                        <textarea class="form-control" id="question-comment" rows="2" data-translate-attr="placeholder:ui.form.commentPlaceholder"></textarea>
                     </div>
 
                     <!-- Keyboard Hints -->
                     <div class="keyboard-hint">
-                        <small id="keyboard-hint-text"></small>
+                        <small id="keyboard-hint-text" data-translate="ui.form.keyboardHint" data-translate-html="true"></small>
                     </div>
                 </div>
             </div>
 
             <!-- Navigation -->
             <div class="d-flex justify-content-between">
-                <button id="prev-btn" class="btn btn-outline-secondary" disabled> </button>
+                <button id="prev-btn" class="btn btn-outline-secondary" disabled data-translate="ui.navigation.previous"> </button>
                 <button id="next-btn" class="btn btn-primary" disabled> </button>
             </div>
 
             <!-- Instructions -->
             <div class="alert alert-light mt-4">
-                <h6 id="instructions-title" class="alert-heading"></h6>
-                <p id="instructions-text" class="mb-0 small"></p>
+                <h6 id="instructions-title" class="alert-heading" data-translate="ui.instructions.title"></h6>
+                <p id="instructions-text" class="mb-0 small" data-translate="ui.instructions.text"></p>
             </div>
         </div>
 
@@ -219,19 +218,18 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="cachedReportsModalLabel">📁 Cached Reports</h5>
+                    <h5 class="modal-title" id="cachedReportsModalLabel" data-translate="ui.cachedReports.title"></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted mb-3">
-                        Your generated reports are cached locally for 30 days. You can reopen them even after closing your browser.
+                    <p id="cachedReportsDescription" class="text-muted mb-3" data-translate="ui.cachedReports.description">
                     </p>
                     <div id="cachedReportsBody">
                         <!-- Reports will be populated by JavaScript -->
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="cachedReportsCloseBtn" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="ui.cachedReports.close"></button>
                 </div>
             </div>
         </div>
@@ -525,31 +523,56 @@
             }
         }
 
+        // Generic translation function
+        function translateElements() {
+            if (!lang) return;
+
+            // Helper function to get nested property by path
+            function getNestedProperty(obj, path) {
+                return path.split('.').reduce((o, p) => o && o[p], obj);
+            }
+
+            // Translate elements with data-translate attribute
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const translationPath = element.getAttribute('data-translate');
+                const translatedText = getNestedProperty(lang, translationPath);
+                
+                if (translatedText) {
+                    if (element.hasAttribute('data-translate-html')) {
+                        element.innerHTML = translatedText;
+                    } else {
+                        element.textContent = translatedText;
+                    }
+                }
+            });
+
+            // Translate attributes (like placeholder) with data-translate-attr
+            document.querySelectorAll('[data-translate-attr]').forEach(element => {
+                const attrMappings = element.getAttribute('data-translate-attr').split(',');
+                
+                attrMappings.forEach(mapping => {
+                    const [attrName, translationPath] = mapping.split(':');
+                    const translatedText = getNestedProperty(lang, translationPath.trim());
+                    
+                    if (translatedText) {
+                        element.setAttribute(attrName.trim(), translatedText);
+                    }
+                });
+            });
+        }
+
         // Initialize UI with language data
         function initializeUI() {
             if (!lang) return;
 
-            // Update meta information
-            document.getElementById('page-title').textContent = lang.meta.title;
-            document.getElementById('main-title').textContent = lang.ui.header.title;
-            document.getElementById('main-subtitle').textContent = lang.ui.header.subtitle;
-
-            // Update progress labels
-            document.getElementById('progress-label-question').textContent = lang.ui.progress.question;
-            document.getElementById('progress-label-of').textContent = lang.ui.progress.of;
-            document.getElementById('progress-label-completed').textContent = lang.ui.progress.completed;
-
-            // Update form labels
-            document.getElementById('comment-label').textContent = lang.ui.form.commentLabel;
-            document.getElementById('question-comment').placeholder = lang.ui.form.commentPlaceholder;
-            document.getElementById('keyboard-hint-text').innerHTML = lang.ui.form.keyboardHint;
-
-            // Update navigation buttons
-            document.getElementById('prev-btn').innerHTML = lang.ui.navigation.previous;
-
-            // Update instructions
-            document.getElementById('instructions-title').textContent = lang.ui.instructions.title;
-            document.getElementById('instructions-text').textContent = lang.ui.instructions.text;
+            // Use generic translation system
+            translateElements();
+            
+            // Update cached reports button (this will be updated again by checkForCachedReports)
+            const button = document.getElementById('cached-reports-btn');
+            if (button) {
+                button.textContent = lang.ui.cachedReports.title;
+            }
         }
 
         $(document).ready(async function() {
@@ -1189,7 +1212,7 @@ ${copyText.disclaimer}`;
             const modalBody = document.getElementById('cachedReportsBody');
             
             if (summaries.length === 0) {
-                modalBody.innerHTML = '<p class="text-muted">No cached reports found.</p>';
+                modalBody.innerHTML = `<p class="text-muted">${lang.ui.cachedReports.noReports}</p>`;
             } else {
                 let html = '<div class="list-group">';
                 summaries.forEach(summary => {
@@ -1198,16 +1221,16 @@ ${copyText.disclaimer}`;
                     html += `
                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">Report from ${createdDate}</h6>
-                                <p class="mb-1 text-muted">Score: ${summary.totalScore}/${summary.maxScore}</p>
+                                <h6 class="mb-1">${lang.ui.cachedReports.reportFrom} ${createdDate}</h6>
+                                <p class="mb-1 text-muted">${lang.ui.cachedReports.score} ${summary.totalScore}/${summary.maxScore}</p>
                                 <small class="text-muted">${createdTime}</small>
                             </div>
                             <div>
                                 <button class="btn btn-primary btn-sm me-2" onclick="reopenCachedReport('${summary.id}')">
-                                    📄 Open
+                                    ${lang.ui.cachedReports.open}
                                 </button>
                                 <button class="btn btn-outline-danger btn-sm" onclick="deleteCachedReport('${summary.id}')">
-                                    🗑️ Delete
+                                    ${lang.ui.cachedReports.delete}
                                 </button>
                             </div>
                         </div>
@@ -1229,13 +1252,13 @@ ${copyText.disclaimer}`;
                 // Close the modal
                 bootstrap.Modal.getInstance(document.getElementById('cachedReportsModal')).hide();
             } else {
-                alert('Report not found or has expired.');
+                alert(lang.ui.cachedReports.notFound);
             }
         }
         
         // Function to delete a cached report
         function deleteCachedReport(reportId) {
-            if (confirm('Are you sure you want to delete this cached report?')) {
+            if (confirm(lang.ui.cachedReports.confirmDelete)) {
                 ReportCache.remove(reportId);
                 // Refresh the modal content
                 showCachedReports();
@@ -1260,7 +1283,7 @@ ${copyText.disclaimer}`;
             if (button) {
                 if (count > 0) {
                     button.style.display = 'inline-block';
-                    button.innerHTML = `📁 Cached Reports (${count})`;
+                    button.innerHTML = `${lang.ui.cachedReports.title} (${count})`;
                 } else {
                     button.style.display = 'none';
                 }
