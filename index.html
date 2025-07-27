@@ -451,7 +451,6 @@
             const langConfig = languages[currentLanguage];
             const flagElement = document.getElementById('current-language-flag');
             const nameElement = document.getElementById('current-language-name');
-            const dateFormat = new Intl.DateTimeFormat(currentLanguage, { dateStyle: 'short' });
             
             if (flagElement) flagElement.textContent = langConfig.flag;
             if (nameElement) nameElement.textContent = langConfig.name;
@@ -567,12 +566,6 @@
 
             // Use generic translation system
             translateElements();
-            
-            // Update cached reports button (this will be updated again by checkForCachedReports)
-            const button = document.getElementById('cached-reports-btn');
-            if (button) {
-                button.textContent = lang.ui.cachedReports.title;
-            }
         }
 
         $(document).ready(async function() {
@@ -931,7 +924,7 @@
             
             const resultsText = `${copyText.header}
 ${copyText.separator}
-${copyText.date} ${new Date().toLocaleDateString(dateFormat.locale, { dateStyle: 'short' })}
+${copyText.date} ${new Date().toLocaleDateString(currentLanguage, { dateStyle: 'short' })}
 
 ${copyText.totalScoreLabel} ${results.total}/240
 ${copyText.interpretationLabel} ${interpretation.level}
@@ -995,11 +988,6 @@ ${copyText.disclaimer}`;
                 }))
             };
 
-            copyToClipboard(JSON.stringify(fullData, null, 2), 'copy-json-btn', lang.ui.results.actions.jsonCopied, lang.ui.results.actions.copyJson);
-        }
-
-        function generalFullJSON() {
-            const fullData = generateFullJSON();
             copyToClipboard(JSON.stringify(fullData, null, 2), 'copy-json-btn', lang.ui.results.actions.jsonCopied, lang.ui.results.actions.copyJson);
         }
 
@@ -1216,8 +1204,8 @@ ${copyText.disclaimer}`;
             } else {
                 let html = '<div class="list-group">';
                 summaries.forEach(summary => {
-                    const createdDate = new Date(summary.createdAt).toLocaleDateString();
-                    const createdTime = new Date(summary.createdAt).toLocaleTimeString();
+                    const createdDate = new Date(summary.createdAt).toLocaleDateString(currentLanguage);
+                    const createdTime = new Date(summary.createdAt).toLocaleTimeString(currentLanguage);
                     html += `
                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <div>
