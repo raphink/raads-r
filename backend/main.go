@@ -908,7 +908,7 @@ func generateHTMLReport(markdownContent string, data AssessmentData, reportID st
         <h3 style="margin-top: 0; color: #2c3e50;">📝 Instructions</h3>
         <p style="margin: 10px 0; color: #2c3e50;">
             <strong>Before printing:</strong> Please fill in your personal information below. 
-            This information will appear in the printed report.
+            This information will appear in the printed report but <em>will not be saved</em>.
         </p>
         <ul style="margin: 10px 0; color: #2c3e50;">
             <li>Enter your name (or preferred identifier)</li>

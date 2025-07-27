@@ -54,9 +54,13 @@
         "generateReport": "📊 Générer un rapport professionnel",
         "copied": "✅ Copié!",
         "jsonCopied": "✅ JSON copié!",
-        "reportGenerating": "🔄 Génération du rapport...",
+        "reportGenerating": "🔄 Génération du rapport (cela peut prendre jusqu'à 1 minute)...",
         "reportError": "❌ Erreur lors de la génération",
         "reportReady": "✅ Rapport prêt !"
+      },
+      "reportModal": {
+        "confirmMessage": "Ceci va générer un rapport professionnel complet avec une analyse IA de vos résultats au test RAADS-R.",
+        "errorPrefix": "Erreur lors de la génération du rapport: "
       },
       "interpretations": {
         "none": {
