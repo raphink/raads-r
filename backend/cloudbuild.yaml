@@ -1,0 +1,11 @@
+steps:
+  # Build the container image using Go 1.22
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/raads-pdf-service', '.']
+    
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/raads-pdf-service']
+
+images:
+  - 'gcr.io/$PROJECT_ID/raads-pdf-service'

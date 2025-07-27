@@ -1,0 +1,58 @@
+# Binaries
+bin/
+tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+build-errors.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Summon temporary files
+.summon-*
+
+# Secrets (should not be committed)
+secrets.yml
+
+# Cloud Build
+cloudbuild.yaml
+
+# Local development
+test-results/
+coverage.html

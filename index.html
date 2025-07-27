@@ -122,7 +122,104 @@
         </div>
     </div>
 
+    <!-- Report Generation Confirmation Modal -->
+    <div class="modal fade" id="confirmReportModal" tabindex="-1" aria-labelledby="confirmReportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmReportModalLabel">📊 Generate Professional Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2">AI-Powered Analysis</h6>
+                            <p id="confirmReportMessage" class="mb-3"></p>
+                            <div class="alert alert-info">
+                                <small>
+                                    <strong>⏱️ Processing Time:</strong> This may take up to 1 minute as our AI analyzes your responses and generates detailed insights.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmReportBtn">Generate Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="errorModalLabel">❌ Error</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            <svg width="48" height="48" fill="currentColor" class="text-danger" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2" id="errorTitle">Error</h6>
+                            <p id="errorMessage" class="mb-3"></p>
+                            <div class="alert alert-warning" id="errorTips">
+                                <small>
+                                    <strong>💡 Troubleshooting:</strong><br>
+                                    • Make sure the backend server is running<br>
+                                    • Check your internet connection<br>
+                                    • Try again in a few moments
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="errorRetryBtn" style="display: none;">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple Error Modal for language issues -->
+    <div class="modal fade" id="simpleErrorModal" tabindex="-1" aria-labelledby="simpleErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="simpleErrorModalLabel">⚠️ Warning</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="simpleErrorMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Environment configuration
+        const CONFIG = {
+            API_BASE: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:8080'
+                : 'https://raads-pdf-service-3n4fdvjefq-oa.a.run.app',
+            TIMEOUT: 60000  // 1 minute timeout for report generation
+        };
+
         let lang = null;
         let currentLanguage = 'en'; // Default language
         let questions = [];
@@ -252,7 +349,7 @@
                 }
             } catch (error) {
                 console.error('Error changing language:', error);
-                alert('Error loading language. Please try again.');
+                showSimpleError('Error loading language. Please try again.');
                 // Restore original language on error
                 currentLanguage = currentLanguage === 'en' ? 'fr' : 'en';
             } finally {
@@ -310,7 +407,7 @@
             
             const langLoaded = await loadLanguage(currentLanguage);
             if (!langLoaded) {
-                alert('Error loading language file. Please refresh the page.');
+                showSimpleError('Error loading language file. Please refresh the page.');
                 return;
             }
 
@@ -641,6 +738,9 @@
                     <button id="copy-json-btn" onclick="copyFullJSON()" class="btn btn-info">
                         ${ui.actions.copyJson}
                     </button>
+                    <button id="generate-report-btn" onclick="generateReport()" class="btn btn-warning">
+                        ${ui.actions.generateReport}
+                    </button>
                 </div>
             `;
             
@@ -721,6 +821,53 @@ ${copyText.disclaimer}`;
             copyToClipboard(JSON.stringify(fullData, null, 2), 'copy-json-btn', lang.ui.results.actions.jsonCopied, lang.ui.results.actions.copyJson);
         }
 
+        function generalFullJSON() {
+            const fullData = generateFullJSON();
+            copyToClipboard(JSON.stringify(fullData, null, 2), 'copy-json-btn', lang.ui.results.actions.jsonCopied, lang.ui.results.actions.copyJson);
+        }
+
+        function generateFullJSON() {
+            const results = calculateScore();
+            const interpretation = getInterpretation(results.total);
+
+            const fullData = {
+                metadata: {
+                    testName: "RAADS-R",
+                    testDate: new Date().toISOString(),
+                    totalQuestions: questions.length,
+                    answeredQuestions: Object.keys(answers).length
+                },
+                scores: {
+                    total: results.total,
+                    maxTotal: 240,
+                    language: results.language,
+                    maxLanguage: 21,
+                    social: results.social,
+                    maxSocial: 117,
+                    sensory: results.sensory,
+                    maxSensory: 60,
+                    restricted: results.restricted,
+                    maxRestricted: 42
+                },
+                interpretation: {
+                    level: interpretation.level,
+                    description: interpretation.description
+                },
+                questionsAndAnswers: questions.map(q => ({
+                    id: q.id,
+                    text: q.text,
+                    category: q.category,
+                    reverse: q.reverse,
+                    answer: answers[q.id],
+                    answerText: answers[q.id] !== undefined ? options[answers[q.id]].label : null,
+                    comment: comments[q.id] || null,
+                    score: answers[q.id] !== undefined ? (q.reverse ? (3 - answers[q.id]) : answers[q.id]) : null
+                }))
+            };
+
+            return fullData;
+        }
+
         function copyToClipboard(text, buttonId, successText, originalText) {
             const $btn = $('#' + buttonId);
             
@@ -763,6 +910,114 @@ ${copyText.disclaimer}`;
             $('#results-container').hide();
             $('#test-container').show();
             loadQuestion();
+        }
+
+        // Helper functions for showing modals
+        function showSimpleError(message) {
+            document.getElementById('simpleErrorMessage').textContent = message;
+            const modal = new bootstrap.Modal(document.getElementById('simpleErrorModal'));
+            modal.show();
+        }
+
+        function showReportError(message, allowRetry = false) {
+            document.getElementById('errorTitle').textContent = 'Report Generation Failed';
+            document.getElementById('errorMessage').textContent = message;
+            
+            const retryBtn = document.getElementById('errorRetryBtn');
+            if (allowRetry) {
+                retryBtn.style.display = 'inline-block';
+                retryBtn.onclick = function() {
+                    bootstrap.Modal.getInstance(document.getElementById('errorModal')).hide();
+                    generateReport();
+                };
+            } else {
+                retryBtn.style.display = 'none';
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+            modal.show();
+        }
+
+        // Generate professional report by calling the backend
+        async function generateReport() {
+            const $btn = $('#generate-report-btn');
+            const originalText = $btn.text();
+            
+            // Show confirmation modal
+            document.getElementById('confirmReportMessage').textContent = lang.ui.results.reportModal.confirmMessage;
+            const confirmModal = new bootstrap.Modal(document.getElementById('confirmReportModal'));
+            confirmModal.show();
+            
+            // Set up the confirm button handler
+            document.getElementById('confirmReportBtn').onclick = async function() {
+                confirmModal.hide();
+                
+                try {
+                    // Show loading state
+                    $btn.html('<span class="spinner-border spinner-border-sm" role="status"></span> ' + lang.ui.results.actions.reportGenerating)
+                        .prop('disabled', true);
+                    
+                    // Prepare the full assessment data
+                    const fullData = generateFullJSON();
+                    
+                    // Call the backend API
+                    const response = await fetch(`${CONFIG.API_BASE}/generate-pdf`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(fullData)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success || !data.html_content) {
+                        throw new Error('Invalid response from server');
+                    }
+                    
+                    // Show success state briefly
+                    $btn.text(lang.ui.results.actions.reportReady)
+                        .removeClass('btn-warning')
+                        .addClass('btn-success');
+                    
+                    // Open report in new tab immediately
+                    const newTab = window.open('', '_blank');
+                    newTab.document.write(data.html_content);
+                    newTab.document.close();
+                    newTab.focus();
+                    
+                } catch (error) {
+                    console.error('Error generating report:', error);
+                    $btn.text(lang.ui.results.actions.reportError)
+                        .removeClass('btn-warning')
+                        .addClass('btn-danger');
+                    
+                    // Show error modal
+                    showReportError(lang.ui.results.reportModal.errorPrefix + error.message, true);
+                    
+                } finally {
+                    // Restore original state after 3 seconds
+                    setTimeout(() => {
+                        $btn.text(originalText)
+                            .removeClass('btn-success btn-danger')
+                            .addClass('btn-warning')
+                            .prop('disabled', false);
+                    }, 3000);
+                }
+            };
+        }
+        
+        // Helper function to calculate individual question score
+        function calculateQuestionScore(question, answer) {
+            if (question.reverse) {
+                return 3 - answer; // Reverse scoring: 0->3, 1->2, 2->1, 3->0
+            } else {
+                return answer; // Normal scoring: 0->0, 1->1, 2->2, 3->3
+            }
         }
     </script>
 </body>
