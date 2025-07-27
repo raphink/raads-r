@@ -253,11 +253,13 @@ func generatePDFHandler(c *gin.Context) {
 
 	log.Printf("✅ Generated Markdown content (%d characters)", len(markdownContent))
 
-	// Dump the Markdown content to a file for debugging
-	if err := os.WriteFile("report.md", []byte(markdownContent), 0644); err != nil {
-		log.Printf("❌ Error writing Markdown to file: %v", err)
-	} else {
-		log.Printf("📝 Dumped Markdown to report.md for debugging")
+	// Dump the Markdown content to a file for debugging if debug mode is enabled
+	if gin.Mode() != gin.ReleaseMode {
+		if err := os.WriteFile("report.md", []byte(markdownContent), 0644); err != nil {
+			log.Printf("❌ Error writing Markdown to file: %v", err)
+		} else {
+			log.Printf("📝 Dumped Markdown to report.md for debugging")
+		}
 	}
 
 	// Step 2: Generate HTML report instead of LaTeX
@@ -267,10 +269,12 @@ func generatePDFHandler(c *gin.Context) {
 	log.Printf("✅ Generated HTML content (%d characters)", len(htmlContent))
 
 	// Dump the HTML content to a file for debugging
-	if err := os.WriteFile("report.html", []byte(htmlContent), 0644); err != nil {
-		log.Printf("❌ Error writing HTML to file: %v", err)
-	} else {
-		log.Printf("📝 Dumped HTML to report.html for debugging")
+	if gin.Mode() != gin.ReleaseMode {
+		if err := os.WriteFile("report.html", []byte(htmlContent), 0644); err != nil {
+			log.Printf("❌ Error writing HTML to file: %v", err)
+		} else {
+			log.Printf("📝 Dumped HTML to report.html for debugging")
+		}
 	}
 
 	// Step 3: Return HTML for client-side PDF generation
