@@ -70,9 +70,7 @@ echo -e "${BLUE}📊 To monitor the service:${NC}"
 echo "gcloud run services logs tail $SERVICE_NAME --platform=managed --region=$REGION"
 echo ""
 echo -e "${YELLOW}💡 Environment variables set:${NC}"
-echo "- GCS_BUCKET: $GCS_BUCKET"
 echo "- CLAUDE_API_KEY: [HIDDEN]"
-echo "- DYNAMIC_DOCS_API_KEY: [HIDDEN]"
 echo "- GOOGLE_CLOUD_PROJECT: $PROJECT_ID"
 
 # Optional: Open service URL in browser

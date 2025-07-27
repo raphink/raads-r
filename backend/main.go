@@ -130,6 +130,8 @@ func corsMiddleware() gin.HandlerFunc {
 		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 		c.Header("Access-Control-Max-Age", "86400")
+		// only allow from raphink.github.io
+		c.Header("Access-Control-Allow-Origin", "https://raphink.github.io")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
