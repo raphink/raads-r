@@ -22,6 +22,9 @@ Ask the person to rename the conversation as: `[<Date>] RAADS-R for <Name>`
 Direct the person to take the test at:
 - **English**: https://raphink.github.io/raads-r/?lang=en
 - **French**: https://raphink.github.io/raads-r/?lang=fr
+- **Spanish**: https://raphink.github.io/raads-r/?lang=es
+- **Italian**: https://raphink.github.io/raads-r/?lang=it
+- **German**: https://raphink.github.io/raads-r/?lang=de
 - **Other languages**: Add appropriate language parameter
 
 Instruct them to leave comments for questions when necessary, as they will be used in the report.
@@ -50,7 +53,7 @@ When copying the template code, ensure LaTeX syntax is preserved exactly, includ
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[english]{babel} % Change to [french] for French reports
+\usepackage[english]{babel} % Change to [french] for French, [spanish] for Spanish, [italian] for Italian, [german] for German reports
 \usepackage{lmodern}
 \usepackage{geometry}
 \usepackage{xcolor}
