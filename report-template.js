@@ -861,9 +861,6 @@ class ReportTemplate {
                     const thresholdBottom = thresholdHeight;
                     const averageBottom = averageHeight;
 
-                    // Debug logging
-                    console.log(\`Chart debug - \${domain.key}: maxScore=\${maxScore}, containerHeight=\${containerHeight}px, score=\${score}, barHeight=\${barHeight}px (\${(score/maxScore*100).toFixed(1)}%)\`);
-
                     chartHTML += \`
                         <div class="chart-item">
                             <div class="chart-label" data-translate="\${domain.label}">\${domain.label}</div>
