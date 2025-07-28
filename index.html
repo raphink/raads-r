@@ -1363,8 +1363,6 @@ ${copyText.disclaimer}`;
                             }
                         }
                         
-                        console.log('Event type:', eventType, 'Data:', eventData);
-                        
                         if (eventType === 'chunk' && eventData) {
                             try {
                                 const parsed = JSON.parse(eventData);
