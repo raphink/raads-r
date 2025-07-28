@@ -32,9 +32,9 @@
       "categoriesTitle": "Scores par catégorie",
       "categories": {
         "social": "Interactions sociales",
-        "sensory": "Symptômes sensorimoteurs",
+        "sensory": "Sensori-moteur",
         "restricted": "Intérêts restreints",
-        "language": "Langage"
+        "language": "Communication"
       },
       "interpretationScale": "Échelle d'interprétation",
       "scaleLabels": {
@@ -671,10 +671,10 @@
     "age_input_placeholder": "Entrez l'âge",
     "assessment_results": "Résultats de l'évaluation",
     "score_distribution": "Répartition des scores par domaine",
-    "social": "Social",
-    "language": "Langage",
-    "sensory_motor": "Sensoriel/Moteur",
-    "restricted": "Restreint",
+    "social": "Interactions sociales",
+    "language": "Communication",
+    "sensory_motor": "Sensori-moteur",
+    "restricted": "Intérêts restreints",
     "total": "Total",
     "your_score": "Votre score",
     "autistic_threshold": "Seuil autistique",
