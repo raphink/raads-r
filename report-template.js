@@ -916,7 +916,7 @@ class ReportTemplate {
                         const answerText = answers[qa.answer] || \`Answer \${qa.answer}\`;
                         
                         html += \`
-                            <div class="question-item">
+                            <div class="question-item" id="question-\${qa.id}">
                                 <div class="question-header">
                                     <div class="question-number">\${qa.id}</div>
                                     <div class="question-category \${categoryClass}">\${qa.category}</div>
