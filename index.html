@@ -1380,19 +1380,19 @@ ${copyText.disclaimer}`;
                                 const parsed = JSON.parse(eventData);
                                 
                                 if (parsed.html) {
-                                    console.log('Streaming update - HTML length:', parsed.html.length);
+                                    finalAnalysisHTML = parsed.html; // Keep track of the latest complete version
+                                    console.log('Streaming chunk - HTML length:', parsed.html.length, 'Total chars so far:', finalAnalysisHTML.length);
                                     // Update the report data in localStorage for the report page to pick up
                                     ReportTemplate.updateReportAnalysis(reportId, parsed.html);
-                                    finalAnalysisHTML = parsed.html; // Keep track of the latest complete version
                                     console.log('✅ Report data updated in localStorage');
                                 }
                             } catch (parseError) {
                                 console.warn('Failed to parse event data:', parseError, 'Data:', eventData);
                             }
                         } else if (eventType === 'complete' || eventData === '[DONE]') {
-                            console.log('✅ Streaming analysis completed');
-                            // Mark streaming as complete in localStorage
-                            ReportTemplate.completeReportStreaming(reportId);
+                            console.log('✅ Streaming analysis completed - Final content length:', finalAnalysisHTML ? finalAnalysisHTML.length : 'null');
+                            // Mark streaming as complete in localStorage with final content
+                            ReportTemplate.completeReportStreaming(reportId, finalAnalysisHTML);
                             // Cache the final report data
                             ReportCache.save(reportId, assessmentData, finalAnalysisHTML);
                             break;
@@ -1424,9 +1424,9 @@ ${copyText.disclaimer}`;
                     if (response.ok) {
                         const data = await response.json();
                         if (data.success && data.analysis) {
-                            // Update report in localStorage and mark as complete
+                            // Update report in localStorage and mark as complete with final content
                             ReportTemplate.updateReportAnalysis(reportId, data.analysis);
-                            ReportTemplate.completeReportStreaming(reportId);
+                            ReportTemplate.completeReportStreaming(reportId, data.analysis);
                             ReportCache.save(reportId, assessmentData, data.analysis);
                         }
                     }

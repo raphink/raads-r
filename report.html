@@ -185,33 +185,50 @@
         // Poll for analysis updates when report is being streamed in another window
         function pollForAnalysisUpdates(reportId) {
             let lastAnalysisHTML = '';
+            let pollCount = 0;
             
             const pollInterval = setInterval(() => {
+                pollCount++;
                 const reportData = localStorage.getItem(`raads-report-${reportId}`);
                 if (reportData) {
                     const report = JSON.parse(reportData);
                     
                     // Update analysis if it has changed (streaming updates)
                     if (report.analysisHTML && report.analysisHTML !== lastAnalysisHTML) {
-                        console.log('Analysis updated, length:', report.analysisHTML.length);
+                        console.log(`Analysis updated (poll #${pollCount}), length:`, report.analysisHTML.length);
                         ReportTemplate.updateAnalysis(report.analysisHTML);
                         lastAnalysisHTML = report.analysisHTML;
                     }
                     
                     // Check if streaming is complete
                     if (!report.isStreaming) {
-                        console.log('Streaming completed, stopping poll');
+                        console.log('Streaming completed, doing final check...');
+                        
+                        // Do one more check after a brief delay to catch any final updates
+                        setTimeout(() => {
+                            const finalReportData = localStorage.getItem(`raads-report-${reportId}`);
+                            if (finalReportData) {
+                                const finalReport = JSON.parse(finalReportData);
+                                if (finalReport.analysisHTML && finalReport.analysisHTML !== lastAnalysisHTML) {
+                                    console.log('Final analysis update detected, length:', finalReport.analysisHTML.length);
+                                    ReportTemplate.updateAnalysis(finalReport.analysisHTML);
+                                }
+                            }
+                            
+                            // Now enable print button and stop polling
+                            ReportTemplate.enablePrintButton();
+                            console.log('Polling completed after', pollCount, 'polls');
+                        }, 500); // Brief delay to catch final updates
+                        
                         clearInterval(pollInterval);
-                        // Enable print button since streaming is complete
-                        ReportTemplate.enablePrintButton();
                     }
                 }
-            }, 1000); // Poll every second
+            }, 500); // Poll every 500ms for more responsive updates
             
             // Stop polling after 5 minutes to avoid infinite polling
             setTimeout(() => {
                 clearInterval(pollInterval);
-                console.log('Polling timeout reached');
+                console.log('Polling timeout reached after', pollCount, 'polls');
             }, 5 * 60 * 1000);
         }
     </script>

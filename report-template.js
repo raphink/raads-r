@@ -194,16 +194,23 @@ class ReportTemplate {
         }
     }
     
-    // Mark streaming as complete for a report
-    static completeReportStreaming(reportId) {
+    // Mark streaming as complete for a report (also ensures final content is saved)
+    static completeReportStreaming(reportId, finalAnalysisHTML = null) {
         try {
             const reportData = localStorage.getItem(`raads-report-${reportId}`);
             if (reportData) {
                 const report = JSON.parse(reportData);
+                
+                // If final content is provided, make sure it's saved
+                if (finalAnalysisHTML) {
+                    report.analysisHTML = finalAnalysisHTML;
+                }
+                
                 report.isStreaming = false; // Mark streaming as complete
                 report.completedAt = new Date().toISOString();
                 
                 localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(report));
+                console.log('Report streaming completed, final content length:', report.analysisHTML?.length);
             }
         } catch (error) {
             console.error('Error completing report streaming:', error);
