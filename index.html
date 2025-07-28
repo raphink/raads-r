@@ -133,7 +133,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmReportModalLabel">📊 Generate Professional Report</h5>
+                    <h5 class="modal-title" id="confirmReportModalLabel" data-translate="ui.results.actions.generateReport">📊 Generate Detailed Report</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -1221,7 +1221,7 @@ ${copyText.disclaimer}`;
             modal.show();
         }
 
-        // Generate professional report by calling the backend
+        // Generate detailed report by calling the backend
         async function generateReport() {
             const $btn = $('#generate-report-btn');
             const originalText = $btn.text();

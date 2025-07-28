@@ -51,7 +51,7 @@
         "restart": "🔄 Restart Test",
         "copyResults": "📋 Copy Results",
         "copyJson": "📄 Copy Full JSON",
-        "generateReport": "📊 Generate Professional Report",
+        "generateReport": "📊 Generate Detailed Report",
         "copied": "✅ Copied!",
         "jsonCopied": "✅ JSON Copied!",
         "reportGenerating": "🔄 Generating Report (this may take up to 1 minute)...",
@@ -59,7 +59,7 @@
         "reportReady": "✅ Report Ready!"
       },
       "reportModal": {
-        "confirmMessage": "This will generate a comprehensive professional report with AI-powered analysis of your RAADS-R assessment results.",
+        "confirmMessage": "This will generate a comprehensive detailed report with AI-powered analysis of your RAADS-R assessment results.",
         "errorPrefix": "Error generating report: "
       },
       "interpretations": {
