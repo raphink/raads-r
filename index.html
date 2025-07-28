@@ -62,7 +62,7 @@
                             <span id="current-language-flag">🇫🇷</span> <span id="current-language-name">Français</span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇺🇸 English</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇬🇧 English</a></li>
                             <li><a class="dropdown-item" href="#" onclick="changeLanguage('fr')">🇫🇷 Français</a></li>
                             <li><a class="dropdown-item" href="#" onclick="changeLanguage('es')">🇪🇸 Español</a></li>
                             <li><a class="dropdown-item" href="#" onclick="changeLanguage('it')">🇮🇹 Italiano</a></li>
@@ -281,6 +281,7 @@
                     reports[reportId] = {
                         assessmentData: assessmentData,
                         analysisHTML: analysisHTML,
+                        language: assessmentData.language || currentLanguage || 'en',
                         createdAt: new Date().toISOString(),
                         expiresAt: expiryDate.toISOString()
                     };
@@ -405,6 +406,7 @@
                             summaries.push({
                                 id: reportId,
                                 createdAt: report.createdAt,
+                                language: report.language || 'en',
                                 totalScore: report.assessmentData?.scores?.total || 0,
                                 maxScore: report.assessmentData?.scores?.maxTotal || 240,
                                 participantName: report.assessmentData?.participantInfo?.name || null,
@@ -421,6 +423,30 @@
                 }
             }
         };
+
+        // Function to get flag emoji for language from existing language config
+        function getLanguageFlag(language) {
+            // First try to get from the existing languages config
+            if (languages[language] && languages[language].flag) {
+                return languages[language].flag;
+            }
+            
+            // If current language is loaded and matches, get from current lang data
+            if (language === currentLanguage && lang && lang.meta && lang.meta.flag) {
+                return lang.meta.flag;
+            }
+            
+            // Fallback flags if not found in config
+            const fallbackFlags = {
+                'en': '🇬🇧',
+                'fr': '🇫🇷', 
+                'es': '🇪🇸',
+                'it': '🇮🇹',
+                'de': '🇩🇪'
+            };
+
+            return fallbackFlags[language] || '🌐';
+        }
 
         let lang = null;
         let currentLanguage = 'en'; // Default language
@@ -442,7 +468,7 @@
             },
             'en': {
                 name: 'English',
-                flag: '🇺🇸',
+                flag: '🇬🇧',
                 file: 'en.json'
             },
             'es': {
@@ -1424,6 +1450,7 @@ ${copyText.disclaimer}`;
                 summaries.forEach(summary => {
                     const createdDate = new Date(summary.createdAt).toLocaleDateString(currentLanguage);
                     const createdTime = new Date(summary.createdAt).toLocaleTimeString(currentLanguage);
+                    const languageFlag = getLanguageFlag(summary.language);
                     
                     // Use participant name if available, otherwise fall back to date
                     const reportTitle = summary.participantName 
@@ -1433,7 +1460,7 @@ ${copyText.disclaimer}`;
                     html += `
                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">${reportTitle}</h6>
+                                <h6 class="mb-1">${languageFlag} ${reportTitle}</h6>
                                 <p class="mb-1 text-muted">${lang.ui.cachedReports.score} ${summary.totalScore}/${summary.maxScore}</p>
                                 <small class="text-muted">${createdDate} ${createdTime}</small>
                             </div>
