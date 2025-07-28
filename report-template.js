@@ -656,31 +656,6 @@ class ReportTemplate {
         </div>
     </div>
 
-    <div class="no-print" style="background: #e8f4f8; border: 1px solid #3498db; border-radius: 8px; padding: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #2c3e50;" data-translate="instructions_title">📝 Instructions</h3>
-        <p style="margin: 10px 0; color: #2c3e50;">
-            <strong data-translate="before_printing">Before printing:</strong> 
-            <span data-translate="fill_info">Please fill in your personal information below. This information will appear in the printed report but will not be saved.</span>
-        </p>
-        <ul style="margin: 10px 0; color: #2c3e50;">
-            <li data-translate="enter_name">Enter your name (or preferred identifier)</li>
-            <li data-translate="specify_age">Specify your age at the time of assessment</li>
-            <li data-translate="click_print">Once filled, click the Print button above to generate your PDF</li>
-        </ul>
-    </div>
-
-    <div class="participant-info no-print">
-        <h3 style="margin-top: 0; color: #2c3e50;" data-translate="participant_info">Participant Information</h3>
-        <div class="participant-field">
-            <label for="participant-name" data-translate="name_label">Name:</label>
-            <input type="text" id="participant-name" data-translate="name_input_placeholder" placeholder="Enter participant name" />
-        </div>
-        <div class="participant-field">
-            <label for="participant-age" data-translate="age_label">Age:</label>
-            <input type="number" id="participant-age" data-translate="age_input_placeholder" placeholder="Enter age" min="18" max="100" />
-        </div>
-    </div>
-
     <h1 style="margin-top: 40px;" data-translate="assessment_results">Assessment Results</h1>
 
     <h2 data-translate="score_distribution">Score Distribution by Domain</h2>
@@ -938,26 +913,17 @@ class ReportTemplate {
         
         // Update participant information dynamically
         function initializeParticipantInfo() {
-            const nameInput = document.getElementById('participant-name');
-            const ageInput = document.getElementById('participant-age');
+            // Get participant info from the assessment data if available
+            const participantInfo = window.assessmentData?.participantInfo;
+            const name = participantInfo?.name || '[Name to be filled]';
+            const age = participantInfo?.age || '[Age]';
             
-            function updateParticipantInfo() {
-                const name = nameInput?.value || '[Name to be filled]';
-                const age = ageInput?.value || '[Age]';
-                
-                // Update CSS custom property for print header
-                document.documentElement.style.setProperty('--participant-header', \`"\${name} - \${age} years"\`);
-                
-                // Update front page elements
-                document.querySelectorAll('.participant-name').forEach(el => el.textContent = name);
-                document.querySelectorAll('.participant-age').forEach(el => el.textContent = age + ' years');
-            }
+            // Update CSS custom property for print header
+            document.documentElement.style.setProperty('--participant-header', \`"\${name} - \${age} years"\`);
             
-            if (nameInput && ageInput) {
-                nameInput.addEventListener('input', updateParticipantInfo);
-                ageInput.addEventListener('input', updateParticipantInfo);
-                updateParticipantInfo();
-            }
+            // Update front page elements
+            document.querySelectorAll('.participant-name').forEach(el => el.textContent = name);
+            document.querySelectorAll('.participant-age').forEach(el => el.textContent = age + ' years');
         }
     </script>
 </body>
@@ -1077,6 +1043,9 @@ class ReportTemplate {
 
     // Initialize report with assessment data (called immediately)
     static initializeReport(assessmentData, reportId) {
+        // Store assessment data globally for access by other functions
+        window.assessmentData = assessmentData;
+        
         // Update basic information
         document.getElementById('total-score-display').textContent = `${assessmentData.scores.total}/240`;
         document.getElementById('assessment-date-display').textContent = new Date(assessmentData.metadata.testDate).toLocaleDateString();
@@ -1091,6 +1060,11 @@ class ReportTemplate {
         this.generateQuestionsHTML(assessmentData.questionsAndAnswers, assessmentData.language).then(questionsHTML => {
             document.getElementById('questions-container').innerHTML = questionsHTML;
         });
+        
+        // Initialize participant info now that we have the data
+        if (typeof initializeParticipantInfo === 'function') {
+            initializeParticipantInfo();
+        }
     }
 
     // Update analysis section when backend responds
