@@ -83,6 +83,15 @@ type ContentBlock struct {
 
 var (
 	claudeAPIKey = os.Getenv("CLAUDE_API_KEY")
+	
+	// Supported languages mapping language code to display name
+	supportedLanguages = map[string]string{
+		"en": "English",
+		"fr": "French",
+		"es": "Spanish",
+		"it": "Italian",
+		"de": "German",
+	}
 )
 
 func main() {
@@ -268,7 +277,7 @@ func analyzeHandler(c *gin.Context) {
 }
 
 func validateAssessmentData(data AssessmentData) error {
-	if data.Language != "en" && data.Language != "fr" {
+	if _, isValid := supportedLanguages[data.Language]; !isValid {
 		return fmt.Errorf("invalid language: %s", data.Language)
 	}
 
@@ -311,9 +320,9 @@ func generateMarkdownReportWithClaude(data AssessmentData) (string, error) {
 	}
 
 	// Determine language for Claude response
-	language := "English"
-	if data.Language == "fr" {
-		language = "French"
+	language := supportedLanguages[data.Language]
+	if language == "" {
+		language = "English" // fallback
 	}
 
 	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. RESPOND ENTIRELY IN %s LANGUAGE using appropriate clinical terminology.
