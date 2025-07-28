@@ -1052,11 +1052,10 @@ class ReportTemplate {
                     <div class="question-header">
                         <div class="question-number">${qa.id}</div>
                         <div class="question-category ${categoryClass}">${qa.category}</div>
-                        <div class="score-badge">${qa.score} pts</div>
                     </div>
                     <div class="question-text">${qa.text}</div>
                     <div class="answer-section">
-                        <div class="answer-text">${answerText}</div>
+                        <div class="answer-text">${answerText} <span class="score-badge">${qa.score} pts</span></div>
                         ${qa.comment ? `<div class="comment-text">"${qa.comment}"</div>` : ''}
                     </div>
                 </div>

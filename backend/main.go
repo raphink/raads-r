@@ -345,9 +345,9 @@ func analyzeHandler(c *gin.Context) {
 
 	// Return just the analysis HTML (much lighter than full report)
 	c.JSON(200, gin.H{
-		"success":    true,
-		"report_id":  reportID,
-		"analysis":   analysisHTML,
+		"success":      true,
+		"report_id":    reportID,
+		"analysis":     analysisHTML,
 		"generated_at": time.Now().UTC(),
 	})
 }
