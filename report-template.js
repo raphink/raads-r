@@ -538,6 +538,44 @@ class ReportTemplate {
             background: #c0392b;
         }
         
+        /* Question link styling */
+        .question-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 2px 4px;
+            border-radius: 3px;
+            background: rgba(52, 152, 219, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .question-link:hover {
+            color: #2980b9;
+            background: rgba(52, 152, 219, 0.2);
+            text-decoration: underline;
+        }
+        
+        .question-link:visited {
+            color: #8e44ad;
+        }
+        
+        /* Smooth scrolling for the whole document */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Highlight target question when linked to */
+        .question-item:target {
+            background: #fff3cd !important;
+            border-left: 4px solid #ffc107 !important;
+            animation: highlight-fade 3s ease-out;
+        }
+        
+        @keyframes highlight-fade {
+            0% { background: #fff3cd !important; }
+            100% { background: #f8f9fa !important; }
+        }
+        
         /* Participant information styling */
         .participant-info {
             background: #f8f9fa;
@@ -1074,7 +1112,9 @@ class ReportTemplate {
                 const analysisContainer = document.getElementById('analysis-container');
                 if (analysisContainer) {
                     analysisContainer.className = 'markdown-content';
-                    analysisContainer.innerHTML = analysisHTML;
+                    // Convert Q references to links
+                    const linkedHTML = analysisHTML.replace(/\\bQ(\\d+)\\b/g, '<a href="#question-$1" class="question-link" title="Jump to Question $1">Q$1</a>');
+                    analysisContainer.innerHTML = linkedHTML;
                     // Note: Print button stays disabled until streaming completes
                 }
             }
@@ -1224,7 +1264,9 @@ class ReportTemplate {
         const analysisContainer = document.getElementById('analysis-container');
         if (analysisContainer) {
             analysisContainer.className = 'markdown-content';
-            analysisContainer.innerHTML = analysisHTML;
+            // Convert Q references to links
+            const linkedHTML = analysisHTML.replace(/\bQ(\d+)\b/g, '<a href="#question-$1" class="question-link" title="Jump to Question $1">Q$1</a>');
+            analysisContainer.innerHTML = linkedHTML;
             // Note: Print button stays disabled until streaming completes
         }
     }
