@@ -953,7 +953,7 @@ class ReportTemplate {
                         html += \`
                             <div class="question-item" id="question-\${qa.id}">
                                 <div class="question-header">
-                                    <div class="question-number">\${qa.id}</div>
+                                    <div class="question-number">Q\${qa.id}</div>
                                     <div class="question-category \${categoryClass}">\${qa.category}</div>
                                 </div>
                                 <div class="question-text">\${qa.text}</div>
