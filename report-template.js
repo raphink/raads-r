@@ -30,7 +30,7 @@ class ReportTemplate {
             
             /* Headers and footers */
             @page {
-                margin: 5cm 2cm 4cm 2cm;
+                margin: 1cm 1cm 1cm 1cm;
                 @top-left {
                     content: var(--report-title, "RAADS-R Assessment Report");
                     font-size: 12pt;
@@ -62,7 +62,7 @@ class ReportTemplate {
             
             /* No header/footer on front page */
             @page title-page {
-                margin: 2cm;
+                margin: 0;
                 @top-left { content: none; }
                 @top-center { content: none; }
                 @top-right { content: none; }
