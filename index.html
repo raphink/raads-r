@@ -571,11 +571,17 @@
         async function changeLanguage(newLanguage) {
             if (newLanguage === currentLanguage) return;
             
-            // Show loading state
+            // Close the dropdown menu immediately
             const dropdownButton = document.getElementById('languageDropdown');
             if (!dropdownButton) {
                 console.error('Language dropdown not found');
                 return;
+            }
+            
+            // Use Bootstrap's dropdown API to close the dropdown
+            const dropdown = bootstrap.Dropdown.getInstance(dropdownButton);
+            if (dropdown) {
+                dropdown.hide();
             }
             
             const originalText = dropdownButton.innerHTML;
