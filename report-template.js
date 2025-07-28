@@ -129,7 +129,7 @@ class ReportTemplate {
             /* Chart styling for print */
             .score-bar {
                 color: #000 !important;
-                background-color: #3498db !important;
+                background-color: #7bc4f5 !important;
                 border: 1px solid #000 !important;
                 font-weight: bold !important;
             }
@@ -269,7 +269,7 @@ class ReportTemplate {
         .score-value {
             font-size: 24px;
             font-weight: bold;
-            color: #3498db;
+            color: #7bc4f5;
         }
         
         .score-label {
@@ -324,7 +324,7 @@ class ReportTemplate {
         
         .score-bar {
             width: 100%;
-            background-color: #3498db;
+            background-color: #7bc4f5;
             border-radius: 2px 2px 0 0;
             display: flex;
             align-items: flex-end;
@@ -351,7 +351,6 @@ class ReportTemplate {
             content: attr(data-label);
             position: absolute;
             left: 18px;
-            top: -6px;
             font-size: 9px;
             color: #e74c3c;
             font-weight: bold;
@@ -373,8 +372,7 @@ class ReportTemplate {
         .average-marker::after {
             content: attr(data-label);
             position: absolute;
-            left: 12px;
-            top: -8px;
+            left: 18px;
             font-size: 9px;
             color: #27ae60;
             font-weight: bold;
@@ -448,7 +446,7 @@ class ReportTemplate {
         }
         
         .print-btn {
-            background: #3498db;
+            background: #7bc4f5;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -513,7 +511,7 @@ class ReportTemplate {
         
         .participant-field input:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: #7bc4f5;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
         
@@ -699,7 +697,7 @@ class ReportTemplate {
         </div>
         <div class="chart-legend">
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #3498db;"></div>
+                <div class="legend-color" style="background-color: #7bc4f5;"></div>
                 <span data-translate="your_score">Your Score</span>
             </div>
             <div class="legend-item">
