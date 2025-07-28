@@ -277,7 +277,7 @@ class ReportTemplate {
             display: flex;
             justify-content: space-around;
             align-items: flex-end;
-            height: 250px;
+            height: 400px;
             margin: 20px 0;
             padding: 20px;
             border: 1px solid #ddd;
@@ -304,15 +304,15 @@ class ReportTemplate {
         .chart-container-inner {
             position: relative;
             width: 60px;
-            height: 180px;
+            height: 380px;
             border: 1px solid #bbb;
             background: #e8e8e8;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
         
         .score-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
             width: 100%;
             background-color: #3498db;
             border-radius: 2px 2px 0 0;
@@ -323,6 +323,7 @@ class ReportTemplate {
             font-size: 11px;
             font-weight: bold;
             padding-bottom: 3px;
+            min-height: 2px;
         }
         
         .threshold-marker {
@@ -721,8 +722,8 @@ class ReportTemplate {
                 const maxScores = {
                     social: 117,    // 39 questions × 3 points
                     language: 21,   // 7 questions × 3 points  
-                    sensory: 42,    // 14 questions × 3 points
-                    restricted: 60, // 20 questions × 3 points
+                    sensory: 60,    // 20 questions × 3 points
+                    restricted: 42, // 14 questions × 3 points
                     total: 240      // Total maximum
                 };
 
@@ -745,21 +746,30 @@ class ReportTemplate {
                     const threshold = thresholds[domain.key];
                     const average = averages[domain.key];
 
-                    const barHeight = (score / maxScore * 100).toFixed(1);
-                    const thresholdHeight = (threshold / maxScore * 100).toFixed(1);
-                    const averageHeight = (average / maxScore * 100).toFixed(1);
+                    // Calculate container height proportional to max score (total=240 gets full 380px)
+                    const baseHeight = 380;
+                    const containerHeight = Math.round((maxScore / maxScores.total) * baseHeight);
+                    
+                    // Calculate bar height as percentage of this domain's container
+                    const barHeight = Math.round((score / maxScore) * containerHeight);
+                    const thresholdHeight = Math.round((threshold / maxScore) * containerHeight);
+                    const averageHeight = Math.round((average / maxScore) * containerHeight);
+                    
+                    // Calculate bottom positions for markers (from bottom of container)
+                    const thresholdBottom = thresholdHeight;
+                    const averageBottom = averageHeight;
 
                     // Debug logging
-                    console.log(\`Chart debug - \${domain.key}: score=\${score}, maxScore=\${maxScore}, percentage=\${(score/maxScore*100).toFixed(1)}%, barHeight=\${barHeight}%\`);
+                    console.log(\`Chart debug - \${domain.key}: maxScore=\${maxScore}, containerHeight=\${containerHeight}px, score=\${score}, barHeight=\${barHeight}px (\${(score/maxScore*100).toFixed(1)}%)\`);
 
                     chartHTML += \`
                         <div class="chart-item">
                             <div class="chart-label" data-translate="\${domain.label}">\${domain.label}</div>
-                            <div class="chart-container-inner">
+                            <div class="chart-container-inner" style="height: \${containerHeight}px;">
                                 <div class="max-score-label">\${maxScore}</div>
-                                <div class="score-bar" style="height: \${barHeight}% !important;" title="Score: \${score}/\${maxScore} (\${barHeight}%)" data-height="\${barHeight}">\${score}</div>
-                                <div class="threshold-marker" style="bottom: \${thresholdHeight}%;" data-label="\${threshold}"></div>
-                                <div class="average-marker" style="bottom: \${averageHeight}%;" data-label="\${average}"></div>
+                                <div class="score-bar" style="height: \${barHeight}px;" title="Score: \${score}/\${maxScore} (\${(score/maxScore*100).toFixed(1)}%)" data-height="\${barHeight}">\${score}</div>
+                                <div class="threshold-marker" style="bottom: \${thresholdBottom}px;" data-label="\${threshold}"></div>
+                                <div class="average-marker" style="bottom: \${averageBottom}px;" data-label="\${average}"></div>
                             </div>
                         </div>
                     \`;
