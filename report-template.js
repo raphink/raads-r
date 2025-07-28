@@ -140,6 +140,16 @@ class ReportTemplate {
                 font-weight: bold !important;
             }
             
+            .threshold-marker {
+                background-color: #e74c3c !important;
+                border: 2px solid #000 !important;
+            }
+            
+            .average-marker {
+                background-color: #27ae60 !important;
+                border: 2px solid #000 !important;
+            }
+            
             .chart-container-inner {
                 border: 2px solid #000 !important;
                 background: #e8e8e8 !important;
@@ -328,18 +338,20 @@ class ReportTemplate {
         
         .threshold-marker {
             position: absolute;
-            left: -5px;
-            right: -5px;
-            height: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
             background-color: #e74c3c;
-            border: 1px solid #c0392b;
+            border: 2px solid #c0392b;
+            border-radius: 50%;
         }
         
         .threshold-marker::after {
             content: attr(data-label);
             position: absolute;
-            right: -25px;
-            top: -8px;
+            left: 18px;
+            top: -6px;
             font-size: 9px;
             color: #e74c3c;
             font-weight: bold;
@@ -348,22 +360,26 @@ class ReportTemplate {
         
         .average-marker {
             position: absolute;
-            left: -5px;
-            right: -5px;
-            height: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
             background-color: #27ae60;
-            border: 1px solid #229954;
+            border: 2px solid #229954;
+            border-radius: 2px;
+            transform: translateX(-50%) rotate(45deg);
         }
         
         .average-marker::after {
             content: attr(data-label);
             position: absolute;
-            right: -25px;
+            left: 12px;
             top: -8px;
             font-size: 9px;
             color: #27ae60;
             font-weight: bold;
             white-space: nowrap;
+            transform: rotate(-45deg);
         }
         
         .max-score-label {
