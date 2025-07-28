@@ -7,6 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="report-template.js"></script>
     <style>
         .question-option {
             cursor: pointer;
@@ -1144,8 +1145,8 @@ ${copyText.disclaimer}`;
                     // Prepare the full assessment data
                     const fullData = generateFullJSON();
                     
-                    // Call the backend API
-                    const response = await fetch(`${CONFIG.API_BASE}/generate-pdf`, {
+                    // Call the lightweight analyze endpoint instead of generate-pdf
+                    const response = await fetch(`${CONFIG.API_BASE}/analyze`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1159,13 +1160,18 @@ ${copyText.disclaimer}`;
                     
                     const data = await response.json();
                     
-                    if (!data.success || !data.html_content) {
+                    if (!data.success || !data.analysis) {
                         throw new Error('Invalid response from server');
                     }
                     
-                    // Cache the report for future access
+                    // Generate report ID
                     const reportId = data.report_id || generateReportId();
-                    ReportCache.save(reportId, data.html_content, fullData);
+                    
+                    // Generate complete HTML report using client-side template
+                    const htmlContent = ReportTemplate.generateReport(fullData, data.analysis, reportId);
+                    
+                    // Cache the report for future access
+                    ReportCache.save(reportId, htmlContent, fullData);
                     
                     // Show success state briefly
                     $btn.text(lang.ui.results.actions.reportReady)
@@ -1173,7 +1179,7 @@ ${copyText.disclaimer}`;
                         .addClass('btn-success');
                     
                     // Open report in new tab immediately
-                    openReportInNewTab(data.html_content, reportId);
+                    openReportInNewTab(htmlContent, reportId);
                     
                 } catch (error) {
                     console.error('Error generating report:', error);
