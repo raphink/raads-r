@@ -740,5 +740,19 @@ IMPORTANT:
 		return fmt.Errorf("error reading streaming response: %w", err)
 	}
 
+	// Send final chunk with any remaining content
+	finalLength := markdownBuffer.Len()
+	if finalLength > lastSentLength {
+		var buf bytes.Buffer
+		if err := goldmark.New().Convert([]byte(markdownBuffer.String()), &buf); err == nil {
+			log.Printf("📤 Sending FINAL chunk - Total Length: %d chars, Final Delta: +%d chars", finalLength, finalLength-lastSentLength)
+			c.SSEvent("chunk", gin.H{
+				"html":     buf.String(),
+				"markdown": markdownBuffer.String(),
+			})
+			c.Writer.Flush()
+		}
+	}
+
 	return nil
 }
