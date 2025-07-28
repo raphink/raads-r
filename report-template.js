@@ -749,12 +749,15 @@ class ReportTemplate {
                     const thresholdHeight = (threshold / maxScore * 100).toFixed(1);
                     const averageHeight = (average / maxScore * 100).toFixed(1);
 
+                    // Debug logging
+                    console.log(\`Chart debug - \${domain.key}: score=\${score}, maxScore=\${maxScore}, percentage=\${(score/maxScore*100).toFixed(1)}%, barHeight=\${barHeight}%\`);
+
                     chartHTML += \`
                         <div class="chart-item">
                             <div class="chart-label" data-translate="\${domain.label}">\${domain.label}</div>
                             <div class="chart-container-inner">
                                 <div class="max-score-label">\${maxScore}</div>
-                                <div class="score-bar" style="height: \${barHeight}%;\">\${score}</div>
+                                <div class="score-bar" style="height: \${barHeight}% !important;" title="Score: \${score}/\${maxScore} (\${barHeight}%)" data-height="\${barHeight}">\${score}</div>
                                 <div class="threshold-marker" style="bottom: \${thresholdHeight}%;" data-label="\${threshold}"></div>
                                 <div class="average-marker" style="bottom: \${averageHeight}%;" data-label="\${average}"></div>
                             </div>
@@ -841,6 +844,16 @@ class ReportTemplate {
                 // Generate and insert chart
                 const chartHTML = this.generateChart(assessmentData);
                 document.getElementById('chart-container').innerHTML = chartHTML;
+
+                // Debug: Check actual bar heights after rendering
+                setTimeout(() => {
+                    const scoreBars = document.querySelectorAll('.score-bar');
+                    scoreBars.forEach((bar, index) => {
+                        const computedStyle = window.getComputedStyle(bar);
+                        const dataHeight = bar.getAttribute('data-height');
+                        console.log(\`Bar \${index}: data-height=\${dataHeight}%, computed height=\${computedStyle.height}, parent height=\${window.getComputedStyle(bar.parentElement).height}\`);
+                    });
+                }, 100);
 
                 // Generate and insert questions
                 this.generateQuestionsHTML(assessmentData.questionsAndAnswers, assessmentData.language).then(questionsHTML => {
@@ -961,106 +974,6 @@ class ReportTemplate {
     </script>
 </body>
 </html>`;
-    }
-
-    // Generate chart HTML
-    static generateChart(assessmentData) {
-        const scores = assessmentData.scores;
-        
-        // Maximum scores for each domain
-        const maxScores = {
-            social: 117,    // 39 questions × 3 points
-            language: 21,   // 7 questions × 3 points  
-            sensory: 42,    // 14 questions × 3 points
-            restricted: 60, // 20 questions × 3 points
-            total: 240      // Total maximum
-        };
-
-        // Thresholds and averages
-        const thresholds = { social: 31, language: 4, sensory: 16, restricted: 24, total: 65 };
-        const averages = { social: 11, language: 2, sensory: 6, restricted: 8, total: 25 };
-
-        const domains = [
-            { key: 'social', label: 'social' },
-            { key: 'language', label: 'language' },
-            { key: 'sensory', label: 'sensory_motor' },
-            { key: 'restricted', label: 'restricted' },
-            { key: 'total', label: 'total' }
-        ];
-
-        let chartHTML = '';
-        domains.forEach(domain => {
-            const score = domain.key === 'total' ? scores.total : scores[domain.key];
-            const maxScore = maxScores[domain.key];
-            const threshold = thresholds[domain.key];
-            const average = averages[domain.key];
-
-            const barHeight = (score / maxScore * 100).toFixed(1);
-            const thresholdHeight = (threshold / maxScore * 100).toFixed(1);
-            const averageHeight = (average / maxScore * 100).toFixed(1);
-
-            chartHTML += `
-                <div class="chart-item">
-                    <div class="chart-label" data-translate="${domain.label}">${domain.label}</div>
-                    <div class="chart-container-inner">
-                        <div class="max-score-label">${maxScore}</div>
-                        <div class="score-bar" style="height: ${barHeight}%;">${score}</div>
-                        <div class="threshold-marker" style="bottom: ${thresholdHeight}%;" data-label="${threshold}"></div>
-                        <div class="average-marker" style="bottom: ${averageHeight}%;" data-label="${average}"></div>
-                    </div>
-                </div>
-            `;
-        });
-
-        return chartHTML;
-    }
-
-    // Generate questions HTML for appendix
-    static async generateQuestionsHTML(questionsAndAnswers, language = 'en') {
-        try {
-            // Load language data to get answer text mappings
-            const response = await fetch(`${language}.json`);
-            const data = await response.json();
-            const translations = data.report || {};
-            
-            // Fallback answer texts
-            const fallbackAnswers = {
-                0: "Never true",
-                1: "Sometimes true", 
-                2: "Often true",
-                3: "Always true"
-            };
-
-            const answers = translations.answers || fallbackAnswers;
-            let html = '';
-
-            for (const qa of questionsAndAnswers) {
-                const categoryClass = this.getCategoryClass(qa.category);
-                const answerText = answers[qa.answer] || `Answer ${qa.answer}`;
-                
-                html += `
-                    <div class="question-item">
-                        <div class="question-header">
-                            <div class="question-number">${qa.id}</div>
-                            <div class="question-category ${categoryClass}">${qa.category}</div>
-                        </div>
-                        <div class="question-text">${qa.text}</div>
-                        <div class="answer-section">
-                            <div class="answer-text">${answerText} <span class="score-badge">${qa.score} pts</span></div>
-                            ${qa.comment ? `<div class="comment-text">"${qa.comment}"</div>` : ''}
-                        </div>
-                    </div>
-                `;
-            }
-
-            return html;
-        } catch (error) {
-            console.warn('Failed to load translations for questions:', error);
-            if (language !== 'en') {
-                return this.generateQuestionsHTML(questionsAndAnswers, 'en');
-            }
-            return '';
-        }
     }
 
     // Get CSS class for question category
