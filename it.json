@@ -48,20 +48,36 @@
         "text": "Questo test è solo uno strumento di ausilio diagnostico. Solo un professionista sanitario qualificato può stabilire una diagnosi di autismo. Se i tuoi risultati suggeriscono tratti autistici, consulta uno psichiatra, psicologo o medico specializzato."
       },
       "actions": {
-        "copyText": "📋 Copia Testo",
-        "copyJson": "📋 Copia JSON",
-        "generateReport": "📄 Genera Rapporto",
-        "retakeTest": "🔄 Ripeti Test",
-        "viewCached": "📁 Visualizza Rapporti Salvati"
+        "restart": "🔄 Riavvia Test",
+        "copyResults": "📋 Copia Risultati",
+        "copyJson": "� Copia JSON Completo",
+        "generateReport": "� Genera Rapporto Dettagliato",
+        "copied": "✅ Copiato!",
+        "jsonCopied": "✅ JSON Copiato!",
+        "reportGenerating": "🔄 Generazione Rapporto (può richiedere fino a 1 minuto)...",
+        "reportError": "❌ Errore nella Generazione del Rapporto",
+        "reportReady": "✅ Rapporto Pronto!"
+      },
+      "reportModal": {
+        "confirmMessage": "Questo genererà un rapporto dettagliato e completo con analisi AI dei risultati della tua valutazione RAADS-R.",
+        "errorPrefix": "Errore nella generazione del rapporto: "
       },
       "interpretations": {
         "none": {
           "level": "Nessun DSA",
           "description": "Nessuna indicazione di disturbo dello spettro autistico"
         },
-        "possible": {
-          "level": "Alcuni tratti autistici",
+        "light": {
+          "level": "Tratti lievi",
           "description": "Alcuni tratti autistici, ma probabilmente nessun DSA"
+        },
+        "moderate": {
+          "level": "Tratti moderati",
+          "description": "Diversi tratti autistici presenti"
+        },
+        "possible": {
+          "level": "Possibile DSA",
+          "description": "Punteggio minimo al quale viene considerato l'autismo"
         },
         "likely": {
           "level": "DSA possibile",

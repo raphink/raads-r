@@ -48,20 +48,36 @@
         "text": "Esta prueba es solo una herramienta de ayuda diagnóstica. Solo un profesional sanitario cualificado puede establecer un diagnóstico de autismo. Si tus resultados sugieren rasgos autistas, consulta a un psiquiatra, psicólogo o médico especializado."
       },
       "actions": {
-        "copyText": "📋 Copiar Texto",
-        "copyJson": "📋 Copiar JSON",
-        "generateReport": "📄 Generar Informe",
-        "retakeTest": "🔄 Repetir Test",
-        "viewCached": "📁 Ver Informes Guardados"
+        "restart": "🔄 Reiniciar Test",
+        "copyResults": "📋 Copiar Resultados",
+        "copyJson": "� Copiar JSON Completo",
+        "generateReport": "� Generar Informe Detallado",
+        "copied": "✅ ¡Copiado!",
+        "jsonCopied": "✅ ¡JSON Copiado!",
+        "reportGenerating": "🔄 Generando Informe (puede tomar hasta 1 minuto)...",
+        "reportError": "❌ Error al Generar Informe",
+        "reportReady": "✅ ¡Informe Listo!"
+      },
+      "reportModal": {
+        "confirmMessage": "Esto generará un informe detallado y completo con análisis impulsado por IA de los resultados de tu evaluación RAADS-R.",
+        "errorPrefix": "Error al generar informe: "
       },
       "interpretations": {
         "none": {
           "level": "Sin TEA",
           "description": "No hay indicación de trastorno del espectro autista"
         },
-        "possible": {
-          "level": "Algunos rasgos autistas",
+        "light": {
+          "level": "Rasgos leves",
           "description": "Algunos rasgos autistas, pero probablemente sin TEA"
+        },
+        "moderate": {
+          "level": "Rasgos moderados",
+          "description": "Varios rasgos autistas presentes"
+        },
+        "possible": {
+          "level": "Posible TEA",
+          "description": "Puntuación mínima en la que se considera el autismo"
         },
         "likely": {
           "level": "TEA posible",

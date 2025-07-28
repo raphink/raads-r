@@ -48,20 +48,36 @@
         "text": "Dieser Test ist nur ein diagnostisches Hilfsmittel. Nur ein qualifizierter Gesundheitsfachmann kann eine Autismus-Diagnose stellen. Wenn Ihre Ergebnisse auf autistische Merkmale hinweisen, konsultieren Sie einen Psychiater, Psychologen oder spezialisierten Arzt."
       },
       "actions": {
-        "copyText": "📋 Text kopieren",
-        "copyJson": "📋 JSON kopieren",
-        "generateReport": "📄 Bericht erstellen",
-        "retakeTest": "🔄 Test wiederholen",
-        "viewCached": "📁 Gespeicherte Berichte anzeigen"
+        "restart": "🔄 Test Neustarten",
+        "copyResults": "📋 Ergebnisse Kopieren",
+        "copyJson": "� Vollständiges JSON Kopieren",
+        "generateReport": "� Detaillierten Bericht Generieren",
+        "copied": "✅ Kopiert!",
+        "jsonCopied": "✅ JSON Kopiert!",
+        "reportGenerating": "🔄 Bericht wird generiert (kann bis zu 1 Minute dauern)...",
+        "reportError": "❌ Fehler beim Generieren des Berichts",
+        "reportReady": "✅ Bericht Bereit!"
+      },
+      "reportModal": {
+        "confirmMessage": "Dies wird einen umfassenden detaillierten Bericht mit KI-gestützter Analyse Ihrer RAADS-R-Bewertungsergebnisse generieren.",
+        "errorPrefix": "Fehler beim Generieren des Berichts: "
       },
       "interpretations": {
         "none": {
           "level": "Keine ASS",
           "description": "Keine Hinweise auf Autismus-Spektrum-Störung"
         },
-        "possible": {
-          "level": "Einige autistische Merkmale",
+        "light": {
+          "level": "Leichte Merkmale",
           "description": "Einige autistische Merkmale, aber wahrscheinlich keine ASS"
+        },
+        "moderate": {
+          "level": "Moderate Merkmale",
+          "description": "Mehrere autistische Merkmale vorhanden"
+        },
+        "possible": {
+          "level": "Mögliche ASS",
+          "description": "Mindestpunktzahl, bei der Autismus in Betracht gezogen wird"
         },
         "likely": {
           "level": "ASS möglich",
