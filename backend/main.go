@@ -407,10 +407,10 @@ COMPLETE ASSESSMENT DATA (JSON):
 SUMMARY:
 - Test Date: %s
 - Total Score: %d/%d (Clinical threshold: 65, Neurotypical average: 26)
-- Social Score: %d/%d (Clinical threshold: 30, Neurotypical average: 12.5)
-- Sensory Score: %d/%d (Clinical threshold: 15, Neurotypical average: 6.5)
-- Restricted Score: %d/%d (Clinical threshold: 14, Neurotypical average: 4.5)
-- Language Score: %d/%d (Clinical threshold: 3, Neurotypical average: 2.5)
+- Social Score: %d/%d (Clinical threshold: 31, Neurotypical average: 12.5)
+- Sensory Score: %d/%d (Clinical threshold: 16, Neurotypical average: 6.5)
+- Restricted Score: %d/%d (Clinical threshold: 15, Neurotypical average: 4.5)
+- Language Score: %d/%d (Clinical threshold: 4, Neurotypical average: 2.5)
 - Interpretation: %s - %s
 - Questions answered: %d/%d (%.1f%%)
 - Comments provided: %d

@@ -104,13 +104,26 @@
       "title": "📁 Gespeicherte Berichte",
       "description": "Ihre erstellten Berichte werden 30 Tage lokal gespeichert. Sie können sie auch nach dem Schließen Ihres Browsers wieder öffnen.",
       "close": "Schließen",
+      "import": "📥 Importieren",
+      "cancel": "Abbrechen",
       "noReports": "Keine gespeicherten Berichte gefunden.",
       "reportFrom": "Bericht vom",
       "score": "Punktzahl:",
       "open": "📄 Öffnen",
       "delete": "🗑️ Löschen",
       "confirmDelete": "Sind Sie sicher, dass Sie diesen gespeicherten Bericht löschen möchten?",
-      "notFound": "Bericht nicht gefunden oder abgelaufen."
+      "notFound": "Bericht nicht gefunden oder abgelaufen.",
+      "invalidFileType": "Bitte wählen Sie eine gültige JSON-Datei aus.",
+      "invalidFormat": "Ungültiges Berichtsformat. Stellen Sie sicher, dass es sich um einen gültigen RAADS-R-Berichtsexport oder ein unverarbeitetes JSON-Ergebnis handelt.",
+      "duplicateWarning": "Ein ähnlicher Bericht scheint bereits zu existieren. Trotzdem importieren?",
+      "importSuccess": "Bericht erfolgreich importiert!",
+      "importError": "Fehler beim Importieren des Berichts. Bitte versuchen Sie es erneut.",
+      "parseError": "Fehler beim Parsen der JSON-Datei. Stellen Sie sicher, dass es sich um einen gültigen RAADS-R-Berichtsexport oder ein unverarbeitetes JSON-Ergebnis handelt.",
+      "analysisError": "Fehler beim Generieren der Analyse für diesen Bericht. Bitte versuchen Sie es erneut.",
+      "participantInfo": "Teilnehmerinformationen",
+      "participantInfoDesc": "Bitte geben Sie die Teilnehmerinformationen für diesen importierten Bericht an:",
+      "importedReport": "Importierter Bericht",
+      "importedReportDesc": "Dieser Bericht wurde aus unverarbeiteten JSON-Daten importiert. Die detaillierte Analyse ist nicht verfügbar, aber alle Bewertungen und Antworten wurden erhalten."
     }
   },
   "options": [

@@ -104,13 +104,26 @@
       "title": "📁 Informes Guardados",
       "description": "Tus informes generados se guardan localmente durante 30 días. Puedes reabrirlos incluso después de cerrar tu navegador.",
       "close": "Cerrar",
+      "import": "📥 Importar",
+      "cancel": "Cancelar",
       "noReports": "No se encontraron informes guardados.",
       "reportFrom": "Informe del",
       "score": "Puntuación:",
       "open": "📄 Abrir",
       "delete": "🗑️ Eliminar",
       "confirmDelete": "¿Estás seguro de que quieres eliminar este informe guardado?",
-      "notFound": "Informe no encontrado o ha expirado."
+      "notFound": "Informe no encontrado o ha expirado.",
+      "invalidFileType": "Por favor selecciona un archivo JSON válido.",
+      "invalidFormat": "Formato de informe inválido. Asegúrate de que sea una exportación de informe RAADS-R válida o un resultado JSON sin procesar.",
+      "duplicateWarning": "Un informe similar parece existir ya. ¿Importar de todos modos?",
+      "importSuccess": "¡Informe importado con éxito!",
+      "importError": "Error al importar el informe. Por favor inténtalo de nuevo.",
+      "parseError": "Error al analizar el archivo JSON. Asegúrate de que sea una exportación de informe RAADS-R válida o un resultado JSON sin procesar.",
+      "analysisError": "Error al generar el análisis para este informe. Por favor inténtalo de nuevo.",
+      "participantInfo": "Información del Participante",
+      "participantInfoDesc": "Por favor proporciona la información del participante para este informe importado:",
+      "importedReport": "Informe Importado",
+      "importedReportDesc": "Este informe fue importado desde datos JSON sin procesar. El análisis detallado no está disponible, pero todos los puntajes y respuestas han sido preservados."
     }
   },
   "options": [

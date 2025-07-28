@@ -104,13 +104,26 @@
       "title": "📁 Rapporti Salvati",
       "description": "I tuoi rapporti generati sono memorizzati localmente per 30 giorni. Puoi riaprirli anche dopo aver chiuso il browser.",
       "close": "Chiudi",
+      "import": "📥 Importa",
+      "cancel": "Annulla",
       "noReports": "Nessun rapporto salvato trovato.",
       "reportFrom": "Rapporto del",
       "score": "Punteggio:",
       "open": "📄 Apri",
       "delete": "🗑️ Elimina",
       "confirmDelete": "Sei sicuro di voler eliminare questo rapporto salvato?",
-      "notFound": "Rapporto non trovato o scaduto."
+      "notFound": "Rapporto non trovato o scaduto.",
+      "invalidFileType": "Seleziona un file JSON valido.",
+      "invalidFormat": "Formato di rapporto non valido. Assicurati che sia un'esportazione di rapporto RAADS-R valida o un risultato JSON grezzo.",
+      "duplicateWarning": "Un rapporto simile sembra già esistere. Importare comunque?",
+      "importSuccess": "Rapporto importato con successo!",
+      "importError": "Errore nell'importazione del rapporto. Riprova.",
+      "parseError": "Errore nell'analisi del file JSON. Assicurati che sia un'esportazione di rapporto RAADS-R valida o un risultato JSON grezzo.",
+      "analysisError": "Errore nella generazione dell'analisi per questo rapporto. Riprova.",
+      "participantInfo": "Informazioni Partecipante",
+      "participantInfoDesc": "Fornisci le informazioni del partecipante per questo rapporto importato:",
+      "importedReport": "Rapporto Importato",
+      "importedReportDesc": "Questo rapporto è stato importato da dati JSON grezzi. L'analisi dettagliata non è disponibile, ma tutti i punteggi e le risposte sono stati conservati."
     }
   },
   "options": [

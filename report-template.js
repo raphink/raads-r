@@ -775,7 +775,7 @@ class ReportTemplate {
                 };
 
                 // Thresholds and averages
-                const thresholds = { social: 31, language: 4, sensory: 16, restricted: 24, total: 65 };
+                const thresholds = { social: 31, language: 4, sensory: 16, restricted: 15, total: 65 };
                 const averages = { social: 11, language: 2, sensory: 6, restricted: 8, total: 25 };
 
                 const domains = [
