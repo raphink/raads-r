@@ -124,60 +124,90 @@ class ReportTemplate {
 
     // Generate complete report (for immediate display)
     static generateReport(assessmentData, reportId, language = 'en') {
-        const template = this.getHTMLTemplate();
-        
-        // Create a new window/tab with the report
-        const reportWindow = window.open('', '_blank');
-        reportWindow.document.write(template);
-        reportWindow.document.close();
-        
-        // Wait for the document to load, then initialize
-        reportWindow.addEventListener('load', () => {
-            // Set language parameter for translations
-            const url = new URL(reportWindow.location);
-            url.searchParams.set('lang', language);
-            reportWindow.history.replaceState({}, '', url);
+        try {
+            // Save report data to localStorage
+            const reportData = {
+                assessmentData: assessmentData,
+                reportId: reportId,
+                language: language,
+                createdAt: new Date().toISOString(),
+                isStreaming: true, // Mark as streaming until analysis is complete
+                analysisHTML: null // Will be populated when analysis completes
+            };
             
-            // Initialize the report with data (after a short delay to ensure scripts are loaded)
-            setTimeout(() => {
-                reportWindow.ReportTemplate.initializeReport(assessmentData, reportId);
-            }, 100);
-        });
-        
-        return reportWindow;
+            localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(reportData));
+            
+            // Open report page with ID parameter
+            const reportUrl = `report.html?id=${reportId}&lang=${language}`;
+            const reportWindow = window.open(reportUrl, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+            
+            return reportWindow;
+        } catch (error) {
+            console.error('Error generating report:', error);
+            throw error;
+        }
     }
     
     // Generate report from cached data (assessment + analysis)
     static generateReportFromCache(assessmentData, analysisHTML, reportId, language = 'en') {
-        const template = this.getHTMLTemplate();
-        
-        // Create a new window/tab with the report
-        const reportWindow = window.open('', '_blank');
-        reportWindow.document.write(template);
-        reportWindow.document.close();
-        
-        // Wait for the document to load, then initialize with both data and analysis
-        reportWindow.addEventListener('load', () => {
-            // Set language parameter for translations
-            const url = new URL(reportWindow.location);
-            url.searchParams.set('lang', language);
-            reportWindow.history.replaceState({}, '', url);
+        try {
+            // Save complete report data to localStorage
+            const reportData = {
+                assessmentData: assessmentData,
+                reportId: reportId,
+                language: language,
+                createdAt: new Date().toISOString(),
+                isStreaming: false, // Analysis is complete
+                analysisHTML: analysisHTML
+            };
             
-            // Initialize the report with data and then update with analysis
-            setTimeout(() => {
-                // Initialize with assessment data first
-                reportWindow.ReportTemplate.initializeReport(assessmentData, reportId);
+            localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(reportData));
+            
+            // Open report page with ID parameter
+            const reportUrl = `report.html?id=${reportId}&lang=${language}`;
+            const reportWindow = window.open(reportUrl, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+            
+            return reportWindow;
+        } catch (error) {
+            console.error('Error generating report with cached analysis:', error);
+            throw error;
+        }
+    }
+    
+    // Update existing report with analysis chunk (called during streaming)
+    static updateReportAnalysis(reportId, analysisHTML) {
+        try {
+            const reportData = localStorage.getItem(`raads-report-${reportId}`);
+            if (reportData) {
+                const report = JSON.parse(reportData);
+                report.analysisHTML = analysisHTML;
+                // Keep isStreaming as true - don't change it during streaming
+                report.updatedAt = new Date().toISOString();
                 
-                // Then update with the analysis (slight delay to ensure initialization completes)
-                setTimeout(() => {
-                    reportWindow.ReportTemplate.updateAnalysis(analysisHTML);
-                    // Enable print button since this is a complete cached report
-                    reportWindow.ReportTemplate.enablePrintButton();
-                }, 200);
-            }, 200);
-        });
-        
-        return reportWindow;
+                localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(report));
+                
+                // Notify any open report windows about the update
+                // (They will poll localStorage and update themselves)
+            }
+        } catch (error) {
+            console.error('Error updating report analysis:', error);
+        }
+    }
+    
+    // Mark streaming as complete for a report
+    static completeReportStreaming(reportId) {
+        try {
+            const reportData = localStorage.getItem(`raads-report-${reportId}`);
+            if (reportData) {
+                const report = JSON.parse(reportData);
+                report.isStreaming = false; // Mark streaming as complete
+                report.completedAt = new Date().toISOString();
+                
+                localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(report));
+            }
+        } catch (error) {
+            console.error('Error completing report streaming:', error);
+        }
     }
 }
 

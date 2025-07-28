@@ -1292,8 +1292,8 @@ ${copyText.disclaimer}`;
                     // Open report window immediately with loading state
                     const reportWindow = ReportTemplate.generateReport(fullData, reportId, fullData.language);
                     
-                    // Start streaming analysis
-                    await streamAnalysisToReport(fullData, reportId, reportWindow);
+                    // Start streaming analysis in the background
+                    await streamAnalysisToReport(fullData, reportId);
                     
                     // Cache the completed report data
                     // Note: We'll update this to cache the final analysis after streaming completes
@@ -1325,7 +1325,7 @@ ${copyText.disclaimer}`;
         }
         
         // Stream analysis to an already-opened report window
-        async function streamAnalysisToReport(assessmentData, reportId, reportWindow) {
+        async function streamAnalysisToReport(assessmentData, reportId) {
             try {
                 const response = await fetch(`${CONFIG.API_BASE}/analyze-stream`, {
                     method: 'POST',
@@ -1381,24 +1381,18 @@ ${copyText.disclaimer}`;
                                 
                                 if (parsed.html) {
                                     console.log('Streaming update - HTML length:', parsed.html.length);
-                                    // Update the report window IMMEDIATELY with streaming HTML
-                                    if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
-                                        reportWindow.ReportTemplate.updateAnalysis(parsed.html);
-                                        finalAnalysisHTML = parsed.html; // Keep track of the latest complete version
-                                        console.log('✅ Report window updated with streaming content');
-                                    } else {
-                                        console.warn('Report window not available for update');
-                                    }
+                                    // Update the report data in localStorage for the report page to pick up
+                                    ReportTemplate.updateReportAnalysis(reportId, parsed.html);
+                                    finalAnalysisHTML = parsed.html; // Keep track of the latest complete version
+                                    console.log('✅ Report data updated in localStorage');
                                 }
                             } catch (parseError) {
                                 console.warn('Failed to parse event data:', parseError, 'Data:', eventData);
                             }
                         } else if (eventType === 'complete' || eventData === '[DONE]') {
                             console.log('✅ Streaming analysis completed');
-                            // Enable print button now that streaming is complete
-                            if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
-                                reportWindow.ReportTemplate.enablePrintButton();
-                            }
+                            // Mark streaming as complete in localStorage
+                            ReportTemplate.completeReportStreaming(reportId);
                             // Cache the final report data
                             ReportCache.save(reportId, assessmentData, finalAnalysisHTML);
                             break;
@@ -1430,19 +1424,22 @@ ${copyText.disclaimer}`;
                     if (response.ok) {
                         const data = await response.json();
                         if (data.success && data.analysis) {
-                            if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
-                                reportWindow.ReportTemplate.updateAnalysis(data.analysis);
-                                // Enable print button since fallback analysis is complete
-                                reportWindow.ReportTemplate.enablePrintButton();
-                            }
+                            // Update report in localStorage and mark as complete
+                            ReportTemplate.updateReportAnalysis(reportId, data.analysis);
+                            ReportTemplate.completeReportStreaming(reportId);
                             ReportCache.save(reportId, assessmentData, data.analysis);
                         }
                     }
                 } catch (fallbackError) {
                     console.error('Fallback analysis also failed:', fallbackError);
-                    if (reportWindow && !reportWindow.closed) {
-                        reportWindow.document.getElementById('analysis-container').innerHTML = 
-                            '<div class="alert alert-danger">❌ Failed to generate analysis. Please try again.</div>';
+                    // Update localStorage with error message and mark as complete
+                    const reportData = localStorage.getItem(`raads-report-${reportId}`);
+                    if (reportData) {
+                        const report = JSON.parse(reportData);
+                        report.analysisHTML = '<div class="alert alert-danger">❌ Failed to generate analysis. Please try again.</div>';
+                        report.isStreaming = false;
+                        report.hasError = true;
+                        localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(report));
                     }
                 }
             }
@@ -1787,8 +1784,8 @@ ${copyText.disclaimer}`;
                 // Open report window immediately with loading state
                 const reportWindow = ReportTemplate.generateReport(report.assessmentData, reportId, report.assessmentData.language || report.language || 'en');
                 
-                // Start streaming analysis
-                await streamAnalysisToReport(report.assessmentData, reportId, reportWindow);
+                // Start streaming analysis in the background
+                await streamAnalysisToReport(report.assessmentData, reportId);
                 
                 // The analysis will be saved to cache automatically by streamAnalysisToReport
                 

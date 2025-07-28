@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="title">RAADS-R Assessment Report</title>
+    <link rel="stylesheet" href="report.css">
+</head>
+<body>
+    <!-- Report content with data-translate attributes -->
+    <div class="no-print">
+        <button id="print-btn" class="print-btn" onclick="window.print()" disabled>
+            ⏳ Generating Analysis...
+        </button>
+        <button class="close-btn" onclick="window.close()">
+            <span data-translate="close_report">Close Report</span>
+        </button>
+    </div>
+    
+    <!-- Title Page -->
+    <div class="title-page">
+        <h1 data-translate="assessment_report">ASSESSMENT REPORT</h1>
+        <div class="subtitle" data-translate="scale_subtitle">Ritvo Autism Asperger Diagnostic Scale - Revised</div>
+        
+        <div class="participant-details">
+            <div style="margin-bottom: 15px;">
+                <strong data-translate="participant">Participant:</strong> 
+                <span class="participant-name">[Name to be filled]</span>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong data-translate="age">Age:</strong> 
+                <span class="participant-age">[Age] years</span>
+            </div>
+        </div>
+        
+        <div class="assessment-info">
+            <div style="font-size: 16pt; margin-bottom: 20px; font-weight: bold;" data-translate="assessment_summary">Assessment Summary</div>
+            <div style="font-size: 14pt; margin-bottom: 10px;">
+                <span data-translate="total_score">Total Score:</span> 
+                <span style="font-weight: bold; font-size: 18pt;" id="total-score-display">--/240</span>
+            </div>
+            <div style="font-size: 14pt;">
+                <span data-translate="assessment_date">Assessment Date:</span> 
+                <span style="font-weight: bold;" id="assessment-date-display">--</span>
+            </div>
+        </div>
+        <div class="footer-info" data-translate="footer_disclaimer">
+            This report was generated using the RAADS-R assessment tool<br><em>This is not a clinical diagnosis and should not replace professional evaluation</em>
+        </div>
+    </div>
+
+    <h1 style="margin-top: 40px;" data-translate="assessment_results">Assessment Results</h1>
+    
+    <!-- Total Score Card -->
+    <div class="interpretation-card total-score-card" id="total-score-card">
+        <h2 data-translate="total_score">Total Score</h2>
+        <div class="total-score-number" id="total-score-number">--/240</div>
+        <div class="interpretation-level" id="interpretation-level">--</div>
+        <div class="interpretation-description" id="interpretation-description">--</div>
+    </div>
+
+    <h2 data-translate="score_distribution">Score Distribution by Domain</h2>
+    <div class="chart-container">
+        <div class="chart-wrapper" id="chart-container">
+            <!-- Chart will be populated by JavaScript -->
+        </div>
+        <div class="chart-legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #7bc4f5;"></div>
+                <span data-translate="your_score">Your Score</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color threshold-marker"></div>
+                <span data-translate="autistic_threshold">Autistic Threshold</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color average-marker"></div>
+                <span data-translate="neurotypical_average">Neurotypical Average</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e8e8e8;"></div>
+                <span data-translate="maximum_possible">Maximum Possible</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Analysis section with loading state -->
+    <div id="analysis-container" class="analysis-loading" data-translate="reportGenerating">
+        🔄 Loading Report...
+    </div>
+
+    <div class="page-break"></div>
+    <div class="appendix-container">
+        <h2 data-translate="appendix_title">Appendix: Questions and Answers</h2>
+        <p style="color: #666; margin-bottom: 20px;" data-translate="appendix_description">Complete assessment responses with participant comments where provided.</p>
+        <div id="questions-container">
+            <!-- Questions will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>
+            <span data-translate="generated_on">Generated on</span> 
+            <span id="generated-date">--</span> 
+            <span data-translate="by">by</span> 
+            raphink.github.io/raads-r
+        </p>
+        <p>
+            <span data-translate="report_id">Report ID:</span> 
+            <span id="report-id-display">--</span>
+        </p>
+    </div>
+
+    <script src="report.js"></script>
+    <script>
+        // Report page initialization - loads report from localStorage based on URL param
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Get report ID from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const reportId = urlParams.get('id');
+                const language = urlParams.get('lang') || 'en';
+                
+                if (!reportId) {
+                    // Show error if no report ID provided
+                    document.getElementById('analysis-container').innerHTML = 
+                        '<div style="color: #e74c3c; text-align: center; padding: 40px;"><h2>Error: No Report ID</h2><p>This report page requires a report ID parameter. Please access this page through the main application.</p></div>';
+                    return;
+                }
+                
+                // Load report data from localStorage
+                const reportData = localStorage.getItem(`raads-report-${reportId}`);
+                if (!reportData) {
+                    // Show error if report not found
+                    document.getElementById('analysis-container').innerHTML = 
+                        '<div style="color: #e74c3c; text-align: center; padding: 40px;"><h2>Report Not Found</h2><p>The requested report could not be found. It may have been deleted or the link may be invalid.</p></div>';
+                    return;
+                }
+                
+                // Parse report data
+                const report = JSON.parse(reportData);
+                console.log('Loaded report from localStorage:', report);
+                
+                // Load translations
+                const translations = await loadTranslations(language);
+                window.currentTranslations = translations;
+                applyTranslations(translations);
+                
+                // Initialize the report with the loaded data
+                ReportTemplate.initializeReport(report.assessmentData, reportId);
+                
+                // If analysis is available, show it immediately
+                if (report.analysisHTML) {
+                    console.log('Report has existing analysis, showing immediately');
+                    ReportTemplate.updateAnalysis(report.analysisHTML);
+                    if (!report.isStreaming) {
+                        ReportTemplate.enablePrintButton();
+                    }
+                }
+                
+                // If report is streaming (or might be), start polling for updates
+                if (report.isStreaming) {
+                    console.log('Report is streaming, starting poll for updates');
+                    // Report is still being generated - show loading state
+                    if (!report.analysisHTML) {
+                        document.getElementById('analysis-container').innerHTML = 
+                            '<div class="analysis-loading">🔄 Analysis is being generated in another window...</div>';
+                    }
+                    
+                    // Poll for updates
+                    pollForAnalysisUpdates(reportId);
+                } else if (!report.analysisHTML) {
+                    // Analysis wasn't generated - show message
+                    document.getElementById('analysis-container').innerHTML = 
+                        '<div style="color: #f39c12; text-align: center; padding: 40px;"><h2>Analysis Not Available</h2><p>The analysis for this report has not been generated yet.</p></div>';
+                }
+                
+            } catch (error) {
+                console.error('Error loading report:', error);
+                document.getElementById('analysis-container').innerHTML = 
+                    '<div style="color: #e74c3c; text-align: center; padding: 40px;"><h2>Error Loading Report</h2><p>An error occurred while loading the report. Please try again.</p></div>';
+            }
+        });
+        
+        // Poll for analysis updates when report is being streamed in another window
+        function pollForAnalysisUpdates(reportId) {
+            let lastAnalysisHTML = '';
+            
+            const pollInterval = setInterval(() => {
+                const reportData = localStorage.getItem(`raads-report-${reportId}`);
+                if (reportData) {
+                    const report = JSON.parse(reportData);
+                    
+                    // Update analysis if it has changed (streaming updates)
+                    if (report.analysisHTML && report.analysisHTML !== lastAnalysisHTML) {
+                        console.log('Analysis updated, length:', report.analysisHTML.length);
+                        ReportTemplate.updateAnalysis(report.analysisHTML);
+                        lastAnalysisHTML = report.analysisHTML;
+                    }
+                    
+                    // Check if streaming is complete
+                    if (!report.isStreaming) {
+                        console.log('Streaming completed, stopping poll');
+                        clearInterval(pollInterval);
+                        // Enable print button since streaming is complete
+                        ReportTemplate.enablePrintButton();
+                    }
+                }
+            }, 1000); // Poll every second
+            
+            // Stop polling after 5 minutes to avoid infinite polling
+            setTimeout(() => {
+                clearInterval(pollInterval);
+                console.log('Polling timeout reached');
+            }, 5 * 60 * 1000);
+        }
+    </script>
+</body>
+</html>
