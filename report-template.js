@@ -412,6 +412,23 @@ class ReportTemplate {
             border-radius: 2px;
         }
         
+        .legend-color.threshold-marker {
+            border-radius: 50%;
+            background-color: #e74c3c;
+            border: 2px solid #c0392b;
+            position: relative;
+            left: 0;
+            transform: none;
+        }
+        
+        .legend-color.average-marker {
+            background-color: #27ae60;
+            border: 2px solid #229954;
+            border-radius: 2px;
+            position: relative;
+            left: 5px;
+        }
+        
         .markdown-content {
             line-height: 1.6;
             margin: 30px 0;
@@ -686,11 +703,11 @@ class ReportTemplate {
                 <span data-translate="your_score">Your Score</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                <div class="legend-color threshold-marker"></div>
                 <span data-translate="autistic_threshold">Autistic Threshold</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: #27ae60;"></div>
+                <div class="legend-color average-marker"></div>
                 <span data-translate="neurotypical_average">Neurotypical Average</span>
             </div>
             <div class="legend-item">
