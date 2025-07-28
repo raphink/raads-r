@@ -150,6 +150,11 @@ class ReportTemplate {
                 border: 2px solid #000 !important;
             }
             
+            .score-display {
+                color: #7bc4f5 !important;
+                font-weight: bold !important;
+            }
+            
             .chart-container-inner {
                 border: 2px solid #000 !important;
                 background: #e8e8e8 !important;
@@ -289,7 +294,7 @@ class ReportTemplate {
             align-items: flex-end;
             height: 400px;
             margin: 20px 0;
-            padding: 20px;
+            padding: 30px;
             border: 1px solid #ddd;
             background: #f9f9f9;
         }
@@ -334,6 +339,17 @@ class ReportTemplate {
             font-weight: bold;
             padding-bottom: 3px;
             min-height: 2px;
+        }
+        
+        .score-display {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: #7bc4f5;
+            text-align: center;
         }
         
         .threshold-marker {
@@ -798,9 +814,10 @@ class ReportTemplate {
                             <div class="chart-label" data-translate="\${domain.label}">\${domain.label}</div>
                             <div class="chart-container-inner" style="height: \${containerHeight}px;">
                                 <div class="max-score-label">\${maxScore}</div>
-                                <div class="score-bar" style="height: \${barHeight}px;" title="Score: \${score}/\${maxScore} (\${(score/maxScore*100).toFixed(1)}%)" data-height="\${barHeight}">\${score}</div>
+                                <div class="score-bar" style="height: \${barHeight}px;" title="Score: \${score}/\${maxScore} (\${(score/maxScore*100).toFixed(1)}%)" data-height="\${barHeight}"></div>
                                 <div class="threshold-marker" style="bottom: \${thresholdBottom}px;" data-label="\${threshold}"></div>
                                 <div class="average-marker" style="bottom: \${averageBottom}px;" data-label="\${average}"></div>
+                                <div class="score-display">\${score}</div>
                             </div>
                         </div>
                     \`;
