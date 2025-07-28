@@ -112,6 +112,7 @@ func main() {
 	// Routes
 	r.GET("/health", healthCheck)
 	r.POST("/generate-pdf", generatePDFHandler)
+	r.POST("/analyze", analyzeHandler) // New endpoint for analysis only
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -295,6 +296,59 @@ func generatePDFHandler(c *gin.Context) {
 		"generated_at": response.GeneratedAt,
 		"html_content": htmlContent,
 		"print_ready":  true,
+	})
+}
+
+// analyzeHandler provides only the Claude analysis as HTML (lighter than full report)
+func analyzeHandler(c *gin.Context) {
+	var data AssessmentData
+
+	if err := c.ShouldBindJSON(&data); err != nil {
+		log.Printf("❌ Invalid JSON data: %v", err)
+		c.JSON(400, gin.H{"error": "Invalid JSON data: " + err.Error()})
+		return
+	}
+
+	// Validate the assessment data
+	if err := validateAssessmentData(data); err != nil {
+		log.Printf("❌ Invalid assessment data: %v", err)
+		c.JSON(400, gin.H{"error": "Invalid assessment data: " + err.Error()})
+		return
+	}
+
+	reportID := uuid.New().String()
+	log.Printf("🧠 Processing analysis request %s", reportID)
+	log.Printf("   - Total Score: %d/%d", data.Scores.Total, data.Scores.MaxTotal)
+	log.Printf("   - Test: %s", data.Metadata.TestName)
+
+	// Generate Markdown analysis with Claude
+	log.Printf("🤖 Generating analysis with Claude...")
+	markdownContent, err := generateMarkdownReportWithClaude(data)
+	if err != nil {
+		log.Printf("❌ Error generating analysis: %v", err)
+		c.JSON(500, gin.H{"error": "Failed to generate analysis: " + err.Error()})
+		return
+	}
+
+	log.Printf("✅ Generated analysis content (%d characters)", len(markdownContent))
+
+	// Convert Markdown to HTML for the analysis section only
+	var buf bytes.Buffer
+	if err := goldmark.New().Convert([]byte(markdownContent), &buf); err != nil {
+		log.Printf("❌ Error converting Markdown to HTML: %v", err)
+		c.JSON(500, gin.H{"error": "Failed to convert analysis to HTML: " + err.Error()})
+		return
+	}
+
+	analysisHTML := buf.String()
+	log.Printf("📄 Returning analysis HTML...")
+
+	// Return just the analysis HTML (much lighter than full report)
+	c.JSON(200, gin.H{
+		"success":    true,
+		"report_id":  reportID,
+		"analysis":   analysisHTML,
+		"generated_at": time.Now().UTC(),
 	})
 }
 
