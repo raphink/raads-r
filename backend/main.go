@@ -691,9 +691,6 @@ IMPORTANT:
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		// Debug
-		log.Printf("📜 Received line: %s", line)
-
 		// Claude streams in Server-Sent Events format
 		if strings.HasPrefix(line, "data: ") {
 			data := strings.TrimPrefix(line, "data: ")
