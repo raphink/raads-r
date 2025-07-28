@@ -1464,11 +1464,14 @@ ${copyText.disclaimer}`;
                                 <p class="mb-1 text-muted">${lang.ui.cachedReports.score} ${summary.totalScore}/${summary.maxScore}</p>
                                 <small class="text-muted">${createdDate} ${createdTime}</small>
                             </div>
-                            <div>
-                                <button class="btn btn-primary btn-sm me-2" onclick="reopenCachedReport('${summary.id}')">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-primary btn-sm" onclick="reopenCachedReport('${summary.id}')" title="Open Report">
                                     ${lang.ui.cachedReports.open}
                                 </button>
-                                <button class="btn btn-outline-danger btn-sm" onclick="deleteCachedReport('${summary.id}')">
+                                <button class="btn btn-success btn-sm" onclick="exportCachedReportJSON('${summary.id}')" title="Export as JSON">
+                                    📄 JSON
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" onclick="deleteCachedReport('${summary.id}')" title="Delete Report">
                                     ${lang.ui.cachedReports.delete}
                                 </button>
                             </div>
@@ -1509,6 +1512,56 @@ ${copyText.disclaimer}`;
                 ReportCache.remove(reportId);
                 // Refresh the modal content
                 showCachedReports();
+            }
+        }
+        
+        // Function to export a cached report as JSON
+        function exportCachedReportJSON(reportId) {
+            const report = ReportCache.get(reportId);
+            if (!report) {
+                alert(lang.ui.cachedReports.notFound);
+                return;
+            }
+            
+            try {
+                // Create the export data structure
+                const exportData = {
+                    reportId: reportId,
+                    language: report.language,
+                    metadata: report.assessmentData.metadata,
+                    scores: report.assessmentData.scores,
+                    interpretation: report.assessmentData.interpretation,
+                    questionsAndAnswers: report.assessmentData.questionsAndAnswers,
+                    participantInfo: report.assessmentData.participantInfo,
+                    analysisHTML: report.analysisHTML,
+                    createdAt: report.createdAt,
+                    expiresAt: report.expiresAt
+                };
+                
+                // Convert to JSON string
+                const jsonString = JSON.stringify(exportData, null, 2);
+                
+                // Create filename with participant name and date
+                const dateStr = new Date(report.createdAt).toISOString().split('T')[0];
+                const participantName = report.assessmentData.participantInfo?.name || 'Unknown';
+                const filename = `RAADS-R_${participantName.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr}.json`;
+                
+                // Create and trigger download
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                console.log(`Exported report ${reportId} as ${filename}`);
+                
+            } catch (error) {
+                console.error('Failed to export report:', error);
+                alert('Failed to export report. Please try again.');
             }
         }
         
