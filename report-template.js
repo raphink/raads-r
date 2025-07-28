@@ -2,252 +2,38 @@
 // This file contains the HTML template extracted from the backend and client-side generation logic
 
 class ReportTemplate {
-    // Language-specific strings for report generation
-    static getLanguageStrings(language) {
-        const strings = {
-            'fr': {
-                "lang": "fr",
-                "title": "Rapport d'évaluation RAADS-R",
-                "print_report": "🖨️ Imprimer le rapport",
-                "close_report": "❌ Fermer le rapport",
-                "assessment_report": "RAPPORT D'ÉVALUATION",
-                "scale_subtitle": "Échelle diagnostique d'Asperger et d'autisme de Ritvo - Révisée",
-                "participant": "Participant :",
-                "age": "Âge :",
-                "name_placeholder": "[Nom à remplir]",
-                "age_placeholder": "[Âge]",
-                "age_suffix": " ans",
-                "assessment_summary": "Résumé de l'évaluation",
-                "total_score": "Score total :",
-                "assessment_date": "Date d'évaluation :",
-                "footer_disclaimer": "Ce rapport a été généré en utilisant l'outil d'évaluation RAADS-R<br><em>Ceci n'est pas un diagnostic clinique et ne doit pas remplacer une évaluation professionnelle</em>",
-                "instructions_title": "📝 Instructions",
-                "before_printing": "Avant d'imprimer :",
-                "fill_info": "Veuillez remplir vos informations personnelles ci-dessous. Ces informations apparaîtront dans le rapport imprimé mais <em>ne seront pas sauvegardées</em>.",
-                "enter_name": "Entrez votre nom (ou identifiant préféré)",
-                "specify_age": "Spécifiez votre âge au moment de l'évaluation",
-                "click_print": "Une fois rempli, cliquez sur le bouton Imprimer ci-dessus pour générer votre PDF",
-                "participant_info": "Informations du participant",
-                "name_label": "Nom :",
-                "age_label": "Âge :",
-                "name_input_placeholder": "Entrez le nom du participant",
-                "age_input_placeholder": "Entrez l'âge",
-                "assessment_results": "Résultats de l'évaluation",
-                "score_distribution": "Répartition des scores par domaine",
-                "social": "Social",
-                "language": "Langage",
-                "sensory_motor": "Sensoriel/Moteur",
-                "restricted": "Restreint",
-                "total": "Total",
-                "your_score": "Votre score",
-                "autistic_threshold": "Seuil autistique",
-                "neurotypical_average": "Moyenne neurotypique",
-                "maximum_possible": "Maximum possible",
-                "appendix_title": "Annexe : Questions et réponses",
-                "appendix_description": "Réponses complètes de l'évaluation avec les commentaires du participant lorsqu'ils sont fournis.",
-                "generated_on": "Généré le",
-                "by": "par",
-                "report_id": "ID du rapport :",
-                "header_report_title": "Rapport d'évaluation RAADS-R",
-                "footer_generated_by": "Généré par raphink.github.io/raads-r",
-                "header_participant": "[Nom à remplir] - [Âge] ans"
-            },
-            'es': {
-                "lang": "es",
-                "title": "Informe de Evaluación RAADS-R",
-                "print_report": "🖨️ Imprimir Informe",
-                "close_report": "❌ Cerrar Informe",
-                "assessment_report": "INFORME DE EVALUACIÓN",
-                "scale_subtitle": "Escala Diagnóstica de Autismo y Asperger de Ritvo - Revisada",
-                "participant": "Participante:",
-                "age": "Edad:",
-                "name_placeholder": "[Nombre a completar]",
-                "age_placeholder": "[Edad]",
-                "age_suffix": " años",
-                "assessment_summary": "Resumen de la Evaluación",
-                "total_score": "Puntuación Total:",
-                "assessment_date": "Fecha de Evaluación:",
-                "footer_disclaimer": "Este informe fue generado usando la herramienta de evaluación RAADS-R<br><em>Esto no es un diagnóstico clínico y no debe reemplazar una evaluación profesional</em>",
-                "instructions_title": "📝 Instrucciones",
-                "before_printing": "Antes de imprimir:",
-                "fill_info": "Por favor, complete su información personal a continuación. Esta información aparecerá en el informe impreso pero <em>no será guardada</em>.",
-                "enter_name": "Ingrese su nombre (o identificador preferido)",
-                "specify_age": "Especifique su edad al momento de la evaluación",
-                "click_print": "Una vez completado, haga clic en el botón Imprimir arriba para generar su PDF",
-                "participant_info": "Información del Participante",
-                "name_label": "Nombre:",
-                "age_label": "Edad:",
-                "name_input_placeholder": "Ingrese el nombre del participante",
-                "age_input_placeholder": "Ingrese la edad",
-                "assessment_results": "Resultados de la Evaluación",
-                "score_distribution": "Distribución de Puntuaciones por Dominio",
-                "social": "Social",
-                "language": "Lenguaje",
-                "sensory_motor": "Sensorial/Motor",
-                "restricted": "Restringido",
-                "total": "Total",
-                "your_score": "Su Puntuación",
-                "autistic_threshold": "Umbral Autista",
-                "neurotypical_average": "Promedio Neurotípico",
-                "maximum_possible": "Máximo Posible",
-                "appendix_title": "Apéndice: Preguntas y Respuestas",
-                "appendix_description": "Respuestas completas de la evaluación con comentarios del participante cuando se proporcionan.",
-                "generated_on": "Generado el",
-                "by": "por",
-                "report_id": "ID del Informe:",
-                "header_report_title": "Informe de Evaluación RAADS-R",
-                "footer_generated_by": "Generado por raphink.github.io/raads-r",
-                "header_participant": "[Nombre a completar] - [Edad] años"
-            },
-            'it': {
-                "lang": "it",
-                "title": "Rapporto di Valutazione RAADS-R",
-                "print_report": "🖨️ Stampa Rapporto",
-                "close_report": "❌ Chiudi Rapporto",
-                "assessment_report": "RAPPORTO DI VALUTAZIONE",
-                "scale_subtitle": "Scala Diagnostica dell'Autismo e Asperger di Ritvo - Rivista",
-                "participant": "Partecipante:",
-                "age": "Età:",
-                "name_placeholder": "[Nome da compilare]",
-                "age_placeholder": "[Età]",
-                "age_suffix": " anni",
-                "assessment_summary": "Riassunto della Valutazione",
-                "total_score": "Punteggio Totale:",
-                "assessment_date": "Data di Valutazione:",
-                "footer_disclaimer": "Questo rapporto è stato generato utilizzando lo strumento di valutazione RAADS-R<br><em>Questa non è una diagnosi clinica e non deve sostituire una valutazione professionale</em>",
-                "instructions_title": "📝 Istruzioni",
-                "before_printing": "Prima di stampare:",
-                "fill_info": "Si prega di compilare le informazioni personali di seguito. Queste informazioni appariranno nel rapporto stampato ma <em>non saranno salvate</em>.",
-                "enter_name": "Inserisci il tuo nome (o identificatore preferito)",
-                "specify_age": "Specifica la tua età al momento della valutazione",
-                "click_print": "Una volta completato, clicca sul pulsante Stampa sopra per generare il tuo PDF",
-                "participant_info": "Informazioni del Partecipante",
-                "name_label": "Nome:",
-                "age_label": "Età:",
-                "name_input_placeholder": "Inserisci il nome del partecipante",
-                "age_input_placeholder": "Inserisci l'età",
-                "assessment_results": "Risultati della Valutazione",
-                "score_distribution": "Distribuzione dei Punteggi per Dominio",
-                "social": "Sociale",
-                "language": "Linguaggio",
-                "sensory_motor": "Sensoriale/Motorio",
-                "restricted": "Ristretto",
-                "total": "Totale",
-                "your_score": "Il Tuo Punteggio",
-                "autistic_threshold": "Soglia Autistica",
-                "neurotypical_average": "Media Neurotipica",
-                "maximum_possible": "Massimo Possibile",
-                "appendix_title": "Appendice: Domande e Risposte",
-                "appendix_description": "Risposte complete della valutazione con commenti del partecipante quando forniti.",
-                "generated_on": "Generato il",
-                "by": "da",
-                "report_id": "ID Rapporto:",
-                "header_report_title": "Rapporto di Valutazione RAADS-R",
-                "footer_generated_by": "Generato da raphink.github.io/raads-r",
-                "header_participant": "[Nome da compilare] - [Età] anni"
-            },
-            'de': {
-                "lang": "de",
-                "title": "RAADS-R Bewertungsbericht",
-                "print_report": "🖨️ Bericht drucken",
-                "close_report": "❌ Bericht schließen",
-                "assessment_report": "BEWERTUNGSBERICHT",
-                "scale_subtitle": "Ritvo Autismus Asperger Diagnostik-Skala - Überarbeitet",
-                "participant": "Teilnehmer:",
-                "age": "Alter:",
-                "name_placeholder": "[Name auszufüllen]",
-                "age_placeholder": "[Alter]",
-                "age_suffix": " Jahre",
-                "assessment_summary": "Bewertungszusammenfassung",
-                "total_score": "Gesamtpunktzahl:",
-                "assessment_date": "Bewertungsdatum:",
-                "footer_disclaimer": "Dieser Bericht wurde mit dem RAADS-R Bewertungstool generiert<br><em>Dies ist keine klinische Diagnose und sollte keine professionelle Bewertung ersetzen</em>",
-                "instructions_title": "📝 Anweisungen",
-                "before_printing": "Vor dem Drucken:",
-                "fill_info": "Bitte füllen Sie Ihre persönlichen Informationen unten aus. Diese Informationen erscheinen im gedruckten Bericht, werden aber <em>nicht gespeichert</em>.",
-                "enter_name": "Geben Sie Ihren Namen ein (oder bevorzugten Bezeichner)",
-                "specify_age": "Geben Sie Ihr Alter zum Zeitpunkt der Bewertung an",
-                "click_print": "Nach dem Ausfüllen klicken Sie auf den Drucken-Button oben, um Ihr PDF zu generieren",
-                "participant_info": "Teilnehmerinformationen",
-                "name_label": "Name:",
-                "age_label": "Alter:",
-                "name_input_placeholder": "Teilnehmername eingeben",
-                "age_input_placeholder": "Alter eingeben",
-                "assessment_results": "Bewertungsergebnisse",
-                "score_distribution": "Punkteverteilung nach Bereich",
-                "social": "Sozial",
-                "language": "Sprache",
-                "sensory_motor": "Sensorisch/Motorisch",
-                "restricted": "Eingeschränkt",
-                "total": "Gesamt",
-                "your_score": "Ihre Punktzahl",
-                "autistic_threshold": "Autistische Schwelle",
-                "neurotypical_average": "Neurotypischer Durchschnitt",
-                "maximum_possible": "Maximal möglich",
-                "appendix_title": "Anhang: Fragen und Antworten",
-                "appendix_description": "Vollständige Bewertungsantworten mit Teilnehmerkommentaren, wo angegeben.",
-                "generated_on": "Generiert am",
-                "by": "von",
-                "report_id": "Bericht-ID:",
-                "header_report_title": "RAADS-R Bewertungsbericht",
-                "footer_generated_by": "Generiert von raphink.github.io/raads-r",
-                "header_participant": "[Name auszufüllen] - [Alter] Jahre"
-            },
-            'en': {
-                "lang": "en",
-                "title": "RAADS-R Assessment Report",
-                "print_report": "🖨️ Print Report",
-                "close_report": "❌ Close Report",
-                "assessment_report": "ASSESSMENT REPORT",
-                "scale_subtitle": "Ritvo Autism Asperger Diagnostic Scale - Revised",
-                "participant": "Participant:",
-                "age": "Age:",
-                "name_placeholder": "[Name to be filled]",
-                "age_placeholder": "[Age]",
-                "age_suffix": " years",
-                "assessment_summary": "Assessment Summary",
-                "total_score": "Total Score:",
-                "assessment_date": "Assessment Date:",
-                "footer_disclaimer": "This report was generated using the RAADS-R assessment tool<br><em>This is not a clinical diagnosis and should not replace professional evaluation</em>",
-                "instructions_title": "📝 Instructions",
-                "before_printing": "Before printing:",
-                "fill_info": "Please fill in your personal information below. This information will appear in the printed report but <em>will not be saved</em>.",
-                "enter_name": "Enter your name (or preferred identifier)",
-                "specify_age": "Specify your age at the time of assessment",
-                "click_print": "Once filled, click the Print button above to generate your PDF",
-                "participant_info": "Participant Information",
-                "name_label": "Name:",
-                "age_label": "Age:",
-                "name_input_placeholder": "Enter participant name",
-                "age_input_placeholder": "Enter age",
-                "assessment_results": "Assessment Results",
-                "score_distribution": "Score Distribution by Domain",
-                "social": "Social",
-                "language": "Language",
-                "sensory_motor": "Sensory/Motor",
-                "restricted": "Restricted",
-                "total": "Total",
-                "your_score": "Your Score",
-                "autistic_threshold": "Autistic Threshold",
-                "neurotypical_average": "Neurotypical Average",
-                "maximum_possible": "Maximum Possible",
-                "appendix_title": "Appendix: Questions and Answers",
-                "appendix_description": "Complete assessment responses with participant comments where provided.",
-                "generated_on": "Generated on",
-                "by": "by",
-                "report_id": "Report ID:",
-                "header_report_title": "RAADS-R Assessment Report",
-                "footer_generated_by": "Generated by raphink.github.io/raads-r",
-                "header_participant": "[Name to be filled] - [Age] years"
+    // Load language strings from external JSON files
+    static async loadLanguageStrings(language) {
+        try {
+            const response = await fetch(`${language}.json`);
+            if (!response.ok) {
+                throw new Error(`Failed to load ${language}.json`);
             }
-        };
-
-        return strings[language] || strings['en']; // Default to English
+            const data = await response.json();
+            return data.report || data; // Support both nested and flat structures
+        } catch (error) {
+            console.warn(`Failed to load language file for ${language}, falling back to English:`, error);
+            // Fallback to English if the requested language fails
+            if (language !== 'en') {
+                return this.loadLanguageStrings('en');
+            }
+            // If even English fails, return minimal fallback
+            return {
+                title: "RAADS-R Assessment Report",
+                print_report: "🖨️ Print Report",
+                close_report: "❌ Close Report"
+            };
+        }
     }
 
-    // Generate the complete HTML template
-    static getHTMLTemplate(language) {
-        const langStrings = this.getLanguageStrings(language);
+    // Get language strings (async version)
+    static async getLanguageStrings(language) {
+        return await this.loadLanguageStrings(language || 'en');
+    }
+
+    // Generate the complete HTML template (async version)
+    static async getHTMLTemplate(language) {
+        const langStrings = await this.getLanguageStrings(language);
 
         let template = `<!DOCTYPE html>
 <html lang="{{LANG}}">
@@ -1004,43 +790,21 @@ class ReportTemplate {
         return template;
     }
 
-    // Generate questions HTML for appendix
-    static generateQuestionsHTML(questionsAndAnswers, language) {
-        // Answer text mappings for different languages
-        const answerTexts = {
-            'en': {
-                0: "Never true",
-                1: "Sometimes true", 
-                2: "Often true",
-                3: "Always true"
-            },
-            'fr': {
-                0: "Jamais vrai",
-                1: "Parfois vrai",
-                2: "Souvent vrai", 
-                3: "Toujours vrai"
-            },
-            'es': {
-                0: "Nunca verdadero",
-                1: "A veces verdadero",
-                2: "A menudo verdadero",
-                3: "Siempre verdadero"
-            },
-            'it': {
-                0: "Mai vero",
-                1: "A volte vero",
-                2: "Spesso vero",
-                3: "Sempre vero"
-            },
-            'de': {
-                0: "Nie wahr",
-                1: "Manchmal wahr",
-                2: "Oft wahr",
-                3: "Immer wahr"
-            }
+    // Generate questions HTML for appendix (async version)
+    static async generateQuestionsHTML(questionsAndAnswers, language) {
+        // Load language data to get answer text mappings
+        const langData = await this.loadLanguageStrings(language);
+        
+        // Fallback answer texts if not found in language file
+        const fallbackAnswers = {
+            0: "Never true",
+            1: "Sometimes true", 
+            2: "Often true",
+            3: "Always true"
         };
 
-        const answers = answerTexts[language] || answerTexts['en'];
+        // Try to get answer texts from language file, fall back to defaults
+        const answers = langData.answers || fallbackAnswers;
         let html = '';
 
         for (const qa of questionsAndAnswers) {
@@ -1076,9 +840,9 @@ class ReportTemplate {
         }
     }
 
-    // Generate complete HTML report
-    static generateReport(assessmentData, analysisHTML, reportId) {
-        const template = this.getHTMLTemplate(assessmentData.language);
+    // Generate complete HTML report (async version)
+    static async generateReport(assessmentData, analysisHTML, reportId) {
+        const template = await this.getHTMLTemplate(assessmentData.language);
         const totalScore = assessmentData.scores.total;
 
         // Maximum scores for each domain
@@ -1109,7 +873,7 @@ class ReportTemplate {
         const totalAverageHeight = (25 / totalMax * 100).toFixed(1);
 
         // Generate questions HTML
-        const questionsHTML = this.generateQuestionsHTML(assessmentData.questionsAndAnswers, assessmentData.language);
+        const questionsHTML = await this.generateQuestionsHTML(assessmentData.questionsAndAnswers, assessmentData.language);
 
         // Replace all placeholders
         let html = template
