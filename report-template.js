@@ -871,7 +871,18 @@ class ReportTemplate {
                 const printBtn = document.getElementById('print-btn');
                 if (printBtn) {
                     printBtn.disabled = false;
-                    printBtn.innerHTML = '🖨️ <span data-translate="print_report">Print Report</span>';
+                    printBtn.innerHTML = '️<span data-translate="print_report">Print Report</span>';
+                    
+                    // Re-apply translations to the newly added content
+                    if (typeof applyTranslations === 'function' && window.currentTranslations) {
+                        applyTranslations(window.currentTranslations);
+                    } else {
+                        // Fallback: manually translate the print button
+                        const printSpan = printBtn.querySelector('[data-translate="print_report"]');
+                        if (printSpan && window.currentTranslations && window.currentTranslations.print_report) {
+                            printSpan.textContent = window.currentTranslations.print_report;
+                        }
+                    }
                 }
             }
         }
@@ -922,6 +933,7 @@ class ReportTemplate {
             const language = urlParams.get('lang') || 'en';
             
             const translations = await loadTranslations(language);
+            window.currentTranslations = translations; // Store globally for later use
             applyTranslations(translations);
             
             // Note: initializeParticipantInfo() will be called from initializeReport()
@@ -1100,13 +1112,7 @@ class ReportTemplate {
         if (analysisContainer) {
             analysisContainer.className = 'markdown-content';
             analysisContainer.innerHTML = analysisHTML;
-            
-            // Enable print button
-            const printBtn = document.getElementById('print-btn');
-            if (printBtn) {
-                printBtn.disabled = false;
-                printBtn.innerHTML = '🖨️ <span data-translate="print_report">Print Report</span>';
-            }
+            // Note: Print button stays disabled until streaming completes
         }
     }
 
