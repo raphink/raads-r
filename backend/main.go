@@ -325,7 +325,7 @@ func generateMarkdownReportWithClaude(data AssessmentData) (string, error) {
 		language = "English" // fallback
 	}
 
-	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. RESPOND ENTIRELY IN %s LANGUAGE using appropriate clinical terminology.
+	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. RESPOND ENTIRELY IN %s LANGUAGE (including section headers) using appropriate clinical terminology.
 
 COMPLETE ASSESSMENT DATA (JSON):
 %s
