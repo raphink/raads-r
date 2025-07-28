@@ -253,6 +253,9 @@ class ReportTemplate {
         } else {
             console.warn('initializeParticipantInfo function not found');
         }
+        
+        // Create the return arrow (it will be shown when question links are clicked)
+        this.createReturnArrow();
     }
 
     // Update analysis section when backend responds (during streaming)
@@ -263,6 +266,10 @@ class ReportTemplate {
             // Convert Q references to links
             const linkedHTML = analysisHTML.replace(/\bQ(\d+)\b/g, '<a href="#question-$1" class="question-link" title="Jump to Question $1">Q$1</a>');
             analysisContainer.innerHTML = linkedHTML;
+            
+            // Initialize floating return arrow functionality
+            this.initializeReturnArrow();
+            
             // Note: Print button stays disabled until streaming completes
         }
     }
@@ -285,6 +292,116 @@ class ReportTemplate {
                 }
             }
         }
+    }
+    
+    // Initialize floating return arrow functionality
+    static initializeReturnArrow() {
+        // Create return arrow if it doesn't exist
+        if (!document.getElementById('return-arrow')) {
+            this.createReturnArrow();
+        }
+        
+        // Add click event listeners to all question links
+        document.querySelectorAll('.question-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Store the position of the analysis section for returning
+                const analysisContainer = document.getElementById('analysis-container');
+                if (analysisContainer) {
+                    sessionStorage.setItem('returnToAnalysis', analysisContainer.offsetTop.toString());
+                }
+                
+                // Show the return arrow after a short delay (to let the scroll happen)
+                setTimeout(() => {
+                    this.showReturnArrow();
+                }, 500);
+            });
+        });
+        
+        // Add scroll listener to auto-hide arrow when near analysis
+        this.addScrollListener();
+    }
+    
+    // Add scroll listener to automatically hide arrow when near analysis
+    static addScrollListener() {
+        let scrollTimeout;
+        
+        window.addEventListener('scroll', () => {
+            // Debounce the scroll event
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const analysisContainer = document.getElementById('analysis-container');
+                const arrow = document.getElementById('return-arrow');
+                
+                if (analysisContainer && arrow && arrow.classList.contains('show')) {
+                    const analysisTop = analysisContainer.offsetTop;
+                    const currentScroll = window.pageYOffset;
+                    const windowHeight = window.innerHeight;
+                    
+                    // Hide arrow if we're close to or above the analysis section
+                    if (currentScroll < analysisTop + windowHeight / 2) {
+                        this.hideReturnArrow();
+                    }
+                }
+            }, 100);
+        });
+    }
+    
+    // Create the floating return arrow element
+    static createReturnArrow() {
+        const arrow = document.createElement('button');
+        arrow.id = 'return-arrow';
+        arrow.className = 'return-arrow';
+        arrow.innerHTML = '⬆';
+        arrow.title = 'Return to Analysis';
+        arrow.setAttribute('aria-label', 'Return to Analysis');
+        
+        // Add click handler to return to analysis
+        arrow.addEventListener('click', () => {
+            this.returnToAnalysis();
+        });
+        
+        document.body.appendChild(arrow);
+    }
+    
+    // Show the return arrow
+    static showReturnArrow() {
+        const arrow = document.getElementById('return-arrow');
+        if (arrow) {
+            arrow.classList.add('show');
+        }
+    }
+    
+    // Hide the return arrow
+    static hideReturnArrow() {
+        const arrow = document.getElementById('return-arrow');
+        if (arrow) {
+            arrow.classList.remove('show');
+        }
+    }
+    
+    // Return to the analysis section
+    static returnToAnalysis() {
+        const savedPosition = sessionStorage.getItem('returnToAnalysis');
+        const analysisContainer = document.getElementById('analysis-container');
+        
+        if (savedPosition && analysisContainer) {
+            // Scroll to the saved position
+            window.scrollTo({
+                top: parseInt(savedPosition, 10) - 20, // Offset a bit for better visibility
+                behavior: 'smooth'
+            });
+        } else if (analysisContainer) {
+            // Fallback: scroll to analysis container
+            analysisContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+        
+        // Hide the arrow after returning
+        setTimeout(() => {
+            this.hideReturnArrow();
+        }, 500);
     }
 }
 
