@@ -856,19 +856,22 @@ class ReportTemplate {
                 }
             }
 
-            // Update analysis section when backend responds
+            // Update analysis section when backend responds (during streaming)
             static updateAnalysis(analysisHTML) {
                 const analysisContainer = document.getElementById('analysis-container');
                 if (analysisContainer) {
                     analysisContainer.className = 'markdown-content';
                     analysisContainer.innerHTML = analysisHTML;
-                    
-                    // Enable print button
-                    const printBtn = document.getElementById('print-btn');
-                    if (printBtn) {
-                        printBtn.disabled = false;
-                        printBtn.innerHTML = '🖨️ <span data-translate="print_report">Print Report</span>';
-                    }
+                    // Note: Print button stays disabled until streaming completes
+                }
+            }
+            
+            // Enable print button when streaming is completely finished
+            static enablePrintButton() {
+                const printBtn = document.getElementById('print-btn');
+                if (printBtn) {
+                    printBtn.disabled = false;
+                    printBtn.innerHTML = '🖨️ <span data-translate="print_report">Print Report</span>';
                 }
             }
         }
@@ -1156,6 +1159,8 @@ class ReportTemplate {
                 // Then update with the analysis (slight delay to ensure initialization completes)
                 setTimeout(() => {
                     reportWindow.ReportTemplate.updateAnalysis(analysisHTML);
+                    // Enable print button since this is a complete cached report
+                    reportWindow.ReportTemplate.enablePrintButton();
                 }, 200);
             }, 200);
         });

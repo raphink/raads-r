@@ -1342,6 +1342,10 @@ ${copyText.disclaimer}`;
                             }
                         } else if (eventType === 'complete' || eventData === '[DONE]') {
                             console.log('✅ Streaming analysis completed');
+                            // Enable print button now that streaming is complete
+                            if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
+                                reportWindow.ReportTemplate.enablePrintButton();
+                            }
                             // Cache the final report data
                             ReportCache.save(reportId, assessmentData, finalAnalysisHTML);
                             break;
@@ -1375,6 +1379,8 @@ ${copyText.disclaimer}`;
                         if (data.success && data.analysis) {
                             if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
                                 reportWindow.ReportTemplate.updateAnalysis(data.analysis);
+                                // Enable print button since fallback analysis is complete
+                                reportWindow.ReportTemplate.enablePrintButton();
                             }
                             ReportCache.save(reportId, assessmentData, data.analysis);
                         }
