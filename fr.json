@@ -116,13 +116,26 @@
       "title": "📁 Rapports en cache",
       "description": "Vos rapports générés sont mis en cache localement pendant 30 jours. Vous pouvez les rouvrir même après avoir fermé votre navigateur.",
       "close": "Fermer",
+      "import": "📥 Importer",
+      "cancel": "Annuler",
       "noReports": "Aucun rapport en cache trouvé.",
       "reportFrom": "Rapport du",
       "score": "Score :",
       "open": "📄 Ouvrir",
       "delete": "🗑️ Supprimer",
       "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce rapport en cache ?",
-      "notFound": "Rapport introuvable ou expiré."
+      "notFound": "Rapport introuvable ou expiré.",
+      "invalidFileType": "Veuillez sélectionner un fichier JSON valide.",
+      "invalidFormat": "Format de rapport invalide. Assurez-vous qu'il s'agit d'un export de rapport RAADS-R valide ou d'un résultat JSON brut.",
+      "duplicateWarning": "Un rapport similaire semble déjà exister. Importer quand même ?",
+      "importSuccess": "Rapport importé avec succès !",
+      "importError": "Échec de l'importation du rapport. Veuillez réessayer.",
+      "parseError": "Échec de l'analyse du fichier JSON. Assurez-vous qu'il s'agit d'un export de rapport RAADS-R valide ou d'un résultat JSON brut.",
+      "analysisError": "Échec de la génération de l'analyse pour ce rapport. Veuillez réessayer.",
+      "participantInfo": "Informations du participant",
+      "participantInfoDesc": "Veuillez fournir les informations du participant pour ce rapport importé :",
+      "importedReport": "Rapport importé",
+      "importedReportDesc": "Ce rapport a été importé à partir de données JSON brutes. L'analyse détaillée n'est pas disponible, mais tous les scores et réponses ont été conservés."
     }
   },
   "options": [

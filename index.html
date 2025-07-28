@@ -251,6 +251,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <input type="file" id="importReportFile" accept=".json" style="display: none;" onchange="handleImportFile(event)">
+                    <button type="button" class="btn btn-success" onclick="importCachedReport()" data-translate="ui.cachedReports.import">📥 Import</button>
                     <button type="button" id="cachedReportsCloseBtn" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="ui.cachedReports.close"></button>
                 </div>
             </div>
@@ -278,14 +280,29 @@
                     const expiryDate = new Date();
                     expiryDate.setDate(expiryDate.getDate() + this.EXPIRY_DAYS);
                     
-                    reports[reportId] = {
-                        assessmentData: assessmentData,
-                        analysisHTML: analysisHTML,
-                        language: assessmentData.language || currentLanguage || 'en',
-                        createdAt: new Date().toISOString(),
-                        expiresAt: expiryDate.toISOString()
-                    };
+                    // Handle imported report data (which may be a complete report object)
+                    let reportData;
+                    if (typeof assessmentData === 'object' && assessmentData.metadata && assessmentData.scores) {
+                        // This is imported report data - use it directly but ensure proper structure
+                        reportData = {
+                            assessmentData: assessmentData,
+                            analysisHTML: analysisHTML, // Can be null for imported raw JSON
+                            language: assessmentData.language || currentLanguage || 'en',
+                            createdAt: assessmentData.createdAt || new Date().toISOString(),
+                            expiresAt: expiryDate.toISOString()
+                        };
+                    } else {
+                        // This is normal assessment data from form completion
+                        reportData = {
+                            assessmentData: assessmentData,
+                            analysisHTML: analysisHTML,
+                            language: assessmentData.language || currentLanguage || 'en',
+                            createdAt: new Date().toISOString(),
+                            expiresAt: expiryDate.toISOString()
+                        };
+                    }
                     
+                    reports[reportId] = reportData;
                     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
                     console.log(`Report data ${reportId} cached successfully`);
                     return true;
@@ -1495,8 +1512,12 @@ ${copyText.disclaimer}`;
                     // Use legacy method for old reports
                     console.warn(`Opening legacy HTML report ${reportId} - consider regenerating for better performance`);
                     openReportInNewTab(report.htmlContent, reportId);
+                } else if (!report.analysisHTML) {
+                    // This is a cached report without analysis (imported raw JSON) - generate analysis
+                    console.log(`Report ${reportId} has no analysis - generating now...`);
+                    generateAnalysisForCachedReport(report, reportId);
                 } else {
-                    // Use dynamic rendering for new data-based reports
+                    // Use dynamic rendering for new data-based reports with existing analysis
                     openReportWithData(report.assessmentData, report.analysisHTML, reportId);
                 }
                 // Close the modal
@@ -1563,6 +1584,249 @@ ${copyText.disclaimer}`;
                 console.error('Failed to export report:', error);
                 alert('Failed to export report. Please try again.');
             }
+        }
+        
+        // Function to trigger file import
+        function importCachedReport() {
+            const fileInput = document.getElementById('importReportFile');
+            fileInput.click();
+        }
+        
+        // Function to handle file selection and import
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                alert(lang.ui.cachedReports.invalidFileType || 'Please select a valid JSON file.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const reportData = JSON.parse(e.target.result);
+                    
+                    // Detect report type and validate
+                    const reportType = detectReportType(reportData);
+                    if (!reportType) {
+                        alert(lang.ui.cachedReports.invalidFormat || 'Invalid report format. Please ensure this is a valid RAADS-R report export or raw JSON result.');
+                        return;
+                    }
+                    
+                    // Handle different report types
+                    if (reportType === 'raw') {
+                        // For raw JSON, we need to ask for participant info
+                        promptForParticipantInfo(reportData);
+                    } else {
+                        // For exported reports, proceed directly
+                        processImportedReport(reportData);
+                    }
+                    
+                } catch (error) {
+                    console.error('Failed to import report:', error);
+                    alert(lang.ui.cachedReports.parseError || 'Failed to parse the JSON file. Please ensure it\'s a valid RAADS-R report export.');
+                }
+            };
+            
+            reader.readAsText(file);
+            
+            // Clear the file input for next use
+            event.target.value = '';
+        }
+        
+        // Function to detect report type
+        function detectReportType(data) {
+            // Check if it's an exported report (has analysisHTML and specific structure)
+            if (data.reportId && data.analysisHTML && data.createdAt && data.expiresAt) {
+                return 'exported';
+            }
+            
+            // Check if it's raw JSON from test results
+            if (data.metadata && data.scores && data.questionsAndAnswers && !data.analysisHTML) {
+                return 'raw';
+            }
+            
+            return null; // Invalid format
+        }
+        
+        // Function to prompt for participant info for raw JSON imports
+        function promptForParticipantInfo(rawData) {
+            // Create a modal for participant info input
+            const modalHtml = `
+                <div class="modal fade" id="participantInfoModal" tabindex="-1" aria-labelledby="participantInfoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="participantInfoModalLabel">${lang.ui.cachedReports.participantInfo || 'Participant Information'}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-muted mb-3">${lang.ui.cachedReports.participantInfoDesc || 'Please provide participant information for this imported report:'}</p>
+                                <div class="mb-3">
+                                    <label for="import-participant-name" class="form-label">${lang.ui.results.reportModal.participantName || 'Name'} *</label>
+                                    <input type="text" class="form-control" id="import-participant-name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="import-participant-age" class="form-label">${lang.ui.results.reportModal.participantAge || 'Age'} *</label>
+                                    <input type="number" class="form-control" id="import-participant-age" min="18" max="100" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${lang.ui.cachedReports.cancel || 'Cancel'}</button>
+                                <button type="button" class="btn btn-primary" id="import-confirm-btn" disabled>${lang.ui.cachedReports.import || 'Import'}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if present
+            const existingModal = document.getElementById('participantInfoModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            const modal = new bootstrap.Modal(document.getElementById('participantInfoModal'));
+            const nameInput = document.getElementById('import-participant-name');
+            const ageInput = document.getElementById('import-participant-age');
+            const confirmBtn = document.getElementById('import-confirm-btn');
+            
+            // Validation function
+            function validateParticipantInfo() {
+                const name = nameInput.value.trim();
+                const age = parseInt(ageInput.value);
+                const isValid = name.length >= 2 && age >= 18 && age <= 100;
+                confirmBtn.disabled = !isValid;
+                return isValid;
+            }
+            
+            // Add validation listeners
+            nameInput.addEventListener('input', validateParticipantInfo);
+            ageInput.addEventListener('input', validateParticipantInfo);
+            
+            // Handle confirm button
+            confirmBtn.onclick = function() {
+                if (validateParticipantInfo()) {
+                    // Add participant info to raw data
+                    rawData.participantInfo = {
+                        name: nameInput.value.trim(),
+                        age: parseInt(ageInput.value)
+                    };
+                    
+                    // Close modal and process the report
+                    modal.hide();
+                    processImportedReport(rawData);
+                    
+                    // Clean up modal
+                    setTimeout(() => {
+                        document.getElementById('participantInfoModal').remove();
+                    }, 500);
+                }
+            };
+            
+            // Show modal
+            modal.show();
+        }
+        
+        // Function to process imported report (both types)
+        function processImportedReport(reportData) {
+            // Generate a new report ID to avoid conflicts
+            const newReportId = 'imported_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Check if report already exists (based on participant name, date, and scores)
+            if (isReportAlreadyImported(reportData)) {
+                if (!confirm(lang.ui.cachedReports.duplicateWarning || 'A similar report appears to already exist. Import anyway?')) {
+                    return;
+                }
+            }
+            
+            // Prepare the data for saving
+            let assessmentData, analysisHTML;
+            
+            if (reportData.analysisHTML) {
+                // This is an exported report - use as-is
+                assessmentData = reportData;
+                analysisHTML = reportData.analysisHTML;
+            } else {
+                // This is raw JSON - don't set analysisHTML, it will be generated when first opened
+                assessmentData = reportData;
+                analysisHTML = null; // This will trigger analysis generation on first open
+            }
+            
+            // Save the imported report using ReportCache
+            const success = ReportCache.save(newReportId, assessmentData, analysisHTML);
+            
+            if (success) {
+                alert(lang.ui.cachedReports.importSuccess || 'Report imported successfully!');
+                // Refresh the modal content to show the new report
+                showCachedReports();
+            } else {
+                alert(lang.ui.cachedReports.importError || 'Failed to import report. Please try again.');
+            }
+        }
+        
+        // Function to generate analysis for cached report without analysis (imported raw JSON)
+        async function generateAnalysisForCachedReport(report, reportId) {
+            try {
+                // Open report window immediately with loading state
+                const reportWindow = ReportTemplate.generateReport(report.assessmentData, reportId, report.assessmentData.language || report.language || 'en');
+                
+                // Start streaming analysis
+                await streamAnalysisToReport(report.assessmentData, reportId, reportWindow);
+                
+                // The analysis will be saved to cache automatically by streamAnalysisToReport
+                
+            } catch (error) {
+                console.error('Error generating analysis for cached report:', error);
+                alert(lang.ui.cachedReports.analysisError || 'Failed to generate analysis for this report. Please try again.');
+            }
+        }
+        
+        // Function to validate imported report data
+        function validateImportedReport(data) {
+            // This function is now replaced by detectReportType, but kept for legacy compatibility
+            return detectReportType(data) !== null;
+        }
+        
+        // Function to check if a similar report already exists
+        function isReportAlreadyImported(newReport) {
+            const summaries = ReportCache.getSummaries();
+            
+            // Extract relevant data based on report type
+            let participantName, totalScore, createdDate;
+            
+            if (newReport.analysisHTML) {
+                // Exported report format
+                participantName = newReport.participantInfo?.name;
+                totalScore = newReport.scores?.total;
+                createdDate = new Date(newReport.createdAt || newReport.metadata?.testDate);
+            } else {
+                // Raw JSON format
+                participantName = newReport.participantInfo?.name;
+                totalScore = newReport.scores?.total;
+                createdDate = new Date(newReport.metadata?.testDate);
+            }
+            
+            // Check for reports with same participant name, similar creation date, and identical scores
+            return summaries.some(summary => {
+                const existingReport = ReportCache.get(summary.id);
+                if (!existingReport) return false;
+                
+                const sameParticipant = participantName === existingReport.assessmentData?.participantInfo?.name;
+                const sameScores = totalScore === existingReport.assessmentData?.scores?.total;
+                
+                // Check if created within same day (allowing for re-imports of same report)
+                const existingDate = new Date(existingReport.createdAt);
+                const sameDay = createdDate.toDateString() === existingDate.toDateString();
+                
+                return sameParticipant && sameScores && sameDay;
+            });
         }
         
         // Check for cached reports on page load and show notification

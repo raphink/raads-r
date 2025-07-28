@@ -116,13 +116,26 @@
       "title": "📁 Cached Reports",
       "description": "Your generated reports are cached locally for 30 days. You can reopen them even after closing your browser.",
       "close": "Close",
+      "import": "📥 Import",
+      "cancel": "Cancel",
       "noReports": "No cached reports found.",
       "reportFrom": "Report from",
       "score": "Score:",
       "open": "📄 Open",
       "delete": "🗑️ Delete",
       "confirmDelete": "Are you sure you want to delete this cached report?",
-      "notFound": "Report not found or has expired."
+      "notFound": "Report not found or has expired.",
+      "invalidFileType": "Please select a valid JSON file.",
+      "invalidFormat": "Invalid report format. Please ensure this is a valid RAADS-R report export or raw JSON result.",
+      "duplicateWarning": "A similar report appears to already exist. Import anyway?",
+      "importSuccess": "Report imported successfully!",
+      "importError": "Failed to import report. Please try again.",
+      "parseError": "Failed to parse the JSON file. Please ensure it's a valid RAADS-R report export or raw JSON result.",
+      "analysisError": "Failed to generate analysis for this report. Please try again.",
+      "participantInfo": "Participant Information",
+      "participantInfoDesc": "Please provide participant information for this imported report:",
+      "importedReport": "Imported Report",
+      "importedReportDesc": "This report was imported from raw JSON data. The detailed analysis is not available, but all scores and responses have been preserved."
     }
   },
   "options": [
