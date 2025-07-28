@@ -826,6 +826,12 @@ class ReportTemplate {
 
             // Initialize report with assessment data
             static initializeReport(assessmentData, reportId) {
+                console.log('Initializing report with assessment data:', assessmentData);
+                console.log('Participant info in assessment data:', assessmentData.participantInfo);
+                
+                // Store assessment data globally for access by other functions
+                window.assessmentData = assessmentData;
+                
                 // Update basic information
                 document.getElementById('total-score-display').textContent = \`\${assessmentData.scores.total}/240\`;
                 document.getElementById('assessment-date-display').textContent = new Date(assessmentData.metadata.testDate).toLocaleDateString();
@@ -840,6 +846,14 @@ class ReportTemplate {
                 this.generateQuestionsHTML(assessmentData.questionsAndAnswers, assessmentData.language).then(questionsHTML => {
                     document.getElementById('questions-container').innerHTML = questionsHTML;
                 });
+                
+                // Initialize participant info now that we have the data
+                if (typeof initializeParticipantInfo === 'function') {
+                    console.log('Calling initializeParticipantInfo...');
+                    initializeParticipantInfo();
+                } else {
+                    console.warn('initializeParticipantInfo function not found');
+                }
             }
 
             // Update analysis section when backend responds
@@ -907,16 +921,20 @@ class ReportTemplate {
             const translations = await loadTranslations(language);
             applyTranslations(translations);
             
-            // Initialize other functionality
-            initializeParticipantInfo();
+            // Note: initializeParticipantInfo() will be called from initializeReport()
+            // after assessment data is available
         });
         
         // Update participant information dynamically
         function initializeParticipantInfo() {
             // Get participant info from the assessment data if available
             const participantInfo = window.assessmentData?.participantInfo;
+            console.log('Initializing participant info:', participantInfo);
+            
             const name = participantInfo?.name || '[Name to be filled]';
             const age = participantInfo?.age || '[Age]';
+            
+            console.log('Setting participant info - Name:', name, 'Age:', age);
             
             // Update CSS custom property for print header
             document.documentElement.style.setProperty('--participant-header', \`"\${name} - \${age} years"\`);
@@ -1043,6 +1061,9 @@ class ReportTemplate {
 
     // Initialize report with assessment data (called immediately)
     static initializeReport(assessmentData, reportId) {
+        console.log('Initializing report with assessment data:', assessmentData);
+        console.log('Participant info in assessment data:', assessmentData.participantInfo);
+        
         // Store assessment data globally for access by other functions
         window.assessmentData = assessmentData;
         
@@ -1063,7 +1084,10 @@ class ReportTemplate {
         
         // Initialize participant info now that we have the data
         if (typeof initializeParticipantInfo === 'function') {
+            console.log('Calling initializeParticipantInfo...');
             initializeParticipantInfo();
+        } else {
+            console.warn('initializeParticipantInfo function not found');
         }
     }
 
