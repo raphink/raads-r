@@ -256,6 +256,53 @@ class ReportTemplate {
             margin: 20px 0;
         }
         
+        /* Interpretation card styles */
+        .interpretation-card {
+            border-left: 4px solid;
+            border-radius: 8px;
+            background: #fff;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .interp-none { border-left-color: #28a745; }
+        .interp-light { border-left-color: #ffc107; }
+        .interp-moderate { border-left-color: #fd7e14; }
+        .interp-possible { border-left-color: #dc3545; }
+        .interp-strong { border-left-color: #6f42c1; }
+        .interp-solid { border-left-color: #343a40; }
+        .interp-very-strong { border-left-color: #000; }
+        
+        .total-score-card {
+            text-align: center;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .total-score-number {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .interpretation-level {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .interpretation-description {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        /* Color classes for interpretation levels */
+        .text-success { color: #28a745; }
+        .text-warning { color: #ffc107; }
+        .text-danger { color: #dc3545; }
+        .text-dark { color: #343a40; }
+        
         .score-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -705,6 +752,14 @@ class ReportTemplate {
     </div>
 
     <h1 style="margin-top: 40px;" data-translate="assessment_results">Assessment Results</h1>
+    
+    <!-- Total Score Card -->
+    <div class="interpretation-card total-score-card" id="total-score-card">
+        <h2 data-translate="total_score">Total Score</h2>
+        <div class="total-score-number" id="total-score-number">--/240</div>
+        <div class="interpretation-level" id="interpretation-level">--</div>
+        <div class="interpretation-description" id="interpretation-description">--</div>
+    </div>
 
     <h2 data-translate="score_distribution">Score Distribution by Domain</h2>
     <div class="chart-container">
@@ -885,6 +940,93 @@ class ReportTemplate {
                 }
             }
 
+            // Get interpretation based on score with static fallbacks for robustness
+            static getInterpretation(score, lang = null) {
+                // If no language data available, use English fallbacks
+                const interpretations = lang?.ui?.results?.interpretations || {
+                    none: { level: "No ASD", description: "No signs of autism detected" },
+                    light: { level: "Mild traits", description: "Some autistic traits, but probably no ASD" },
+                    moderate: { level: "Moderate traits", description: "Several autistic traits present" },
+                    possible: { level: "Possible ASD", description: "Minimum score at which autism is considered" },
+                    strong: { level: "Strong indication of ASD", description: "Strong indication of autism spectrum disorder" },
+                    solid: { level: "Solid evidence of ASD", description: "Solid evidence of ASD (average score of autistic individuals)" },
+                    veryStrong: { level: "Very strong evidence of ASD", description: "Very strong evidence of autism spectrum disorder" }
+                };
+                
+                if (score < 25) return { 
+                    level: interpretations.none.level, 
+                    color: "text-success", 
+                    class: "interp-none", 
+                    description: interpretations.none.description 
+                };
+                if (score < 50) return { 
+                    level: interpretations.light.level, 
+                    color: "text-warning", 
+                    class: "interp-light", 
+                    description: interpretations.light.description 
+                };
+                if (score < 65) return { 
+                    level: interpretations.moderate.level, 
+                    color: "text-warning", 
+                    class: "interp-moderate", 
+                    description: interpretations.moderate.description 
+                };
+                if (score < 90) return { 
+                    level: interpretations.possible.level, 
+                    color: "text-danger", 
+                    class: "interp-possible", 
+                    description: interpretations.possible.description 
+                };
+                if (score < 130) return { 
+                    level: interpretations.strong.level, 
+                    color: "text-danger", 
+                    class: "interp-strong", 
+                    description: interpretations.strong.description 
+                };
+                if (score < 160) return { 
+                    level: interpretations.solid.level, 
+                    color: "text-dark", 
+                    class: "interp-solid", 
+                    description: interpretations.solid.description 
+                };
+                return { 
+                    level: interpretations.veryStrong.level, 
+                    color: "text-dark", 
+                    class: "interp-very-strong", 
+                    description: interpretations.veryStrong.description 
+                };
+            }
+
+            // Populate the enhanced total score card
+            static populateTotalScoreCard(assessmentData) {
+                const totalScore = assessmentData.scores.total;
+                const interpretation = this.getInterpretation(totalScore, window.lang);
+                
+                // Update the total score card elements
+                const scoreNumberElement = document.getElementById('total-score-number');
+                const levelElement = document.getElementById('interpretation-level');
+                const descriptionElement = document.getElementById('interpretation-description');
+                const cardElement = document.getElementById('total-score-card');
+                
+                if (scoreNumberElement) {
+                    scoreNumberElement.textContent = totalScore + '/240';
+                }
+                
+                if (levelElement) {
+                    levelElement.textContent = interpretation.level;
+                    levelElement.className = 'interpretation-level ' + interpretation.color;
+                }
+                
+                if (descriptionElement) {
+                    descriptionElement.textContent = interpretation.description;
+                }
+                
+                if (cardElement) {
+                    // Add the interpretation class for border color
+                    cardElement.className = 'interpretation-card total-score-card ' + interpretation.class;
+                }
+            }
+
             // Initialize report with assessment data
             static initializeReport(assessmentData, reportId) {
                 console.log('Initializing report with assessment data:', assessmentData);
@@ -898,6 +1040,9 @@ class ReportTemplate {
                 document.getElementById('assessment-date-display').textContent = new Date(assessmentData.metadata.testDate).toLocaleDateString();
                 document.getElementById('generated-date').textContent = new Date().toLocaleDateString();
                 document.getElementById('report-id-display').textContent = reportId;
+
+                // Populate the enhanced total score card
+                this.populateTotalScoreCard(assessmentData);
 
                 // Generate and insert chart
                 const chartHTML = this.generateChart(assessmentData);
