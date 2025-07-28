@@ -54,7 +54,7 @@
         "retakeTest": "🔄 Repetir Test",
         "viewCached": "📁 Ver Informes Guardados"
       },
-      "interpretation": {
+      "interpretations": {
         "none": {
           "level": "Sin TEA",
           "description": "No hay indicación de trastorno del espectro autista"
