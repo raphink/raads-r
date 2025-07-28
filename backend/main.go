@@ -446,6 +446,8 @@ Summarize the domain scores and their clinical significance. Do NOT add a table 
 
 ## Clinical Interpretation and Recommendations
 
+Detailed section, including strengths and weaknesses, coping strategies, and potential interventions, as well as recommendations.
+
 ## Notable Response Patterns
 
 Highlight specific questions where responses were particularly informative, especially those with comments that provide personal insights.
