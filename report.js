@@ -263,8 +263,12 @@ class ReportTemplate {
         const analysisContainer = document.getElementById('analysis-container');
         if (analysisContainer) {
             analysisContainer.className = 'markdown-content';
-            // Convert Q references to links
-            const linkedHTML = analysisHTML.replace(/\bQ(\d+)\b/g, '<a href="#question-$1" class="question-link" title="Jump to Question $1">Q$1</a>');
+            // Get the current language from URL params or default to 'en'
+            const urlParams = new URLSearchParams(window.location.search);
+            const language = urlParams.get('lang') || 'en';
+            
+            // Convert Q references to links (both simple Q40 and language-specific patterns)
+            const linkedHTML = this.processQuestionLinks(analysisHTML, language);
             analysisContainer.innerHTML = linkedHTML;
             
             // Initialize floating return arrow functionality
@@ -272,6 +276,75 @@ class ReportTemplate {
             
             // Note: Print button stays disabled until streaming completes
         }
+    }
+
+    // Process question links for a specific language
+    static processQuestionLinks(result, language = 'en') {
+        // Apply language-specific patterns
+        switch (language) {
+            case 'fr':
+                // French: "questions 40, 41 et 63" or "question 40"
+                result = result.replace(/\b(questions?)\s+(\d+(?:\s*,\s*\d+)*(?:\s+et\s+\d+)?)\b/gi, 
+                    (match, questionWord, numbers) => {
+                        return this.createQuestionLinks(match, questionWord, numbers, /\d+/g);
+                    });
+                break;
+                
+            case 'en':
+                // English: "questions 40, 41 and 63" or "question 40"
+                result = result.replace(/\b(questions?)\s+(\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?)\b/gi,
+                    (match, questionWord, numbers) => {
+                        return this.createQuestionLinks(match, questionWord, numbers, /\d+/g);
+                    });
+                break;
+                
+            case 'es':
+                // Spanish: "preguntas 40, 41 y 63" or "pregunta 40"
+                result = result.replace(/\b(preguntas?)\s+(\d+(?:\s*,\s*\d+)*(?:\s+y\s+\d+)?)\b/gi,
+                    (match, questionWord, numbers) => {
+                        return this.createQuestionLinks(match, questionWord, numbers, /\d+/g);
+                    });
+                break;
+                
+            case 'it':
+                // Italian: "domande 40, 41 e 63" or "domanda 40"
+                result = result.replace(/\b(domande?)\s+(\d+(?:\s*,\s*\d+)*(?:\s+e\s+\d+)?)\b/gi,
+                    (match, questionWord, numbers) => {
+                        return this.createQuestionLinks(match, questionWord, numbers, /\d+/g);
+                    });
+                break;
+                
+            case 'de':
+                // German: "Fragen 40, 41 und 63" or "Frage 40"
+                result = result.replace(/\b(Fragen?)\s+(\d+(?:\s*,\s*\d+)*(?:\s+und\s+\d+)?)\b/gi,
+                    (match, questionWord, numbers) => {
+                        return this.createQuestionLinks(match, questionWord, numbers, /\d+/g);
+                    });
+                break;
+        }
+
+        // Finally handle simple Q40 format (universal)
+        result = result.replace(/\bQ(\d+)\b/g, '<a href="#question-$1" class="question-link" title="Jump to Question $1">Q$1</a>');
+
+        return result;
+    }
+
+    // Helper function to create question links from a matched pattern
+    static createQuestionLinks(fullMatch, questionWord, numbersPart, numberRegex) {
+        // Extract all question numbers
+        const numbers = numbersPart.match(numberRegex);
+        if (!numbers) return fullMatch;
+
+        // Create links for each number while preserving the original text structure
+        let linkedText = fullMatch;
+        
+        // Replace each number with a linked version
+        numbers.forEach(num => {
+            const numRegex = new RegExp(`\\b${num}\\b`, 'g');
+            linkedText = linkedText.replace(numRegex, `<a href="#question-${num}" class="question-link" title="Jump to Question ${num}">${num}</a>`);
+        });
+
+        return linkedText;
     }
     
     // Enable print button when streaming is completely finished
