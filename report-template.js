@@ -30,7 +30,7 @@ class ReportTemplate {
             
             /* Headers and footers */
             @page {
-                margin: 5cm 2cm 4cm 2cm;
+                margin: 1cm 1cm 1cm 1cm;
                 @top-left {
                     content: var(--report-title, "RAADS-R Assessment Report");
                     font-size: 12pt;
@@ -62,7 +62,7 @@ class ReportTemplate {
             
             /* No header/footer on front page */
             @page title-page {
-                margin: 2cm;
+                margin: 0;
                 @top-left { content: none; }
                 @top-center { content: none; }
                 @top-right { content: none; }
@@ -656,31 +656,6 @@ class ReportTemplate {
         </div>
     </div>
 
-    <div class="no-print" style="background: #e8f4f8; border: 1px solid #3498db; border-radius: 8px; padding: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #2c3e50;" data-translate="instructions_title">📝 Instructions</h3>
-        <p style="margin: 10px 0; color: #2c3e50;">
-            <strong data-translate="before_printing">Before printing:</strong> 
-            <span data-translate="fill_info">Please fill in your personal information below. This information will appear in the printed report but will not be saved.</span>
-        </p>
-        <ul style="margin: 10px 0; color: #2c3e50;">
-            <li data-translate="enter_name">Enter your name (or preferred identifier)</li>
-            <li data-translate="specify_age">Specify your age at the time of assessment</li>
-            <li data-translate="click_print">Once filled, click the Print button above to generate your PDF</li>
-        </ul>
-    </div>
-
-    <div class="participant-info no-print">
-        <h3 style="margin-top: 0; color: #2c3e50;" data-translate="participant_info">Participant Information</h3>
-        <div class="participant-field">
-            <label for="participant-name" data-translate="name_label">Name:</label>
-            <input type="text" id="participant-name" data-translate="name_input_placeholder" placeholder="Enter participant name" />
-        </div>
-        <div class="participant-field">
-            <label for="participant-age" data-translate="age_label">Age:</label>
-            <input type="number" id="participant-age" data-translate="age_input_placeholder" placeholder="Enter age" min="18" max="100" />
-        </div>
-    </div>
-
     <h1 style="margin-top: 40px;" data-translate="assessment_results">Assessment Results</h1>
 
     <h2 data-translate="score_distribution">Score Distribution by Domain</h2>
@@ -851,6 +826,12 @@ class ReportTemplate {
 
             // Initialize report with assessment data
             static initializeReport(assessmentData, reportId) {
+                console.log('Initializing report with assessment data:', assessmentData);
+                console.log('Participant info in assessment data:', assessmentData.participantInfo);
+                
+                // Store assessment data globally for access by other functions
+                window.assessmentData = assessmentData;
+                
                 // Update basic information
                 document.getElementById('total-score-display').textContent = \`\${assessmentData.scores.total}/240\`;
                 document.getElementById('assessment-date-display').textContent = new Date(assessmentData.metadata.testDate).toLocaleDateString();
@@ -865,20 +846,42 @@ class ReportTemplate {
                 this.generateQuestionsHTML(assessmentData.questionsAndAnswers, assessmentData.language).then(questionsHTML => {
                     document.getElementById('questions-container').innerHTML = questionsHTML;
                 });
+                
+                // Initialize participant info now that we have the data
+                if (typeof initializeParticipantInfo === 'function') {
+                    console.log('Calling initializeParticipantInfo...');
+                    initializeParticipantInfo();
+                } else {
+                    console.warn('initializeParticipantInfo function not found');
+                }
             }
 
-            // Update analysis section when backend responds
+            // Update analysis section when backend responds (during streaming)
             static updateAnalysis(analysisHTML) {
                 const analysisContainer = document.getElementById('analysis-container');
                 if (analysisContainer) {
                     analysisContainer.className = 'markdown-content';
                     analysisContainer.innerHTML = analysisHTML;
+                    // Note: Print button stays disabled until streaming completes
+                }
+            }
+            
+            // Enable print button when streaming is completely finished
+            static enablePrintButton() {
+                const printBtn = document.getElementById('print-btn');
+                if (printBtn) {
+                    printBtn.disabled = false;
+                    printBtn.innerHTML = '️<span data-translate="print_report">Print Report</span>';
                     
-                    // Enable print button
-                    const printBtn = document.getElementById('print-btn');
-                    if (printBtn) {
-                        printBtn.disabled = false;
-                        printBtn.innerHTML = '🖨️ <span data-translate="print_report">Print Report</span>';
+                    // Re-apply translations to the newly added content
+                    if (typeof applyTranslations === 'function' && window.currentTranslations) {
+                        applyTranslations(window.currentTranslations);
+                    } else {
+                        // Fallback: manually translate the print button
+                        const printSpan = printBtn.querySelector('[data-translate="print_report"]');
+                        if (printSpan && window.currentTranslations && window.currentTranslations.print_report) {
+                            printSpan.textContent = window.currentTranslations.print_report;
+                        }
                     }
                 }
             }
@@ -930,34 +933,30 @@ class ReportTemplate {
             const language = urlParams.get('lang') || 'en';
             
             const translations = await loadTranslations(language);
+            window.currentTranslations = translations; // Store globally for later use
             applyTranslations(translations);
             
-            // Initialize other functionality
-            initializeParticipantInfo();
+            // Note: initializeParticipantInfo() will be called from initializeReport()
+            // after assessment data is available
         });
         
         // Update participant information dynamically
         function initializeParticipantInfo() {
-            const nameInput = document.getElementById('participant-name');
-            const ageInput = document.getElementById('participant-age');
+            // Get participant info from the assessment data if available
+            const participantInfo = window.assessmentData?.participantInfo;
+            console.log('Initializing participant info:', participantInfo);
             
-            function updateParticipantInfo() {
-                const name = nameInput?.value || '[Name to be filled]';
-                const age = ageInput?.value || '[Age]';
-                
-                // Update CSS custom property for print header
-                document.documentElement.style.setProperty('--participant-header', \`"\${name} - \${age} years"\`);
-                
-                // Update front page elements
-                document.querySelectorAll('.participant-name').forEach(el => el.textContent = name);
-                document.querySelectorAll('.participant-age').forEach(el => el.textContent = age + ' years');
-            }
+            const name = participantInfo?.name || '[Name to be filled]';
+            const age = participantInfo?.age || '[Age]';
             
-            if (nameInput && ageInput) {
-                nameInput.addEventListener('input', updateParticipantInfo);
-                ageInput.addEventListener('input', updateParticipantInfo);
-                updateParticipantInfo();
-            }
+            console.log('Setting participant info - Name:', name, 'Age:', age);
+            
+            // Update CSS custom property for print header
+            document.documentElement.style.setProperty('--participant-header', \`"\${name} - \${age} years"\`);
+            
+            // Update front page elements
+            document.querySelectorAll('.participant-name').forEach(el => el.textContent = name);
+            document.querySelectorAll('.participant-age').forEach(el => el.textContent = age + ' years');
         }
     </script>
 </body>
@@ -1077,6 +1076,12 @@ class ReportTemplate {
 
     // Initialize report with assessment data (called immediately)
     static initializeReport(assessmentData, reportId) {
+        console.log('Initializing report with assessment data:', assessmentData);
+        console.log('Participant info in assessment data:', assessmentData.participantInfo);
+        
+        // Store assessment data globally for access by other functions
+        window.assessmentData = assessmentData;
+        
         // Update basic information
         document.getElementById('total-score-display').textContent = `${assessmentData.scores.total}/240`;
         document.getElementById('assessment-date-display').textContent = new Date(assessmentData.metadata.testDate).toLocaleDateString();
@@ -1091,6 +1096,14 @@ class ReportTemplate {
         this.generateQuestionsHTML(assessmentData.questionsAndAnswers, assessmentData.language).then(questionsHTML => {
             document.getElementById('questions-container').innerHTML = questionsHTML;
         });
+        
+        // Initialize participant info now that we have the data
+        if (typeof initializeParticipantInfo === 'function') {
+            console.log('Calling initializeParticipantInfo...');
+            initializeParticipantInfo();
+        } else {
+            console.warn('initializeParticipantInfo function not found');
+        }
     }
 
     // Update analysis section when backend responds
@@ -1099,13 +1112,7 @@ class ReportTemplate {
         if (analysisContainer) {
             analysisContainer.className = 'markdown-content';
             analysisContainer.innerHTML = analysisHTML;
-            
-            // Enable print button
-            const printBtn = document.getElementById('print-btn');
-            if (printBtn) {
-                printBtn.disabled = false;
-                printBtn.innerHTML = '🖨️ <span data-translate="print_report">Print Report</span>';
-            }
+            // Note: Print button stays disabled until streaming completes
         }
     }
 
@@ -1158,6 +1165,8 @@ class ReportTemplate {
                 // Then update with the analysis (slight delay to ensure initialization completes)
                 setTimeout(() => {
                     reportWindow.ReportTemplate.updateAnalysis(analysisHTML);
+                    // Enable print button since this is a complete cached report
+                    reportWindow.ReportTemplate.enablePrintButton();
                 }, 200);
             }, 200);
         });

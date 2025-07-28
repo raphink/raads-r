@@ -62,7 +62,7 @@
                             <span id="current-language-flag">🇫🇷</span> <span id="current-language-name">Français</span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇺🇸 English</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇬🇧 English</a></li>
                             <li><a class="dropdown-item" href="#" onclick="changeLanguage('fr')">🇫🇷 Français</a></li>
                             <li><a class="dropdown-item" href="#" onclick="changeLanguage('es')">🇪🇸 Español</a></li>
                             <li><a class="dropdown-item" href="#" onclick="changeLanguage('it')">🇮🇹 Italiano</a></li>
@@ -137,7 +137,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="d-flex align-items-start">
+                    <div class="d-flex align-items-start mb-4">
                         <div class="flex-shrink-0 me-3">
                             <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
                                 <span class="visually-hidden">Loading...</span>
@@ -153,10 +153,28 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Participant Information Form -->
+                    <div class="border rounded p-3 bg-light">
+                        <h6 class="mb-3">👤 Participant Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label for="modal-participant-name" class="form-label">Name or Identifier</label>
+                                <input type="text" class="form-control" id="modal-participant-name" 
+                                       placeholder="Enter your name or preferred identifier" required>
+                                <div class="form-text">This will appear on your report but is not stored permanently.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="modal-participant-age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="modal-participant-age" 
+                                       placeholder="Age" min="18" max="100" required>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmReportBtn">Generate Report</button>
+                    <button type="button" class="btn btn-primary" id="confirmReportBtn" disabled>Generate Report</button>
                 </div>
             </div>
         </div>
@@ -263,6 +281,7 @@
                     reports[reportId] = {
                         assessmentData: assessmentData,
                         analysisHTML: analysisHTML,
+                        language: assessmentData.language || currentLanguage || 'en',
                         createdAt: new Date().toISOString(),
                         expiresAt: expiryDate.toISOString()
                     };
@@ -387,8 +406,11 @@
                             summaries.push({
                                 id: reportId,
                                 createdAt: report.createdAt,
+                                language: report.language || 'en',
                                 totalScore: report.assessmentData?.scores?.total || 0,
-                                maxScore: report.assessmentData?.scores?.maxTotal || 240
+                                maxScore: report.assessmentData?.scores?.maxTotal || 240,
+                                participantName: report.assessmentData?.participantInfo?.name || null,
+                                participantAge: report.assessmentData?.participantInfo?.age || null
                             });
                         }
                     });
@@ -401,6 +423,30 @@
                 }
             }
         };
+
+        // Function to get flag emoji for language from existing language config
+        function getLanguageFlag(language) {
+            // First try to get from the existing languages config
+            if (languages[language] && languages[language].flag) {
+                return languages[language].flag;
+            }
+            
+            // If current language is loaded and matches, get from current lang data
+            if (language === currentLanguage && lang && lang.meta && lang.meta.flag) {
+                return lang.meta.flag;
+            }
+            
+            // Fallback flags if not found in config
+            const fallbackFlags = {
+                'en': '🇬🇧',
+                'fr': '🇫🇷', 
+                'es': '🇪🇸',
+                'it': '🇮🇹',
+                'de': '🇩🇪'
+            };
+
+            return fallbackFlags[language] || '🌐';
+        }
 
         let lang = null;
         let currentLanguage = 'en'; // Default language
@@ -422,7 +468,7 @@
             },
             'en': {
                 name: 'English',
-                flag: '🇺🇸',
+                flag: '🇬🇧',
                 file: 'en.json'
             },
             'es': {
@@ -1159,11 +1205,47 @@ ${copyText.disclaimer}`;
             
             // Show confirmation modal
             document.getElementById('confirmReportMessage').textContent = lang.ui.results.reportModal.confirmMessage;
+            
+            // Clear and set up participant info validation
+            const nameInput = document.getElementById('modal-participant-name');
+            const ageInput = document.getElementById('modal-participant-age');
+            const confirmBtn = document.getElementById('confirmReportBtn');
+            
+            // Clear any previous values
+            nameInput.value = '';
+            ageInput.value = '';
+            
+            // Validation function
+            function validateParticipantInfo() {
+                const name = nameInput.value.trim();
+                const age = parseInt(ageInput.value);
+                const isValid = name.length >= 2 && age >= 18 && age <= 100;
+                confirmBtn.disabled = !isValid;
+                return isValid;
+            }
+            
+            // Add validation listeners
+            nameInput.addEventListener('input', validateParticipantInfo);
+            ageInput.addEventListener('input', validateParticipantInfo);
+            
+            // Initial validation
+            validateParticipantInfo();
+            
             const confirmModal = new bootstrap.Modal(document.getElementById('confirmReportModal'));
             confirmModal.show();
             
             // Set up the confirm button handler
             document.getElementById('confirmReportBtn').onclick = async function() {
+                if (!validateParticipantInfo()) {
+                    return; // Don't proceed if validation fails
+                }
+                
+                // Get participant info for this report
+                const participantInfo = {
+                    name: nameInput.value.trim(),
+                    age: parseInt(ageInput.value)
+                };
+                
                 confirmModal.hide();
                 
                 try {
@@ -1171,41 +1253,21 @@ ${copyText.disclaimer}`;
                     $btn.html('<span class="spinner-border spinner-border-sm" role="status"></span> ' + lang.ui.results.actions.reportGenerating)
                         .prop('disabled', true);
                     
-                    // Prepare the full assessment data
+                    // Prepare the full assessment data with participant info
                     const fullData = generateFullJSON();
-                    
-                    // Call the lightweight analyze endpoint instead of generate-pdf
-                    const response = await fetch(`${CONFIG.API_BASE}/analyze`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(fullData)
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    if (!data.success || !data.analysis) {
-                        throw new Error('Invalid response from server');
-                    }
+                    fullData.participantInfo = participantInfo;
                     
                     // Generate report ID
-                    const reportId = data.report_id || generateReportId();
+                    const reportId = generateReportId();
                     
-                    // Cache the report data for future access
-                    ReportCache.save(reportId, fullData, data.analysis);
+                    // Open report window immediately with loading state
+                    const reportWindow = ReportTemplate.generateReport(fullData, reportId, fullData.language);
                     
-                    // Show success state briefly
-                    $btn.text(lang.ui.results.actions.reportReady)
-                        .removeClass('btn-warning')
-                        .addClass('btn-success');
+                    // Start streaming analysis
+                    await streamAnalysisToReport(fullData, reportId, reportWindow);
                     
-                    // Generate and open report dynamically
-                    openReportWithData(fullData, data.analysis, reportId);
+                    // Cache the completed report data
+                    // Note: We'll update this to cache the final analysis after streaming completes
                     
                 } catch (error) {
                     console.error('Error generating report:', error);
@@ -1231,6 +1293,132 @@ ${copyText.disclaimer}`;
         // Helper function to generate a report ID if backend doesn't provide one
         function generateReportId() {
             return 'report_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Stream analysis to an already-opened report window
+        async function streamAnalysisToReport(assessmentData, reportId, reportWindow) {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE}/analyze-stream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(assessmentData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let finalAnalysisHTML = '';
+                let buffer = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    buffer += chunk;
+
+                    console.log('Received chunk:', chunk);
+                    
+                    // Process complete events in the buffer
+                    const events = buffer.split('\n\n');
+                    buffer = events.pop() || ''; // Keep incomplete event in buffer
+                    
+                    for (const event of events) {
+                        if (!event.trim()) continue;
+                        
+                        console.log('Processing event:', event);
+                        
+                        // Parse SSE format: "event: chunk\ndata: {...}"
+                        const lines = event.split('\n');
+                        let eventType = '';
+                        let eventData = '';
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('event:')) {
+                                eventType = line.slice(6).trim();
+                            } else if (line.startsWith('data:')) {
+                                eventData = line.slice(5).trim();
+                            }
+                        }
+                        
+                        console.log('Event type:', eventType, 'Data:', eventData);
+                        
+                        if (eventType === 'chunk' && eventData) {
+                            try {
+                                const parsed = JSON.parse(eventData);
+                                
+                                if (parsed.html) {
+                                    console.log('Streaming update - HTML length:', parsed.html.length);
+                                    // Update the report window IMMEDIATELY with streaming HTML
+                                    if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
+                                        reportWindow.ReportTemplate.updateAnalysis(parsed.html);
+                                        finalAnalysisHTML = parsed.html; // Keep track of the latest complete version
+                                        console.log('✅ Report window updated with streaming content');
+                                    } else {
+                                        console.warn('Report window not available for update');
+                                    }
+                                }
+                            } catch (parseError) {
+                                console.warn('Failed to parse event data:', parseError, 'Data:', eventData);
+                            }
+                        } else if (eventType === 'complete' || eventData === '[DONE]') {
+                            console.log('✅ Streaming analysis completed');
+                            // Enable print button now that streaming is complete
+                            if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
+                                reportWindow.ReportTemplate.enablePrintButton();
+                            }
+                            // Cache the final report data
+                            ReportCache.save(reportId, assessmentData, finalAnalysisHTML);
+                            break;
+                        } else if (eventType === 'error') {
+                            try {
+                                const errorData = JSON.parse(eventData);
+                                throw new Error(errorData.error || 'Streaming error');
+                            } catch (parseError) {
+                                throw new Error('Unknown streaming error');
+                            }
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Streaming error:', error);
+                
+                // Fallback to regular analysis if streaming fails
+                console.log('📡 Falling back to regular analysis...');
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE}/analyze`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(assessmentData)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.analysis) {
+                            if (reportWindow && !reportWindow.closed && reportWindow.ReportTemplate) {
+                                reportWindow.ReportTemplate.updateAnalysis(data.analysis);
+                                // Enable print button since fallback analysis is complete
+                                reportWindow.ReportTemplate.enablePrintButton();
+                            }
+                            ReportCache.save(reportId, assessmentData, data.analysis);
+                        }
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback analysis also failed:', fallbackError);
+                    if (reportWindow && !reportWindow.closed) {
+                        reportWindow.document.getElementById('analysis-container').innerHTML = 
+                            '<div class="alert alert-danger">❌ Failed to generate analysis. Please try again.</div>';
+                    }
+                }
+            }
         }
         
         // Helper function to open report using data (dynamic rendering)
@@ -1262,12 +1450,19 @@ ${copyText.disclaimer}`;
                 summaries.forEach(summary => {
                     const createdDate = new Date(summary.createdAt).toLocaleDateString(currentLanguage);
                     const createdTime = new Date(summary.createdAt).toLocaleTimeString(currentLanguage);
+                    const languageFlag = getLanguageFlag(summary.language);
+                    
+                    // Use participant name if available, otherwise fall back to date
+                    const reportTitle = summary.participantName 
+                        ? `${summary.participantName}${summary.participantAge ? ` (${summary.participantAge})` : ''}`
+                        : `${lang.ui.cachedReports.reportFrom} ${createdDate}`;
+                    
                     html += `
                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">${lang.ui.cachedReports.reportFrom} ${createdDate}</h6>
+                                <h6 class="mb-1">${languageFlag} ${reportTitle}</h6>
                                 <p class="mb-1 text-muted">${lang.ui.cachedReports.score} ${summary.totalScore}/${summary.maxScore}</p>
-                                <small class="text-muted">${createdTime}</small>
+                                <small class="text-muted">${createdDate} ${createdTime}</small>
                             </div>
                             <div>
                                 <button class="btn btn-primary btn-sm me-2" onclick="reopenCachedReport('${summary.id}')">

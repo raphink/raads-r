@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -65,6 +66,7 @@ type ClaudeRequest struct {
 	Model     string    `json:"model"`
 	MaxTokens int       `json:"max_tokens"`
 	Messages  []Message `json:"messages"`
+	Stream    bool      `json:"stream,omitempty"`
 }
 
 type Message struct {
@@ -79,6 +81,28 @@ type ClaudeResponse struct {
 type ContentBlock struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
+}
+
+// Streaming response structures
+type ClaudeStreamEvent struct {
+	Type    string               `json:"type"`
+	Delta   *ClaudeStreamDelta   `json:"delta,omitempty"`
+	Message *ClaudeStreamMessage `json:"message,omitempty"`
+}
+
+type ClaudeStreamDelta struct {
+	Type string `json:"type"`
+	Text string `json:"text"`
+}
+
+type ClaudeStreamMessage struct {
+	Type  string       `json:"type"`
+	Usage *ClaudeUsage `json:"usage,omitempty"`
+}
+
+type ClaudeUsage struct {
+	InputTokens  int `json:"input_tokens"`
+	OutputTokens int `json:"output_tokens"`
 }
 
 var (
@@ -113,7 +137,8 @@ func main() {
 
 	// Routes
 	r.GET("/health", healthCheck)
-	r.POST("/analyze", analyzeHandler) // Endpoint for analysis only
+	r.POST("/analyze", analyzeHandler)              // Endpoint for analysis only
+	r.POST("/analyze-stream", analyzeStreamHandler) // Streaming analysis endpoint
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -276,6 +301,55 @@ func analyzeHandler(c *gin.Context) {
 	})
 }
 
+// analyzeStreamHandler provides streaming Claude analysis as Server-Sent Events
+func analyzeStreamHandler(c *gin.Context) {
+	var data AssessmentData
+
+	if err := c.ShouldBindJSON(&data); err != nil {
+		log.Printf("❌ Invalid JSON data: %v", err)
+		c.JSON(400, gin.H{"error": "Invalid JSON data: " + err.Error()})
+		return
+	}
+
+	// Validate the assessment data
+	if err := validateAssessmentData(data); err != nil {
+		log.Printf("❌ Invalid assessment data: %v", err)
+		c.JSON(400, gin.H{"error": "Invalid assessment data: " + err.Error()})
+		return
+	}
+
+	reportID := uuid.New().String()
+	log.Printf("🧠 Processing streaming analysis request %s", reportID)
+	log.Printf("   - Total Score: %d/%d", data.Scores.Total, data.Scores.MaxTotal)
+
+	// Set headers for Server-Sent Events
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Headers", "Cache-Control")
+
+	// Send initial metadata
+	c.SSEvent("metadata", gin.H{
+		"report_id":  reportID,
+		"started_at": time.Now().UTC(),
+	})
+
+	// Generate streaming analysis with Claude
+	log.Printf("🤖 Starting streaming analysis with Claude...")
+	err := streamMarkdownReportWithClaude(data, c)
+	if err != nil {
+		log.Printf("❌ Error during streaming analysis: %v", err)
+		c.SSEvent("error", gin.H{"error": "Failed to generate analysis: " + err.Error()})
+		return
+	}
+
+	// Send completion event
+	c.SSEvent("complete", gin.H{
+		"completed_at": time.Now().UTC(),
+	})
+}
+
 func validateAssessmentData(data AssessmentData) error {
 	if _, isValid := supportedLanguages[data.Language]; !isValid {
 		return fmt.Errorf("invalid language: %s", data.Language)
@@ -325,7 +399,7 @@ func generateMarkdownReportWithClaude(data AssessmentData) (string, error) {
 		language = "English" // fallback
 	}
 
-	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. RESPOND ENTIRELY IN %s LANGUAGE using appropriate clinical terminology.
+	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. RESPOND ENTIRELY IN %s LANGUAGE (including section headers) using appropriate clinical terminology.
 
 COMPLETE ASSESSMENT DATA (JSON):
 %s
@@ -450,4 +524,221 @@ IMPORTANT:
 	}
 
 	return claudeResp.Content[0].Text, nil
+}
+
+// streamMarkdownReportWithClaude generates a streaming analysis report using Claude API
+func streamMarkdownReportWithClaude(data AssessmentData, c *gin.Context) error {
+	// Build the prompt for Claude
+	language := data.Language
+	if language == "" {
+		language = "en"
+	}
+
+	// Count questions with comments
+	commentsCount := 0
+	for _, qa := range data.QuestionsAndAnswers {
+		if qa.Comment != nil && strings.TrimSpace(*qa.Comment) != "" {
+			commentsCount++
+		}
+	}
+
+	completionRate := float64(data.Metadata.AnsweredQuestions) / float64(data.Metadata.TotalQuestions) * 100
+
+	// Convert assessment data to JSON for detailed analysis
+	assessmentJSON, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal assessment data: %w", err)
+	}
+
+	// Map language code to full language name
+	languageNames := map[string]string{
+		"en": "English",
+		"fr": "French",
+		"es": "Spanish",
+		"it": "Italian",
+		"de": "German",
+	}
+
+	languageName, exists := languageNames[language]
+	if !exists {
+		languageName = "English" // fallback
+	}
+
+	prompt := fmt.Sprintf(`Generate a comprehensive RAADS-R clinical report in structured Markdown format. RESPOND ENTIRELY IN %s LANGUAGE (including section headers) using appropriate clinical terminology.
+
+COMPLETE ASSESSMENT DATA (JSON):
+%s
+
+SUMMARY:
+- Test Date: %s
+- Total Score: %d/%d (Clinical threshold: 65, Neurotypical average: 26)
+- Social Score: %d/%d (Clinical threshold: 30, Neurotypical average: 12.5)
+- Sensory Score: %d/%d (Clinical threshold: 15, Neurotypical average: 6.5)
+- Restricted Score: %d/%d (Clinical threshold: 14, Neurotypical average: 4.5)
+- Language Score: %d/%d (Clinical threshold: 3, Neurotypical average: 2.5)
+- Interpretation: %s - %s
+- Questions answered: %d/%d (%.1f%%)
+- Comments provided: %d
+
+ANALYSIS INSTRUCTIONS:
+1. Review each individual question and answer in the JSON data
+2. Pay special attention to comments provided - these give insight into personal experiences
+3. Analyze patterns across domains (Social, Sensory/Motor, Restricted Interests, Language)
+4. Look for specific behaviors and traits mentioned in comments
+5. Provide clinical insights based on individual responses, not just aggregate scores
+6. Reference specific question numbers and responses where relevant
+7. Provide evidence-based clinical interpretation
+
+REQUIRED MARKDOWN STRUCTURE:
+
+## Executive Summary
+
+Provide a clear summary of the assessment results, including the overall interpretation and key findings.
+
+### Score Overview
+
+Summarize the domain scores and their clinical significance. Do NOT add a table there.
+
+## Detailed Analysis by Domain
+
+### Social Domain Analysis
+
+### Sensory/Motor Domain Analysis  
+
+### Restricted Interests Domain Analysis
+
+### Language Domain Analysis
+
+## Clinical Interpretation and Recommendations
+
+## Notable Response Patterns
+
+Highlight specific questions where responses were particularly informative, especially those with comments that provide personal insights.
+
+## Conclusion
+
+Provide a clear, evidence-based conclusion with actionable recommendations.
+
+IMPORTANT:
+- Write in professional clinical language IN %s
+- Use EXACT markdown structure, NO top extra title or section, NO tables
+- Base all analysis on the actual assessment data provided
+- Reference specific question numbers and responses where relevant
+- Include direct quotes from comments when they provide insight
+- Provide evidence-based interpretations
+- Keep analysis objective and clinical
+- Do not make diagnostic statements beyond the scope of the RAADS-R`,
+		languageName,
+		string(assessmentJSON),
+		data.Metadata.TestDate.Format("January 2, 2006"),
+		data.Scores.Total, data.Scores.MaxTotal,
+		data.Scores.Social, data.Scores.MaxSocial,
+		data.Scores.Sensory, data.Scores.MaxSensory,
+		data.Scores.Restricted, data.Scores.MaxRestricted,
+		data.Scores.Language, data.Scores.MaxLanguage,
+		data.Interpretation.Level,
+		data.Interpretation.Description,
+		data.Metadata.AnsweredQuestions, data.Metadata.TotalQuestions, completionRate,
+		commentsCount,
+		languageName)
+
+	claudeReq := ClaudeRequest{
+		Model:     "claude-3-5-sonnet-20241022",
+		MaxTokens: 8000,
+		Stream:    true,
+		Messages: []Message{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(claudeReq)
+	if err != nil {
+		return fmt.Errorf("failed to marshal Claude request: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", "https://api.anthropic.com/v1/messages", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to create Claude request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", claudeAPIKey)
+	req.Header.Set("anthropic-version", "2023-06-01")
+
+	client := &http.Client{Timeout: 90 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to call Claude API: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("claude API error %d: %s", resp.StatusCode, string(body))
+	}
+
+	// Process the streaming response
+	scanner := bufio.NewScanner(resp.Body)
+	var markdownBuffer strings.Builder
+	lastSentLength := 0
+	lastSendTime := time.Now()
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Debug
+		log.Printf("📜 Received line: %s", line)
+
+		// Claude streams in Server-Sent Events format
+		if strings.HasPrefix(line, "data: ") {
+			data := strings.TrimPrefix(line, "data: ")
+
+			// Skip control messages
+			if data == "[DONE]" {
+				break
+			}
+
+			// Parse the JSON event
+			var event ClaudeStreamEvent
+			if err := json.Unmarshal([]byte(data), &event); err != nil {
+				log.Printf("⚠️ Failed to parse streaming event: %v", err)
+				continue
+			}
+
+			// Handle content delta events
+			if event.Type == "content_block_delta" && event.Delta != nil && event.Delta.Type == "text_delta" {
+				// Accumulate markdown content
+				markdownBuffer.WriteString(event.Delta.Text)
+
+				// Send updates every 100ms or when content grows significantly to avoid overwhelming the client
+				currentLength := markdownBuffer.Len()
+				timeSinceLastSend := time.Since(lastSendTime)
+
+				if currentLength > lastSentLength+50 || timeSinceLastSend > 100*time.Millisecond {
+					// Convert current markdown to HTML and send as chunk
+					var buf bytes.Buffer
+					if err := goldmark.New().Convert([]byte(markdownBuffer.String()), &buf); err == nil {
+						log.Printf("📤 Sending chunk - Length: %d chars, Delta: +%d chars", currentLength, currentLength-lastSentLength)
+						c.SSEvent("chunk", gin.H{
+							"html":     buf.String(),
+							"markdown": markdownBuffer.String(),
+						})
+						c.Writer.Flush()
+
+						lastSentLength = currentLength
+						lastSendTime = time.Now()
+					}
+				}
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("error reading streaming response: %w", err)
+	}
+
+	return nil
 }
