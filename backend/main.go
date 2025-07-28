@@ -83,7 +83,7 @@ type ContentBlock struct {
 
 var (
 	claudeAPIKey = os.Getenv("CLAUDE_API_KEY")
-	
+
 	// Supported languages mapping language code to display name
 	supportedLanguages = map[string]string{
 		"en": "English",

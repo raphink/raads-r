@@ -253,25 +253,25 @@
             STORAGE_KEY: 'raads_cached_reports',
             EXPIRY_DAYS: 30, // Reports expire after 30 days
             
-            // Save a report to localStorage
-            save(reportId, htmlContent, assessmentData) {
+            // Save report data (JSON + analysis) to localStorage instead of HTML
+            save(reportId, assessmentData, analysisHTML) {
                 try {
                     const reports = this.getAll();
                     const expiryDate = new Date();
                     expiryDate.setDate(expiryDate.getDate() + this.EXPIRY_DAYS);
                     
                     reports[reportId] = {
-                        htmlContent: htmlContent,
                         assessmentData: assessmentData,
+                        analysisHTML: analysisHTML,
                         createdAt: new Date().toISOString(),
                         expiresAt: expiryDate.toISOString()
                     };
                     
                     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
-                    console.log(`Report ${reportId} cached successfully`);
+                    console.log(`Report data ${reportId} cached successfully`);
                     return true;
                 } catch (error) {
-                    console.error('Failed to cache report:', error);
+                    console.error('Failed to cache report data:', error);
                     return false;
                 }
             },
@@ -343,6 +343,35 @@
                     }
                 } catch (error) {
                     console.error('Failed to cleanup cached reports:', error);
+                }
+            },
+            
+            // Check if report is using old HTML format and needs migration
+            isLegacyReport(report) {
+                return report.hasOwnProperty('htmlContent') && !report.hasOwnProperty('analysisHTML');
+            },
+            
+            // Migrate old HTML-based reports to new data-based format
+            migrate() {
+                try {
+                    const reports = this.getAll();
+                    let migrated = 0;
+                    
+                    Object.keys(reports).forEach(reportId => {
+                        const report = reports[reportId];
+                        if (this.isLegacyReport(report)) {
+                            console.warn(`Report ${reportId} uses legacy HTML format - it will still work but consider regenerating for optimal performance`);
+                            // We keep legacy reports as-is for now, but mark them for user awareness
+                            // A full migration would require parsing HTML to extract analysis content
+                        }
+                    });
+                    
+                    if (migrated > 0) {
+                        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
+                        console.log(`Migrated ${migrated} legacy reports to new data format`);
+                    }
+                } catch (error) {
+                    console.error('Failed to migrate legacy reports:', error);
                 }
             },
             
@@ -1167,19 +1196,16 @@ ${copyText.disclaimer}`;
                     // Generate report ID
                     const reportId = data.report_id || generateReportId();
                     
-                    // Generate complete HTML report using client-side template
-                    const htmlContent = ReportTemplate.generateReport(fullData, data.analysis, reportId);
-                    
-                    // Cache the report for future access
-                    ReportCache.save(reportId, htmlContent, fullData);
+                    // Cache the report data for future access
+                    ReportCache.save(reportId, fullData, data.analysis);
                     
                     // Show success state briefly
                     $btn.text(lang.ui.results.actions.reportReady)
                         .removeClass('btn-warning')
                         .addClass('btn-success');
                     
-                    // Open report in new tab immediately
-                    openReportInNewTab(htmlContent, reportId);
+                    // Generate and open report dynamically
+                    openReportWithData(fullData, data.analysis, reportId);
                     
                 } catch (error) {
                     console.error('Error generating report:', error);
@@ -1207,7 +1233,13 @@ ${copyText.disclaimer}`;
             return 'report_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
         
-        // Helper function to open report in new tab
+        // Helper function to open report using data (dynamic rendering)
+        function openReportWithData(assessmentData, analysisHTML, reportId) {
+            // Use the new cached data approach from ReportTemplate
+            return ReportTemplate.generateReportFromCache(assessmentData, analysisHTML, reportId, assessmentData.language);
+        }
+        
+        // Legacy function for backwards compatibility (can be removed later)
         function openReportInNewTab(htmlContent, reportId) {
             const newTab = window.open('', '_blank');
             newTab.document.write(htmlContent);
@@ -1260,7 +1292,15 @@ ${copyText.disclaimer}`;
         function reopenCachedReport(reportId) {
             const report = ReportCache.get(reportId);
             if (report) {
-                openReportInNewTab(report.htmlContent, reportId);
+                // Check if this is a legacy HTML-based report or new data-based report
+                if (ReportCache.isLegacyReport(report)) {
+                    // Use legacy method for old reports
+                    console.warn(`Opening legacy HTML report ${reportId} - consider regenerating for better performance`);
+                    openReportInNewTab(report.htmlContent, reportId);
+                } else {
+                    // Use dynamic rendering for new data-based reports
+                    openReportWithData(report.assessmentData, report.analysisHTML, reportId);
+                }
                 // Close the modal
                 bootstrap.Modal.getInstance(document.getElementById('cachedReportsModal')).hide();
             } else {
@@ -1285,8 +1325,9 @@ ${copyText.disclaimer}`;
                 updateCachedReportsButton(summaries.length);
             }
             
-            // Clean up expired reports
+            // Clean up expired reports and migrate legacy reports
             ReportCache.cleanup();
+            ReportCache.migrate();
         }
         
         // Update the cached reports button visibility and count
