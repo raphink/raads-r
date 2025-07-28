@@ -24,6 +24,12 @@
             font-size: 0.9em;
             color: #6c757d;
         }
+        /* Hide keyboard hints on mobile devices */
+        @media (max-width: 768px) {
+            .keyboard-hint {
+                display: none;
+            }
+        }
         .copy-feedback {
             background-color: #28a745 !important;
             border-color: #28a745 !important;
