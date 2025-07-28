@@ -464,7 +464,7 @@ IMPORTANT:
 - Include direct quotes from comments when they provide insight
 - Provide evidence-based interpretations
 - Keep analysis objective and clinical
-- Always use the format QX to reference questions (e.g., Q1, Q2)
+- ALWAYS use the format QX to reference questions (e.g., Q1, Q2)
 - Do not make diagnostic statements beyond the scope of the RAADS-R`,
 		language,
 		string(assessmentJSON),
