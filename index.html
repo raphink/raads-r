@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https:; frame-src 'none'; object-src 'none';">
     <title id="page-title" data-translate="meta.title"></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
@@ -171,7 +172,7 @@
                             <div class="col-md-8">
                                 <label for="modal-participant-name" class="form-label">Name or Identifier</label>
                                 <input type="text" class="form-control" id="modal-participant-name" 
-                                       placeholder="Enter your name or preferred identifier" required>
+                                       placeholder="Enter your name or preferred identifier" required maxlength="50">
                                 <div class="form-text">This will appear on your report but is not stored permanently.</div>
                             </div>
                             <div class="col-md-4">
@@ -314,7 +315,7 @@
                     
                     reports[reportId] = reportData;
                     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
-                    console.log(`Report data ${reportId} cached successfully`);
+                    SecurityUtils.safeLog(`Report data ${reportId} cached successfully`);
                     return true;
                 } catch (error) {
                     console.error('Failed to cache report data:', error);
@@ -385,7 +386,7 @@
                     
                     if (removed > 0) {
                         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
-                        console.log(`Cleaned up ${removed} expired cached reports`);
+                        SecurityUtils.safeLog(`Cleaned up ${removed} expired cached reports`);
                     }
                 } catch (error) {
                     console.error('Failed to cleanup cached reports:', error);
@@ -447,6 +448,78 @@
                 } catch (error) {
                     console.error('Failed to get report summaries:', error);
                     return [];
+                }
+            }
+        };
+
+        // Security utilities
+        const SecurityUtils = {
+            // Sanitize HTML to prevent XSS
+            sanitizeHTML(str) {
+                if (typeof str !== 'string') return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            },
+            
+            // Sanitize participant names and other user inputs
+            sanitizeUserInput(input, maxLength = 100) {
+                if (typeof input !== 'string') return '';
+                return input
+                    .replace(/[<>\"'&]/g, '') // Remove dangerous characters
+                    .trim()
+                    .substring(0, maxLength);
+            },
+            
+            // Validate JSON structure for imports
+            validateImportSchema(data) {
+                // Basic structure validation
+                if (!data || typeof data !== 'object') return false;
+                
+                // Check for required fields based on report type
+                if (data.reportId && data.analysisHTML) {
+                    // Exported report validation
+                    return !!(data.createdAt && data.expiresAt && data.metadata && data.scores);
+                } else {
+                    // Raw JSON validation
+                    return !!(data.metadata && data.scores && data.questionsAndAnswers);
+                }
+            },
+            
+            // Validate and sanitize participant info
+            validateParticipantInfo(name, age) {
+                const sanitizedName = this.sanitizeUserInput(name, 50);
+                const numAge = parseInt(age);
+                
+                return {
+                    isValid: sanitizedName.length >= 2 && numAge >= 18 && numAge <= 100,
+                    sanitizedName: sanitizedName,
+                    age: numAge
+                };
+            },
+            
+            // Create safe HTML content for dynamic insertion
+            createSafeHTML(template, data = {}) {
+                // This is a basic implementation - for production, use a proper templating library
+                let result = template;
+                Object.keys(data).forEach(key => {
+                    const placeholder = `{{${key}}}`;
+                    const sanitizedValue = this.sanitizeHTML(data[key]);
+                    result = result.replace(new RegExp(placeholder, 'g'), sanitizedValue);
+                });
+                return result;
+            },
+            
+            // Safe logging that doesn't leak sensitive data
+            safeLog(message, data = null) {
+                // Only log in development or when explicitly enabled
+                const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                if (isDevelopment) {
+                    if (data) {
+                        console.log(message, data);
+                    } else {
+                        console.log(message);
+                    }
                 }
             }
         };
@@ -665,8 +738,10 @@
                 
                 if (translatedText) {
                     if (element.hasAttribute('data-translate-html')) {
-                        element.innerHTML = translatedText;
+                        // Only allow HTML for explicitly marked elements, and sanitize it
+                        element.innerHTML = SecurityUtils.sanitizeHTML(translatedText);
                     } else {
+                        // Safe default: use textContent
                         element.textContent = translatedText;
                     }
                 }
@@ -1274,11 +1349,9 @@ ${copyText.disclaimer}`;
             
             // Validation function
             function validateParticipantInfo() {
-                const name = nameInput.value.trim();
-                const age = parseInt(ageInput.value);
-                const isValid = name.length >= 2 && age >= 18 && age <= 100;
-                confirmBtn.disabled = !isValid;
-                return isValid;
+                const validation = SecurityUtils.validateParticipantInfo(nameInput.value, ageInput.value);
+                confirmBtn.disabled = !validation.isValid;
+                return validation.isValid;
             }
             
             // Add validation listeners
@@ -1297,17 +1370,20 @@ ${copyText.disclaimer}`;
                     return; // Don't proceed if validation fails
                 }
                 
-                // Get participant info for this report
+                // Get participant info for this report - use sanitized values
+                const validation = SecurityUtils.validateParticipantInfo(nameInput.value, ageInput.value);
                 const participantInfo = {
-                    name: nameInput.value.trim(),
-                    age: parseInt(ageInput.value)
+                    name: validation.sanitizedName,
+                    age: validation.age
                 };
                 
                 confirmModal.hide();
                 
                 try {
-                    // Show loading state
-                    $btn.html('<span class="spinner-border spinner-border-sm" role="status"></span> ' + lang.ui.results.actions.reportGenerating)
+                    // Show loading state with safe content
+                    const $btn = $('#generate-report-btn');
+                    const spinner = $('<span class="spinner-border spinner-border-sm" role="status"></span>');
+                    $btn.empty().append(spinner).append(' ' + lang.ui.results.actions.reportGenerating)
                         .prop('disabled', true);
                     
                     // Prepare the full assessment data with participant info
@@ -1495,43 +1571,88 @@ ${copyText.disclaimer}`;
             const summaries = ReportCache.getSummaries();
             const modalBody = document.getElementById('cachedReportsBody');
             
+            // Clear existing content
+            modalBody.innerHTML = '';
+            
             if (summaries.length === 0) {
-                modalBody.innerHTML = `<p class="text-muted">${lang.ui.cachedReports.noReports}</p>`;
+                const noReportsMsg = document.createElement('p');
+                noReportsMsg.className = 'text-muted';
+                noReportsMsg.textContent = lang.ui.cachedReports.noReports;
+                modalBody.appendChild(noReportsMsg);
             } else {
-                let html = '<div class="list-group">';
+                const listGroup = document.createElement('div');
+                listGroup.className = 'list-group';
+                
                 summaries.forEach(summary => {
                     const createdDate = new Date(summary.createdAt).toLocaleDateString(currentLanguage);
                     const createdTime = new Date(summary.createdAt).toLocaleTimeString(currentLanguage);
                     const languageFlag = getLanguageFlag(summary.language);
                     
-                    // Use participant name if available, otherwise fall back to date
-                    const reportTitle = summary.participantName 
-                        ? `${summary.participantName}${summary.participantAge ? ` (${summary.participantAge})` : ''}`
+                    // Use participant name if available, otherwise fall back to date - sanitize for safety
+                    const participantName = SecurityUtils.sanitizeHTML(summary.participantName || '');
+                    const reportTitle = participantName 
+                        ? `${participantName}${summary.participantAge ? ` (${summary.participantAge})` : ''}`
                         : `${lang.ui.cachedReports.reportFrom} ${createdDate}`;
                     
-                    html += `
-                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">${languageFlag} ${reportTitle}</h6>
-                                <p class="mb-1 text-muted">${lang.ui.cachedReports.score} ${summary.totalScore}/${summary.maxScore}</p>
-                                <small class="text-muted">${createdDate} ${createdTime}</small>
-                            </div>
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-primary btn-sm" onclick="reopenCachedReport('${summary.id}')" title="Open Report">
-                                    ${lang.ui.cachedReports.open}
-                                </button>
-                                <button class="btn btn-success btn-sm" onclick="exportCachedReportJSON('${summary.id}')" title="Export as JSON">
-                                    📄 JSON
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm" onclick="deleteCachedReport('${summary.id}')" title="Delete Report">
-                                    ${lang.ui.cachedReports.delete}
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    // Create list item safely
+                    const listItem = document.createElement('div');
+                    listItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                    
+                    // Create content div
+                    const contentDiv = document.createElement('div');
+                    
+                    const titleElement = document.createElement('h6');
+                    titleElement.className = 'mb-1';
+                    titleElement.textContent = `${languageFlag} ${reportTitle}`;
+                    
+                    const scoreElement = document.createElement('p');
+                    scoreElement.className = 'mb-1 text-muted';
+                    scoreElement.textContent = `${lang.ui.cachedReports.score} ${summary.totalScore}/${summary.maxScore}`;
+                    
+                    const dateElement = document.createElement('small');
+                    dateElement.className = 'text-muted';
+                    dateElement.textContent = `${createdDate} ${createdTime}`;
+                    
+                    contentDiv.appendChild(titleElement);
+                    contentDiv.appendChild(scoreElement);
+                    contentDiv.appendChild(dateElement);
+                    
+                    // Create button group
+                    const buttonGroup = document.createElement('div');
+                    buttonGroup.className = 'btn-group';
+                    buttonGroup.setAttribute('role', 'group');
+                    
+                    // Open button
+                    const openBtn = document.createElement('button');
+                    openBtn.className = 'btn btn-primary btn-sm';
+                    openBtn.textContent = lang.ui.cachedReports.open;
+                    openBtn.title = 'Open Report';
+                    openBtn.onclick = () => reopenCachedReport(summary.id);
+                    
+                    // Export button
+                    const exportBtn = document.createElement('button');
+                    exportBtn.className = 'btn btn-success btn-sm';
+                    exportBtn.textContent = '📄 JSON';
+                    exportBtn.title = 'Export as JSON';
+                    exportBtn.onclick = () => exportCachedReportJSON(summary.id);
+                    
+                    // Delete button
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-outline-danger btn-sm';
+                    deleteBtn.textContent = lang.ui.cachedReports.delete;
+                    deleteBtn.title = 'Delete Report';
+                    deleteBtn.onclick = () => deleteCachedReport(summary.id);
+                    
+                    buttonGroup.appendChild(openBtn);
+                    buttonGroup.appendChild(exportBtn);
+                    buttonGroup.appendChild(deleteBtn);
+                    
+                    listItem.appendChild(contentDiv);
+                    listItem.appendChild(buttonGroup);
+                    listGroup.appendChild(listItem);
                 });
-                html += '</div>';
-                modalBody.innerHTML = html;
+                
+                modalBody.appendChild(listGroup);
             }
             
             const modal = new bootstrap.Modal(document.getElementById('cachedReportsModal'));
@@ -1634,8 +1755,21 @@ ${copyText.disclaimer}`;
                 return;
             }
             
+            // Enhanced file validation
             if (!file.name.toLowerCase().endsWith('.json')) {
                 alert(lang.ui.cachedReports.invalidFileType || 'Please select a valid JSON file.');
+                return;
+            }
+            
+            // Check file size (limit to 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File is too large. Please select a file smaller than 10MB.');
+                return;
+            }
+            
+            // Check MIME type
+            if (file.type && !file.type.includes('json') && !file.type.includes('text')) {
+                alert('Invalid file type. Please select a JSON file.');
                 return;
             }
             
@@ -1674,6 +1808,11 @@ ${copyText.disclaimer}`;
         
         // Function to detect report type
         function detectReportType(data) {
+            // First validate the basic schema
+            if (!SecurityUtils.validateImportSchema(data)) {
+                return null;
+            }
+            
             // Check if it's an exported report (has analysisHTML and specific structure)
             if (data.reportId && data.analysisHTML && data.createdAt && data.expiresAt) {
                 return 'exported';
@@ -1702,7 +1841,7 @@ ${copyText.disclaimer}`;
                                 <p class="text-muted mb-3">${lang.ui.cachedReports.participantInfoDesc || 'Please provide participant information for this imported report:'}</p>
                                 <div class="mb-3">
                                     <label for="import-participant-name" class="form-label">${lang.ui.results.reportModal.participantName || 'Name'} *</label>
-                                    <input type="text" class="form-control" id="import-participant-name" required>
+                                    <input type="text" class="form-control" id="import-participant-name" required maxlength="50">
                                 </div>
                                 <div class="mb-3">
                                     <label for="import-participant-age" class="form-label">${lang.ui.results.reportModal.participantAge || 'Age'} *</label>
@@ -1734,11 +1873,9 @@ ${copyText.disclaimer}`;
             
             // Validation function
             function validateParticipantInfo() {
-                const name = nameInput.value.trim();
-                const age = parseInt(ageInput.value);
-                const isValid = name.length >= 2 && age >= 18 && age <= 100;
-                confirmBtn.disabled = !isValid;
-                return isValid;
+                const validation = SecurityUtils.validateParticipantInfo(nameInput.value, ageInput.value);
+                confirmBtn.disabled = !validation.isValid;
+                return validation.isValid;
             }
             
             // Add validation listeners
@@ -1748,10 +1885,11 @@ ${copyText.disclaimer}`;
             // Handle confirm button
             confirmBtn.onclick = function() {
                 if (validateParticipantInfo()) {
-                    // Add participant info to raw data
+                    // Add participant info to raw data - use sanitized values
+                    const validation = SecurityUtils.validateParticipantInfo(nameInput.value, ageInput.value);
                     rawData.participantInfo = {
-                        name: nameInput.value.trim(),
-                        age: parseInt(ageInput.value)
+                        name: validation.sanitizedName,
+                        age: validation.age
                     };
                     
                     // Close modal and process the report
@@ -1883,7 +2021,7 @@ ${copyText.disclaimer}`;
             if (button) {
                 if (count > 0) {
                     button.style.display = 'inline-block';
-                    button.innerHTML = `${lang.ui.cachedReports.title} (${count})`;
+                    button.textContent = `${lang.ui.cachedReports.title} (${count})`;
                 } else {
                     button.style.display = 'none';
                 }
