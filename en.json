@@ -16,6 +16,7 @@
     "form": {
       "commentLabel": "Comment (optional)",
       "commentPlaceholder": "Add a comment about this question...",
+      "commentOptional": "Optional",
       "keyboardHint": "💡 <strong>Keyboard shortcuts:</strong> A/B/C/D to select, Tab for comment, Esc to exit, P/N for navigation, Enter to continue"
     },
     "navigation": {

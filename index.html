@@ -105,7 +105,11 @@
                     <!-- Comment Field -->
                     <div class="mb-3">
                         <label for="question-comment" id="comment-label" class="form-label" data-translate="ui.form.commentLabel"></label>
-                        <textarea class="form-control" id="question-comment" rows="2" data-translate-attr="placeholder:ui.form.commentPlaceholder"></textarea>
+                        <textarea class="form-control" id="question-comment" rows="2" maxlength="500" data-translate-attr="placeholder:ui.form.commentPlaceholder"></textarea>
+                        <div class="form-text d-flex justify-content-between">
+                            <span class="text-muted" data-translate="ui.form.commentOptional">Optional</span>
+                            <small id="comment-counter" class="text-muted">0/500</small>
+                        </div>
                     </div>
 
                     <!-- Keyboard Hints -->
@@ -715,7 +719,10 @@
             // Track focus/blur on comment field
             $('#question-comment')
             .on('focus', function() { inCommentField = true; })
-            .on('blur', function() { inCommentField = false; });
+            .on('blur', function() { inCommentField = false; })
+            .on('input', function() { 
+                updateCommentCounter(); 
+            });
 
             // Keyboard navigation
             $(document).keydown(function(e) {
@@ -791,6 +798,9 @@
             // Load comment
             $('#question-comment').val(comments[question.id] || '');
             
+            // Update comment counter
+            updateCommentCounter();
+            
             // Remove focus from comment field to enable keyboard shortcuts
             $('#question-comment').blur();
             
@@ -817,6 +827,24 @@
             
             // Update next button
             $('#next-btn').prop('disabled', false);
+        }
+
+        function updateCommentCounter() {
+            const textarea = $('#question-comment');
+            const counter = $('#comment-counter');
+            const currentLength = textarea.val().length;
+            const maxLength = 500;
+            
+            counter.text(`${currentLength}/${maxLength}`);
+            
+            // Change color based on usage
+            if (currentLength > maxLength * 0.9) {
+                counter.removeClass('text-muted text-warning').addClass('text-danger');
+            } else if (currentLength > maxLength * 0.7) {
+                counter.removeClass('text-muted text-danger').addClass('text-warning');
+            } else {
+                counter.removeClass('text-warning text-danger').addClass('text-muted');
+            }
         }
 
         function saveComment() {

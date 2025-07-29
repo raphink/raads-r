@@ -372,6 +372,15 @@ func validateAssessmentData(data AssessmentData) error {
 			data.Metadata.TotalQuestions, len(data.QuestionsAndAnswers))
 	}
 
+	// Truncate overly long comments (max 500 characters each)
+	for i, qa := range data.QuestionsAndAnswers {
+		if qa.Comment != nil && len(*qa.Comment) > 500 {
+			truncated := (*qa.Comment)[:489] + "[truncated]"
+			data.QuestionsAndAnswers[i].Comment = &truncated
+			log.Printf("⚠️  Truncated comment for question %d (was %d chars, now %d chars)", qa.ID, len(*qa.Comment), len(truncated))
+		}
+	}
+
 	return nil
 }
 
