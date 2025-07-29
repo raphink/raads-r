@@ -158,17 +158,21 @@
                     }
                 }
                 
-                // If report is streaming (or might be), start polling for updates
+                // If report is streaming (or might be), start direct streaming or polling
                 if (report.isStreaming) {
-                    console.log('Report is streaming, starting poll for updates');
+                    console.log('Report is streaming, starting direct stream or polling');
                     // Report is still being generated - show loading state
                     if (!report.analysisHTML) {
                         document.getElementById('analysis-container').innerHTML = 
-                            '<div class="analysis-loading">🔄 Analysis is being generated in another window...</div>';
+                            '<div class="analysis-loading">🔄 Generating analysis...</div>';
                     }
                     
-                    // Poll for updates
-                    pollForAnalysisUpdates(reportId);
+                    // Try direct streaming first, fall back to polling if it fails
+                    startDirectStreaming(report.assessmentData, reportId)
+                        .catch(error => {
+                            console.log('Direct streaming failed, falling back to polling:', error);
+                            pollForAnalysisUpdates(reportId);
+                        });
                 } else if (!report.analysisHTML) {
                     // Analysis wasn't generated - show message
                     document.getElementById('analysis-container').innerHTML = 

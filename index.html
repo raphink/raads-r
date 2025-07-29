@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https:; frame-src 'none'; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: http://localhost:* http://127.0.0.1:*; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'none'; object-src 'none';">
     <title id="page-title" data-translate="meta.title"></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
@@ -1393,14 +1393,11 @@ ${copyText.disclaimer}`;
                     // Generate report ID
                     const reportId = generateReportId();
                     
-                    // Open report window immediately with loading state
+                    // Cache the initial report data (without analysis) BEFORE opening the report window
+                    ReportCache.save(reportId, fullData, null);
+                    
+                    // Open report window - it can now access the cached data immediately
                     const reportWindow = ReportTemplate.generateReport(fullData, reportId, fullData.language);
-                    
-                    // Start streaming analysis in the background
-                    await streamAnalysisToReport(fullData, reportId);
-                    
-                    // Cache the completed report data
-                    // Note: We'll update this to cache the final analysis after streaming completes
                     
                 } catch (error) {
                     console.error('Error generating report:', error);

@@ -549,3 +549,113 @@ function initializeParticipantInfo() {
     document.querySelectorAll('.participant-name').forEach(el => el.textContent = name);
     document.querySelectorAll('.participant-age').forEach(el => el.textContent = age + ' years');
 }
+
+// Direct streaming function for report.html
+async function startDirectStreaming(assessmentData, reportId) {
+    // Get API base URL (same logic as in index.html)
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:8080'
+        : 'https://raads-pdf-service-3n4fdvjefq-oa.a.run.app';
+    
+    try {
+        console.log('Starting direct streaming to:', `${API_BASE}/analyze-stream`);
+        
+        const response = await fetch(`${API_BASE}/analyze-stream`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(assessmentData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let finalAnalysisHTML = '';
+        let buffer = '';
+        
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            buffer += chunk;
+            
+            // Process complete events in the buffer
+            const events = buffer.split('\n\n');
+            buffer = events.pop() || ''; // Keep incomplete event in buffer
+            
+            for (const event of events) {
+                if (!event.trim()) continue;
+                
+                console.log('Processing event:', event);
+                
+                // Parse SSE format: "event: chunk\ndata: {...}"
+                const lines = event.split('\n');
+                let eventType = '';
+                let eventData = '';
+                
+                for (const line of lines) {
+                    if (line.startsWith('event:')) {
+                        eventType = line.slice(6).trim();
+                    } else if (line.startsWith('data:')) {
+                        eventData = line.slice(5).trim();
+                    }
+                }
+                
+                if (eventType === 'chunk' && eventData) {
+                    try {
+                        const parsed = JSON.parse(eventData);
+                        
+                        if (parsed.html) {
+                            finalAnalysisHTML = parsed.html;
+                            console.log('Direct streaming chunk - HTML length:', parsed.html.length);
+                            
+                            // Update the UI immediately
+                            ReportTemplate.updateAnalysis(parsed.html);
+                            
+                            // Update localStorage for consistency
+                            const reportData = localStorage.getItem(`raads-report-${reportId}`);
+                            if (reportData) {
+                                const report = JSON.parse(reportData);
+                                report.analysisHTML = parsed.html;
+                                localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(report));
+                            }
+                        }
+                    } catch (parseError) {
+                        console.warn('Failed to parse event data:', parseError, 'Data:', eventData);
+                    }
+                } else if (eventType === 'complete' || eventData === '[DONE]') {
+                    console.log('✅ Direct streaming completed - Final content length:', finalAnalysisHTML ? finalAnalysisHTML.length : 'null');
+                    
+                    // Mark streaming as complete in localStorage
+                    const reportData = localStorage.getItem(`raads-report-${reportId}`);
+                    if (reportData) {
+                        const report = JSON.parse(reportData);
+                        report.analysisHTML = finalAnalysisHTML;
+                        report.isStreaming = false;
+                        localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(report));
+                    }
+                    
+                    // Enable print button
+                    ReportTemplate.enablePrintButton();
+                    break;
+                } else if (eventType === 'error') {
+                    try {
+                        const errorData = JSON.parse(eventData);
+                        throw new Error(errorData.error || 'Streaming error');
+                    } catch (parseError) {
+                        throw new Error('Unknown streaming error');
+                    }
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.error('Direct streaming error:', error);
+        throw error; // Re-throw to trigger fallback to polling
+    }
+}
