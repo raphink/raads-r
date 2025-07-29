@@ -1424,132 +1424,31 @@ ${copyText.disclaimer}`;
         function generateReportId() {
             return 'report_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
-        
-        // Stream analysis to an already-opened report window
-        async function streamAnalysisToReport(assessmentData, reportId) {
-            try {
-                const response = await fetch(`${CONFIG.API_BASE}/analyze-stream`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(assessmentData)
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let finalAnalysisHTML = '';
-                let buffer = '';
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    
-                    const chunk = decoder.decode(value);
-                    buffer += chunk;
 
-                    console.log('Received chunk:', chunk);
-                    
-                    // Process complete events in the buffer
-                    const events = buffer.split('\n\n');
-                    buffer = events.pop() || ''; // Keep incomplete event in buffer
-                    
-                    for (const event of events) {
-                        if (!event.trim()) continue;
-                        
-                        console.log('Processing event:', event);
-                        
-                        // Parse SSE format: "event: chunk\ndata: {...}"
-                        const lines = event.split('\n');
-                        let eventType = '';
-                        let eventData = '';
-                        
-                        for (const line of lines) {
-                            if (line.startsWith('event:')) {
-                                eventType = line.slice(6).trim();
-                            } else if (line.startsWith('data:')) {
-                                eventData = line.slice(5).trim();
-                            }
-                        }
-                        
-                        if (eventType === 'chunk' && eventData) {
-                            try {
-                                const parsed = JSON.parse(eventData);
-                                
-                                if (parsed.html) {
-                                    finalAnalysisHTML = parsed.html; // Keep track of the latest complete version
-                                    console.log('Streaming chunk - HTML length:', parsed.html.length, 'Total chars so far:', finalAnalysisHTML.length);
-                                    // Update the report data in localStorage for the report page to pick up
-                                    ReportTemplate.updateReportAnalysis(reportId, parsed.html);
-                                    console.log('✅ Report data updated in localStorage');
-                                }
-                            } catch (parseError) {
-                                console.warn('Failed to parse event data:', parseError, 'Data:', eventData);
-                            }
-                        } else if (eventType === 'complete' || eventData === '[DONE]') {
-                            console.log('✅ Streaming analysis completed - Final content length:', finalAnalysisHTML ? finalAnalysisHTML.length : 'null');
-                            // Mark streaming as complete in localStorage with final content
-                            ReportTemplate.completeReportStreaming(reportId, finalAnalysisHTML);
-                            // Cache the final report data
-                            ReportCache.save(reportId, assessmentData, finalAnalysisHTML);
-                            break;
-                        } else if (eventType === 'error') {
-                            try {
-                                const errorData = JSON.parse(eventData);
-                                throw new Error(errorData.error || 'Streaming error');
-                            } catch (parseError) {
-                                throw new Error('Unknown streaming error');
-                            }
-                        }
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Streaming error:', error);
-                
-                // Fallback to regular analysis if streaming fails
-                console.log('📡 Falling back to regular analysis...');
-                try {
-                    const response = await fetch(`${CONFIG.API_BASE}/analyze`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(assessmentData)
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.success && data.analysis) {
-                            // Update report in localStorage and mark as complete with final content
-                            ReportTemplate.updateReportAnalysis(reportId, data.analysis);
-                            ReportTemplate.completeReportStreaming(reportId, data.analysis);
-                            ReportCache.save(reportId, assessmentData, data.analysis);
-                        }
-                    }
-                } catch (fallbackError) {
-                    console.error('Fallback analysis also failed:', fallbackError);
-                    // Update localStorage with error message and mark as complete
-                    const reportData = localStorage.getItem(`raads-report-${reportId}`);
-                    if (reportData) {
-                        const report = JSON.parse(reportData);
-                        report.analysisHTML = '<div class="alert alert-danger">❌ Failed to generate analysis. Please try again.</div>';
-                        report.isStreaming = false;
-                        report.hasError = true;
-                        localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(report));
-                    }
-                }
-            }
-        }
         
         // Helper function to open report using data (dynamic rendering)
         function openReportWithData(assessmentData, analysisHTML, reportId) {
-            // Use the new cached data approach from ReportTemplate
-            return ReportTemplate.generateReportFromCache(assessmentData, analysisHTML, reportId, assessmentData.language);
+            // First check if there's completed analysis in the ReportTemplate localStorage
+            try {
+                const reportTemplateData = localStorage.getItem(`raads-report-${reportId}`);
+                if (reportTemplateData) {
+                    const parsedData = JSON.parse(reportTemplateData);
+                    if (parsedData.analysisHTML && !parsedData.isStreaming) {
+                        // Use the completed analysis from ReportTemplate storage
+                        analysisHTML = parsedData.analysisHTML;
+                    }
+                }
+            } catch (error) {
+                console.warn('Failed to check ReportTemplate storage:', error);
+            }
+            
+            if (analysisHTML) {
+                // Use cached analysis approach when analysis exists
+                return ReportTemplate.generateReportFromCache(assessmentData, analysisHTML, reportId, assessmentData.language);
+            } else {
+                // Use streaming approach when no analysis exists - report.html will generate it
+                return ReportTemplate.generateReport(assessmentData, reportId, assessmentData.language);
+            }
         }
         
         // Legacy function for backwards compatibility (can be removed later)
@@ -1665,12 +1564,9 @@ ${copyText.disclaimer}`;
                     // Use legacy method for old reports
                     console.warn(`Opening legacy HTML report ${reportId} - consider regenerating for better performance`);
                     openReportInNewTab(report.htmlContent, reportId);
-                } else if (!report.analysisHTML) {
-                    // This is a cached report without analysis (imported raw JSON) - generate analysis
-                    console.log(`Report ${reportId} has no analysis - generating now...`);
-                    generateAnalysisForCachedReport(report, reportId);
                 } else {
-                    // Use dynamic rendering for new data-based reports with existing analysis
+                    // Use dynamic rendering for new data-based reports
+                    // report.html will check if analysis exists and generate it if needed
                     openReportWithData(report.assessmentData, report.analysisHTML, reportId);
                 }
                 // Close the modal properly
@@ -1954,22 +1850,7 @@ ${copyText.disclaimer}`;
             }
         }
         
-        // Function to generate analysis for cached report without analysis (imported raw JSON)
-        async function generateAnalysisForCachedReport(report, reportId) {
-            try {
-                // Open report window immediately with loading state
-                const reportWindow = ReportTemplate.generateReport(report.assessmentData, reportId, report.assessmentData.language || report.language || 'en');
-                
-                // Start streaming analysis in the background
-                await streamAnalysisToReport(report.assessmentData, reportId);
-                
-                // The analysis will be saved to cache automatically by streamAnalysisToReport
-                
-            } catch (error) {
-                console.error('Error generating analysis for cached report:', error);
-                alert(lang.ui.cachedReports.analysisError || 'Failed to generate analysis for this report. Please try again.');
-            }
-        }
+
         
         // Function to validate imported report data
         function validateImportedReport(data) {
