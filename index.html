@@ -1761,9 +1761,9 @@ ${copyText.disclaimer}`;
                 return;
             }
             
-            // Check file size (limit to 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                alert('File is too large. Please select a file smaller than 10MB.');
+            // Check file size (limit to 1MB - typical reports are 20-30KB)
+            if (file.size > 1024 * 1024) {
+                alert('File is too large. Please select a file smaller than 1MB.');
                 return;
             }
             
