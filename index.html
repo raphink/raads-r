@@ -1673,8 +1673,21 @@ ${copyText.disclaimer}`;
                     // Use dynamic rendering for new data-based reports with existing analysis
                     openReportWithData(report.assessmentData, report.analysisHTML, reportId);
                 }
-                // Close the modal
-                bootstrap.Modal.getInstance(document.getElementById('cachedReportsModal')).hide();
+                // Close the modal properly
+                const modalElement = document.getElementById('cachedReportsModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                modalInstance.hide();
+                
+                // Ensure backdrop is removed
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('overflow');
+                    document.body.style.removeProperty('padding-right');
+                }, 300);
             } else {
                 alert(lang.ui.cachedReports.notFound);
             }
