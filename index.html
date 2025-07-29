@@ -68,12 +68,8 @@
                         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <span id="current-language-flag">🇫🇷</span> <span id="current-language-name">Français</span>
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇬🇧 English</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('fr')">🇫🇷 Français</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('es')">🇪🇸 Español</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('it')">🇮🇹 Italiano</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('de')">🇩🇪 Deutsch</a></li>
+                        <ul class="dropdown-menu" aria-labelledby="languageDropdown" id="languageDropdownMenu">
+                            <!-- Language options will be populated by JavaScript -->
                         </ul>
                     </div>
                 </div>
@@ -587,6 +583,34 @@
                 file: 'de.json'
             }
         };
+        
+        // Build language dropdown dynamically
+        function buildLanguageDropdown() {
+            const dropdownMenu = document.getElementById('languageDropdownMenu');
+            if (!dropdownMenu) {
+                console.error('Language dropdown menu not found');
+                return;
+            }   
+
+            // Clear existing content
+            dropdownMenu.innerHTML = '';
+
+            // Populate dropdown with language options
+            Object.keys(languages).forEach(langCode => {
+                const langConfig = languages[langCode];
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+                link.className = 'dropdown-item';
+                link.href = '#';
+                link.textContent = `${langConfig.flag} ${langConfig.name}`;
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    changeLanguage(langCode);
+                };
+                listItem.appendChild(link);
+                dropdownMenu.appendChild(listItem);
+            });
+        }
 
         // Get language from URL parameter or localStorage
         function getInitialLanguage() {
@@ -771,6 +795,9 @@
         }
 
         $(document).ready(async function() {
+            // Build language dropdown first
+            buildLanguageDropdown();
+            
             // Get initial language from URL or storage
             currentLanguage = getInitialLanguage();
             
