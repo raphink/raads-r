@@ -16,6 +16,28 @@
     .no-print { display: none; }
     .return-arrow { display: none !important; }
     
+    /* Show only radar chart in print, hide toggle buttons */
+    .print-only { display: block !important; }
+    .chart-controls { display: none !important; }
+    
+    /* Show only radar chart in print */
+    #bar-chart-section { display: none !important; }
+    #radar-chart-section { 
+        display: block !important; 
+        page-break-inside: avoid;
+        margin: 20px 0 !important;
+    }
+    
+    /* Chart titles for print */
+    .chart-title { 
+        font-size: 16pt !important; 
+        font-weight: bold !important; 
+        color: #2c3e50 !important; 
+        margin-bottom: 15px !important;
+        border-bottom: 2px solid #3498db !important;
+        padding-bottom: 5px !important;
+    }
+    
     /* Show title page only in print */
     .title-page { display: flex !important; }
     
@@ -155,6 +177,39 @@
     .chart-wrapper {
         background: #f9f9f9 !important;
         border: 1px solid #000 !important;
+        position: relative !important;
+        clear: both !important;
+        margin: 10px 0 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    /* Ensure radar chart wrapper doesn't overlap */
+    .radar-chart-wrapper {
+        position: relative !important;
+        clear: both !important;
+        display: block !important; /* Change from flex to block for print */
+        background: white !important;
+        padding: 20px !important;
+        text-align: center !important;
+    }
+    
+    /* Hide sidebar in print, center the chart */
+    .radar-scores-sidebar {
+        display: none !important;
+    }
+    
+    .radar-chart-main {
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+    
+    /* Ensure SVG is properly sized for print */
+    .radar-chart {
+        width: 400px !important;
+        height: 400px !important;
+        margin: 0 auto !important;
+        display: block !important;
     }
     
     .score-summary {
@@ -212,6 +267,20 @@
         background: #27ae60 !important;
         color: white !important;
     }
+}
+
+/* Screen styles - hide print-only elements and manage chart visibility */
+.print-only {
+    display: none;
+}
+
+.chart-section {
+    margin: 30px 0;
+}
+
+/* Show radar chart by default, hide bar chart on screen */
+#bar-chart-section {
+    display: none;
 }
 
 /* Hide title page in normal view */

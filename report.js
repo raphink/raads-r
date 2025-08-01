@@ -460,9 +460,12 @@ class ReportTemplate {
         // Populate the enhanced total score card
         this.populateTotalScoreCard(assessmentData);
 
-        // Generate and insert chart (default to bar chart)
-        const chartHTML = this.generateChart(assessmentData);
-        document.getElementById('chart-container').innerHTML = chartHTML;
+        // Generate and insert both charts
+        const barChartHTML = this.generateChart(assessmentData);
+        const radarChartHTML = this.generateRadarChart(assessmentData);
+        
+        document.getElementById('bar-chart-container').innerHTML = barChartHTML;
+        document.getElementById('radar-chart-container').innerHTML = radarChartHTML;
         
         // Initialize chart toggle functionality
         this.initializeChartToggle(assessmentData);
@@ -606,13 +609,14 @@ class ReportTemplate {
     // Initialize chart toggle functionality
     static initializeChartToggle(assessmentData) {
         const toggleButtons = document.querySelectorAll('.chart-toggle-btn');
-        const chartContainer = document.getElementById('chart-container');
+        const barChartSection = document.getElementById('bar-chart-section');
+        const radarChartSection = document.getElementById('radar-chart-section');
         
-        if (!toggleButtons.length || !chartContainer) {
+        if (!toggleButtons.length || !barChartSection || !radarChartSection) {
             return;
         }
 
-        let currentChartType = 'bar'; // Default to bar chart
+        let currentChartType = 'radar'; // Default to radar chart
 
         toggleButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -626,19 +630,16 @@ class ReportTemplate {
                 toggleButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
 
-                // Generate and display the appropriate chart
-                let chartHTML;
+                // Show/hide appropriate chart sections
                 if (chartType === 'radar') {
-                    chartHTML = this.generateRadarChart(assessmentData);
+                    barChartSection.style.display = 'none';
+                    radarChartSection.style.display = 'block';
                 } else {
-                    chartHTML = this.generateChart(assessmentData);
+                    barChartSection.style.display = 'block';
+                    radarChartSection.style.display = 'none';
                 }
 
-                chartContainer.innerHTML = chartHTML;
                 currentChartType = chartType;
-
-                // Update legend visibility
-                this.updateLegendVisibility(chartType);
 
                 // Apply translations to any new elements
                 if (typeof applyTranslations === 'function' && window.currentTranslations) {
@@ -646,20 +647,6 @@ class ReportTemplate {
                 }
             });
         });
-    }
-
-    // Update legend visibility based on chart type
-    static updateLegendVisibility(chartType) {
-        const barLegendItems = document.querySelectorAll('.bar-chart-legend');
-        const radarLegendItems = document.querySelectorAll('.radar-chart-legend');
-
-        if (chartType === 'radar') {
-            barLegendItems.forEach(item => item.style.display = 'none');
-            radarLegendItems.forEach(item => item.style.display = 'flex');
-        } else {
-            barLegendItems.forEach(item => item.style.display = 'flex');
-            radarLegendItems.forEach(item => item.style.display = 'none');
-        }
     }
     
     // Initialize floating return arrow functionality
