@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="report-template.js"></script>
     <style>
         .question-option {
             cursor: pointer;
@@ -1424,7 +1423,7 @@ ${copyText.disclaimer}`;
                     ReportCache.save(reportId, fullData, null);
                     
                     // Open report window - it can now access the cached data immediately
-                    const reportWindow = ReportTemplate.generateReport(fullData, reportId, fullData.language);
+                    const reportWindow = generateReport(fullData, reportId, fullData.language);
                     
                 } catch (error) {
                     console.error('Error generating report:', error);
@@ -1452,29 +1451,81 @@ ${copyText.disclaimer}`;
             return 'report_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
 
+        // Simplified report generation functions (replaces report-template.js)
+        function generateReport(assessmentData, reportId, language = 'en') {
+            try {
+                // Save report data to localStorage
+                const reportData = {
+                    assessmentData: assessmentData,
+                    reportId: reportId,
+                    language: language,
+                    createdAt: new Date().toISOString(),
+                    isStreaming: true, // Mark as streaming until analysis is complete
+                    analysisHTML: null // Will be populated when analysis completes
+                };
+                
+                localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(reportData));
+                
+                // Open report page with ID parameter
+                const reportUrl = `report.html?id=${reportId}&lang=${language}`;
+                const reportWindow = window.open(reportUrl, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                
+                return reportWindow;
+            } catch (error) {
+                console.error('Error generating report:', error);
+                throw error;
+            }
+        }
+        
+        // Generate report from cached data (assessment + analysis)
+        function generateReportFromCache(assessmentData, analysisHTML, reportId, language = 'en') {
+            try {
+                // Save complete report data to localStorage
+                const reportData = {
+                    assessmentData: assessmentData,
+                    reportId: reportId,
+                    language: language,
+                    createdAt: new Date().toISOString(),
+                    isStreaming: false, // Analysis is complete
+                    analysisHTML: analysisHTML
+                };
+                
+                localStorage.setItem(`raads-report-${reportId}`, JSON.stringify(reportData));
+                
+                // Open report page with ID parameter
+                const reportUrl = `report.html?id=${reportId}&lang=${language}`;
+                const reportWindow = window.open(reportUrl, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+                
+                return reportWindow;
+            } catch (error) {
+                console.error('Error generating report with cached analysis:', error);
+                throw error;
+            }
+        }
+
         
         // Helper function to open report using data (dynamic rendering)
         function openReportWithData(assessmentData, analysisHTML, reportId) {
-            // First check if there's completed analysis in the ReportTemplate localStorage
+            // First check if there's completed analysis in the report localStorage
             try {
-                const reportTemplateData = localStorage.getItem(`raads-report-${reportId}`);
-                if (reportTemplateData) {
-                    const parsedData = JSON.parse(reportTemplateData);
+                const reportData = localStorage.getItem(`raads-report-${reportId}`);
+                if (reportData) {
+                    const parsedData = JSON.parse(reportData);
                     if (parsedData.analysisHTML && !parsedData.isStreaming) {
-                        // Use the completed analysis from ReportTemplate storage
+                        // Use the completed analysis from report storage
                         analysisHTML = parsedData.analysisHTML;
                     }
                 }
             } catch (error) {
-                console.warn('Failed to check ReportTemplate storage:', error);
+                console.warn('Failed to check report storage:', error);
             }
             
             if (analysisHTML) {
                 // Use cached analysis approach when analysis exists
-                return ReportTemplate.generateReportFromCache(assessmentData, analysisHTML, reportId, assessmentData.language);
+                return generateReportFromCache(assessmentData, analysisHTML, reportId, assessmentData.language);
             } else {
                 // Use streaming approach when no analysis exists - report.html will generate it
-                return ReportTemplate.generateReport(assessmentData, reportId, assessmentData.language);
+                return generateReport(assessmentData, reportId, assessmentData.language);
             }
         }
         

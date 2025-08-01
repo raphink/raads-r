@@ -22,7 +22,7 @@ class ReportTemplate {
         const domains = [
             { key: 'social', label: 'social' },
             { key: 'language', label: 'language' },
-            { key: 'sensory', label: 'sensory_motor' },
+            { key: 'sensory', label: 'sensory' },
             { key: 'restricted', label: 'restricted' },
             { key: 'total', label: 'total' }
         ];
@@ -49,7 +49,7 @@ class ReportTemplate {
 
             chartHTML += `
                 <div class="chart-item">
-                    <div class="chart-label" data-translate="${domain.label}">${domain.label}</div>
+                    <div class="chart-label">${this.getTranslatedText(domain.key === 'total' ? 'ui.results.totalScore' : `ui.results.categories.${domain.key}`, domain.label)}</div>
                     <div class="chart-container-inner" style="height: ${containerHeight}px;">
                         <div class="max-score-label">${maxScore}</div>
                         <div class="score-bar" style="height: ${barHeight}px;" title="Score: ${score}/${maxScore} (${(score/maxScore*100).toFixed(1)}%)" data-height="${barHeight}"></div>
@@ -76,7 +76,7 @@ class ReportTemplate {
             { key: 'restricted', label: 'Restricted Interests', score: scores.restricted, max: 42, threshold: 15, average: 8 }
         ];
 
-        const centerX = 250;
+        const centerX = 200;
         const centerY = 200;
         const maxRadius = 140;
         const numDomains = domains.length;
@@ -134,19 +134,11 @@ class ReportTemplate {
                 dominantBaseline = 'hanging';
             }
             
-            // Split long labels for better wrapping
-            const words = domain.label.split(' ');
-            if (words.length > 1 && domain.label.length > 12) {
-                // Create multi-line text for long labels
-                const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
-                const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
-                axisLabels += `
-                    <text x="${labelX}" y="${labelY - 6}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label">${line1}</text>
-                    <text x="${labelX}" y="${labelY + 6}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label">${line2}</text>
-                `;
-            } else {
-                axisLabels += `<text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label" data-translate="${domain.key}">${domain.label}</text>`;
-            }
+            // Get translated text and create wrapped label
+            const translatedLabel = this.getTranslatedText(`ui.results.categories.${domain.key}`, domain.label);
+            const wrappedLabel = this.createWrappedLabel(translatedLabel, labelX, labelY, textAnchor, dominantBaseline);
+            
+            axisLabels += wrappedLabel;
         });
 
         // Generate percentage labels for grid circles
@@ -157,7 +149,7 @@ class ReportTemplate {
         return `
             <div class="radar-chart-wrapper">
                 <div class="radar-chart-main">
-                    <svg width="500" height="400" viewBox="0 0 500 400" class="radar-chart">
+                    <svg width="500" height="400" viewBox="0 0 400 400" class="radar-chart">
                         <!-- Background grid -->
                         ${gridCircles}
                         ${gridLabels}
@@ -206,19 +198,102 @@ class ReportTemplate {
                 
                 <!-- Score values display on the right side -->
                 <div class="radar-scores-sidebar">
-                    <div class="radar-scores-title">Domain Scores</div>
-                    ${domains.map(domain => `
+                    <div class="radar-scores-title">${this.getTranslatedText('report.domain_scores', 'Domain Scores')}</div>
+                    ${domains.map(domain => {
+                        const translatedLabel = this.getTranslatedText(`ui.results.categories.${domain.key}`, domain.label);
+                        return `
                         <div class="radar-score-item-sidebar">
-                            <div class="radar-score-label-sidebar" data-translate="${domain.key}">${domain.label}</div>
+                            <div class="radar-score-label-sidebar">${translatedLabel}</div>
                             <div class="radar-score-details">
                                 <div class="radar-score-value-sidebar">${domain.score}/${domain.max}</div>
                                 <div class="radar-score-percent-sidebar">${(domain.score/domain.max*100).toFixed(1)}%</div>
                             </div>
-                        </div>
-                    `).join('')}
+                        </div>`;
+                    }).join('')}
                 </div>
             </div>
         `;
+    }
+
+    // Helper function to get translated text
+    static getTranslatedText(translationKey, fallbackText) {
+        const translations = window.currentTranslations || {};
+        
+        // Support nested keys like "ui.results.categories.social"
+        let value = translations;
+        const keyParts = translationKey.split('.');
+        
+        for (const part of keyParts) {
+            if (value && typeof value === 'object' && value.hasOwnProperty(part)) {
+                value = value[part];
+            } else {
+                value = null;
+                break;
+            }
+        }
+        
+        return value || fallbackText;
+    }
+
+    // Helper function to create wrapped SVG text labels
+    static createWrappedLabel(text, x, y, textAnchor, dominantBaseline) {
+        // Split text on spaces and common separators
+        const words = text.split(/[\s\/\-]+/).filter(word => word.length > 0);
+        
+        // If only one word or short text, don't wrap
+        if (words.length <= 1 || text.length <= 12) {
+            return `<text x="${x}" y="${y}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label">${text}</text>`;
+        }
+        
+        // Create wrapped text with tspan elements
+        const lineHeight = 1.2; // em
+        const fontSize = 12; // approximate font size in px for calculation
+        const lines = [];
+        
+        // Simple word wrapping - aim for 2 lines max
+        if (words.length === 2) {
+            lines.push(words[0]);
+            lines.push(words[1]);
+        } else if (words.length === 3) {
+            // Try to balance the lines
+            const firstLineLength = words[0].length + words[1].length;
+            const secondLineLength = words[2].length;
+            
+            if (firstLineLength <= secondLineLength + 3) {
+                lines.push(words[0] + ' ' + words[1]);
+                lines.push(words[2]);
+            } else {
+                lines.push(words[0]);
+                lines.push(words[1] + ' ' + words[2]);
+            }
+        } else {
+            // For 4+ words, split roughly in half
+            const midPoint = Math.ceil(words.length / 2);
+            lines.push(words.slice(0, midPoint).join(' '));
+            lines.push(words.slice(midPoint).join(' '));
+        }
+        
+        // Adjust y position for multi-line text
+        const totalHeight = (lines.length - 1) * lineHeight * fontSize;
+        let startY = y;
+        
+        if (dominantBaseline === 'middle') {
+            startY = y - totalHeight / 2;
+        } else if (dominantBaseline === 'baseline') {
+            startY = y - totalHeight;
+        }
+        
+        // Generate the SVG text element with tspan for each line
+        let svgText = `<text x="${x}" y="${startY}" text-anchor="${textAnchor}" dominant-baseline="hanging" class="radar-label">`;
+        
+        lines.forEach((line, index) => {
+            const dy = index === 0 ? '0' : `${lineHeight}em`;
+            svgText += `<tspan x="${x}" dy="${dy}">${line}</tspan>`;
+        });
+        
+        svgText += '</text>';
+        
+        return svgText;
     }
 
     // Get CSS class for question category
@@ -281,9 +356,10 @@ class ReportTemplate {
     }
 
     // Get interpretation based on score with static fallbacks for robustness
-    static getInterpretation(score, lang = null) {
+    static getInterpretation(score) {
+        const translations = window.currentTranslations || {};
         // If no language data available, use English fallbacks
-        const interpretations = lang?.ui?.results?.interpretations || {
+        const interpretations = translations?.ui?.results?.interpretations || {
             none: { level: "No ASD", description: "No signs of autism detected" },
             light: { level: "Mild traits", description: "Some autistic traits, but probably no ASD" },
             moderate: { level: "Moderate traits", description: "Several autistic traits present" },
@@ -340,7 +416,7 @@ class ReportTemplate {
     // Populate the enhanced total score card
     static populateTotalScoreCard(assessmentData) {
         const totalScore = assessmentData.scores.total;
-        const interpretation = this.getInterpretation(totalScore, window.lang);
+        const interpretation = this.getInterpretation(totalScore);
         
         // Update the total score card elements
         const scoreNumberElement = document.getElementById('total-score-number');
@@ -512,16 +588,16 @@ class ReportTemplate {
         const printBtn = document.getElementById('print-btn');
         if (printBtn) {
             printBtn.disabled = false;
-            printBtn.innerHTML = '<span data-translate="print_report">Print Report</span>';
+            printBtn.innerHTML = '<span data-translate="report.print_report">Print Report</span>';
             
             // Re-apply translations to the newly added content
             if (typeof applyTranslations === 'function' && window.currentTranslations) {
                 applyTranslations(window.currentTranslations);
             } else {
                 // Fallback: manually translate the print button
-                const printSpan = printBtn.querySelector('[data-translate="print_report"]');
-                if (printSpan && window.currentTranslations && window.currentTranslations.print_report) {
-                    printSpan.textContent = window.currentTranslations.print_report;
+                const printSpan = printBtn.querySelector('[data-translate="report.print_report"]');
+                if (printSpan && window.currentTranslations && window.currentTranslations.report && window.currentTranslations.report.print_report) {
+                    printSpan.textContent = window.currentTranslations.report.print_report;
                 }
             }
         }
@@ -706,7 +782,7 @@ async function loadTranslations(language = 'en') {
         const response = await fetch(`${language}.json`);
         if (!response.ok) throw new Error(`Failed to load ${language}.json`);
         const data = await response.json();
-        return data.report || {};
+        return data || {};
     } catch (error) {
         console.warn(`Failed to load translations for ${language}:`, error);
         if (language !== 'en') {
@@ -719,11 +795,25 @@ async function loadTranslations(language = 'en') {
 function applyTranslations(translations) {
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
-        if (translations[key]) {
-            if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
-                element.placeholder = translations[key];
+        
+        // Support nested keys like "ui.results.categories.social"
+        let value = translations;
+        const keyParts = key.split('.');
+        
+        for (const part of keyParts) {
+            if (value && typeof value === 'object' && value.hasOwnProperty(part)) {
+                value = value[part];
             } else {
-                element.innerHTML = translations[key];
+                value = null;
+                break;
+            }
+        }
+        
+        if (value) {
+            if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+                element.placeholder = value;
+            } else {
+                element.innerHTML = value;
             }
         }
     });

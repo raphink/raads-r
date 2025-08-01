@@ -35,7 +35,8 @@
         "social": "Interazioni Sociali",
         "sensory": "Sensorio Motorio",
         "restricted": "Interessi Ristretti",
-        "language": "Linguaggio"
+        "language": "Linguaggio",
+        "total": "Totale"
       },
       "interpretationScale": "Scala di Interpretazione",
       "scaleLabels": {
@@ -680,6 +681,9 @@
     "language": "Comunicazione",
     "sensory_motor": "Sensoriale/Motorio",
     "restricted": "Interessi Ristretti",
+    "domain_scores": "Punteggi per Dominio",
+    "bar_chart": "📊 Grafico a barre",
+    "radar_chart": "🕸️ Grafico radar",
     "total": "Totale",
     "your_score": "Il tuo punteggio",
     "autistic_threshold": "Soglia autistica",

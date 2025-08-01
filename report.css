@@ -542,6 +542,12 @@ h1 {
     font-family: 'Georgia', 'Times New Roman', serif;
 }
 
+/* Special styling for longer radar labels */
+.radar-label[data-translate="social"],
+.radar-label[data-translate="restricted"] {
+    font-size: 10px; /* Slightly smaller font for long labels */
+}
+
 /* Add styles for wrapped text in SVG */
 .radar-chart text {
     word-wrap: break-word;

@@ -35,7 +35,8 @@
         "social": "Soziale Interaktionen",
         "sensory": "Sensorisch-Motorisch",
         "restricted": "Eingeschränkte Interessen",
-        "language": "Sprache"
+        "language": "Sprache",
+        "total": "Gesamt"
       },
       "interpretationScale": "Interpretationsskala",
       "scaleLabels": {
@@ -680,6 +681,9 @@
     "language": "Kommunikation",
     "sensory_motor": "Sensorisch/Motorisch",
     "restricted": "Eingeschränkte Interessen",
+    "domain_scores": "Bereich Punktzahlen",
+    "bar_chart": "📊 Balkendiagramm",
+    "radar_chart": "🕸️ Radardiagramm",
     "total": "Gesamt",
     "your_score": "Ihre Punktzahl",
     "autistic_threshold": "Autistische Schwelle",

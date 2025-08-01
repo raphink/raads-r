@@ -35,7 +35,8 @@
         "social": "Interactions sociales",
         "sensory": "Sensori-moteur",
         "restricted": "Intérêts restreints",
-        "language": "Communication"
+        "language": "Communication",
+        "total": "Total"
       },
       "interpretationScale": "Échelle d'interprétation",
       "scaleLabels": {
@@ -672,12 +673,9 @@
     "age_input_placeholder": "Entrez l'âge",
     "assessment_results": "Résultats de l'évaluation",
     "score_distribution": "Répartition des scores par domaine",
-    "bar_chart": "Graphique en barres",
-    "radar_chart": "Graphique radar",
-    "social": "Interactions sociales",
-    "language": "Communication",
-    "sensory_motor": "Sensori-moteur",
-    "restricted": "Intérêts restreints",
+    "domain_scores": "Scores par domaine",
+    "bar_chart": "📊 Graphique en barres",
+    "radar_chart": "🕸️ Graphique radar",
     "total": "Total",
     "your_score": "Votre score",
     "autistic_threshold": "Seuil autistique",
