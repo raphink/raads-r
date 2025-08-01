@@ -171,35 +171,108 @@
         clear: both !important;
         margin: 10px 0 !important;
         page-break-inside: avoid !important;
+        padding:0 0 !important;
+        height: 410px !important;
     }
     
     /* Ensure radar chart wrapper doesn't overlap */
     .radar-chart-wrapper {
         position: relative !important;
         clear: both !important;
-        display: block !important; /* Change from flex to block for print */
+        display: table !important; /* Use table layout for reliable print */
+        width: 100% !important;
         background: white !important;
         padding: 20px !important;
-        text-align: center !important;
+        table-layout: fixed !important;
     }
     
-    /* Hide sidebar in print, center the chart */
-    .radar-scores-sidebar {
-        display: none !important;
-    }
-    
+    /* Table-based layout for print reliability */
     .radar-chart-main {
-        display: block !important;
-        width: 100% !important;
+        display: table-cell !important;
+        width: 60% !important;
         text-align: center !important;
+        vertical-align: middle !important;
+        padding-right: 20px !important;
+    }
+    
+    .radar-scores-sidebar {
+        display: table-cell !important;
+        width: 20% !important;
+        vertical-align: top !important;
+        padding: 15px !important;
+        background: #f8f9fa !important;
+        border: 1px solid #000 !important;
+        border-radius: 6px !important;
+        font-size: 9pt !important;
     }
     
     /* Ensure SVG is properly sized for print */
     .radar-chart {
-        width: 400px !important;
-        height: 400px !important;
+        max-height: 370px;
         margin: 0 auto !important;
         display: block !important;
+    }
+    
+    /* Style sidebar content for print */
+    .radar-scores-title {
+        font-size: 11pt !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        text-align: center !important;
+        margin-bottom: 8px !important;
+        border-bottom: 1px solid #000 !important;
+        padding-bottom: 4px !important;
+    }
+    
+    .radar-score-item-sidebar {
+        display: block !important;
+        margin-bottom: 6px !important;
+        padding: 4px 0 !important;
+        border-bottom: 1px solid #ccc !important;
+    }
+    
+    .radar-score-label-sidebar {
+        font-size: 8pt !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        text-transform: uppercase !important;
+        display: block !important;
+    }
+    
+    .radar-score-value-sidebar {
+        font-size: 10pt !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        display: block !important;
+    }
+    
+    .radar-score-percent-sidebar {
+        font-size: 8pt !important;
+        color: #666 !important;
+        display: block !important;
+    }
+    
+    /* Style radar chart legend for print */
+    .radar-chart-legend {
+        display: table !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+        text-align: center !important;
+    }
+    
+    .radar-chart-legend .legend-item {
+        display: inline-block !important;
+        margin: 0 10px 5px 0 !important;
+        font-size: 9pt !important;
+        color: #000 !important;
+    }
+    
+    .radar-chart-legend .legend-color {
+        display: inline-block !important;
+        width: 12px !important;
+        height: 8px !important;
+        margin-right: 4px !important;
+        vertical-align: middle !important;
     }
     
     .score-summary {
