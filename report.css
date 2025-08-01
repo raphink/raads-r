@@ -512,16 +512,23 @@ h1 {
     color: white;
 }
 
-/* Radar chart styles */
-.radar-chart-container {
+/* Radar chart styles - horizontal layout with sidebar */
+.radar-chart-wrapper {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px;
     padding: 20px;
     background: #f8f9fa;
     border-radius: 8px;
-    margin: 20px 0;
+    margin: 0;
+    min-height: 480px; /* Match bar chart container height */
+}
+
+.radar-chart-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .radar-chart {
@@ -530,76 +537,168 @@ h1 {
 }
 
 .radar-label {
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 11px;
+    font-weight: 600;
     fill: #2c3e50;
+    font-family: 'Georgia', 'Times New Roman', serif;
 }
 
 .grid-label {
-    font-size: 10px;
-    fill: #999;
+    font-size: 9px;
+    fill: #7f8c8d;
+    font-weight: 500;
 }
 
 .score-polygon {
     stroke-width: 3;
-    stroke: #7bc4f5;
-    fill: rgba(123, 196, 245, 0.3);
+    stroke: #3498db;
+    fill: rgba(52, 152, 219, 0.25);
 }
 
 .threshold-polygon {
     stroke-width: 2;
     stroke: #e74c3c;
-    stroke-dasharray: 5,5;
-    fill: rgba(231, 76, 60, 0.1);
+    stroke-dasharray: 8,4;
+    fill: rgba(231, 76, 60, 0.15);
 }
 
 .average-polygon {
     stroke-width: 2;
     stroke: #27ae60;
-    stroke-dasharray: 3,3;
-    fill: rgba(39, 174, 96, 0.1);
+    stroke-dasharray: 6,3;
+    fill: rgba(39, 174, 96, 0.15);
 }
 
 .score-point {
-    fill: #7bc4f5;
+    fill: #3498db;
     stroke: #fff;
     stroke-width: 2;
 }
 
-.radar-scores {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    width: 100%;
-    max-width: 600px;
-}
-
-.radar-score-item {
-    text-align: center;
-    padding: 10px;
+/* Sidebar score display for radar chart */
+.radar-scores-sidebar {
+    flex: 0 0 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
     background: white;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: fit-content;
 }
 
-.radar-score-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.radar-score-value {
-    font-size: 16px;
+.radar-scores-title {
+    font-size: 14px;
     font-weight: bold;
     color: #2c3e50;
-    margin-bottom: 2px;
+    text-align: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
 }
 
-.radar-score-percent {
-    font-size: 12px;
-    color: #7bc4f5;
-    font-weight: 500;
+.radar-score-item-sidebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.radar-score-item-sidebar:last-of-type {
+    border-bottom: none;
+}
+
+.radar-score-label-sidebar {
+    font-size: 11px;
+    font-weight: 600;
+    color: #495057;
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.radar-score-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.radar-score-value-sidebar {
+    font-size: 14px;
+    font-weight: bold;
+    color: #2c3e50;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.radar-score-percent-sidebar {
+    font-size: 10px;
+    color: #3498db;
+    font-weight: 600;
+}
+
+/* Mini legend in sidebar */
+.radar-mini-legend {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #e9ecef;
+}
+
+.radar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 10px;
+    color: #495057;
+}
+
+.radar-legend-color {
+    width: 12px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.radar-legend-color.your-score {
+    background: rgba(52, 152, 219, 0.6);
+    border: 1px solid #3498db;
+}
+
+.radar-legend-color.threshold {
+    background: rgba(231, 76, 60, 0.3);
+    border: 1px dashed #e74c3c;
+}
+
+.radar-legend-color.average {
+    background: rgba(39, 174, 96, 0.3);
+    border: 1px dashed #27ae60;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .radar-chart-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .radar-scores-sidebar {
+        flex: none;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .radar-score-item-sidebar {
+        flex-direction: column;
+        text-align: center;
+        gap: 4px;
+    }
+    
+    .radar-score-details {
+        align-items: center;
+    }
 }
 
 .markdown-content {

@@ -78,7 +78,7 @@ class ReportTemplate {
 
         const centerX = 200;
         const centerY = 200;
-        const maxRadius = 150;
+        const maxRadius = 140;
         const numDomains = domains.length;
 
         // Calculate points for each circle (score, threshold, average)
@@ -96,9 +96,9 @@ class ReportTemplate {
         const thresholdRadii = domains.map(d => (d.threshold / d.max) * maxRadius);
         const averageRadii = domains.map(d => (d.average / d.max) * maxRadius);
 
-        // Generate background grid circles
+        // Generate background grid circles with better spacing
         const gridCircles = [0.25, 0.5, 0.75, 1.0].map(ratio => 
-            `<circle cx="${centerX}" cy="${centerY}" r="${maxRadius * ratio}" fill="none" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>`
+            `<circle cx="${centerX}" cy="${centerY}" r="${maxRadius * ratio}" fill="none" stroke="#e8e8e8" stroke-width="1"/>`
         ).join('');
 
         // Generate axis lines and labels
@@ -111,81 +111,97 @@ class ReportTemplate {
             const endY = centerY + Math.sin(angle) * maxRadius;
             
             // Axis line
-            axisLines += `<line x1="${centerX}" y1="${centerY}" x2="${endX}" y2="${endY}" stroke="#ccc" stroke-width="1"/>`;
+            axisLines += `<line x1="${centerX}" y1="${centerY}" x2="${endX}" y2="${endY}" stroke="#d0d0d0" stroke-width="1"/>`;
             
-            // Label positioning
-            const labelRadius = maxRadius + 25;
+            // Label positioning - closer to the chart
+            const labelRadius = maxRadius + 20;
             const labelX = centerX + Math.cos(angle) * labelRadius;
             const labelY = centerY + Math.sin(angle) * labelRadius;
             
             // Adjust text anchor based on position
             let textAnchor = 'middle';
-            if (labelX > centerX + 10) textAnchor = 'start';
-            else if (labelX < centerX - 10) textAnchor = 'end';
+            let dominantBaseline = 'middle';
             
-            axisLabels += `<text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" dominant-baseline="middle" class="radar-label" data-translate="${domain.key}">${domain.label}</text>`;
+            if (labelX > centerX + 10) {
+                textAnchor = 'start';
+            } else if (labelX < centerX - 10) {
+                textAnchor = 'end';
+            }
+            
+            if (labelY < centerY - 10) {
+                dominantBaseline = 'baseline';
+            } else if (labelY > centerY + 10) {
+                dominantBaseline = 'hanging';
+            }
+            
+            axisLabels += `<text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label" data-translate="${domain.key}">${domain.label}</text>`;
         });
 
         // Generate percentage labels for grid circles
         const gridLabels = [25, 50, 75, 100].map(percent => 
-            `<text x="${centerX + 5}" y="${centerY - (maxRadius * percent / 100)}" class="grid-label" font-size="10" fill="#999">${percent}%</text>`
+            `<text x="${centerX + 6}" y="${centerY - (maxRadius * percent / 100) + 3}" class="grid-label" font-size="10" fill="#999">${percent}%</text>`
         ).join('');
 
         return `
-            <div class="radar-chart-container">
-                <svg width="450" height="450" viewBox="0 0 400 400" class="radar-chart">
-                    <!-- Background grid -->
-                    ${gridCircles}
-                    ${gridLabels}
-                    
-                    <!-- Axis lines -->
-                    ${axisLines}
-                    
-                    <!-- Threshold polygon (autistic threshold) -->
-                    <polygon points="${getRadarPoints(thresholdRadii)}" 
-                             fill="rgba(231, 76, 60, 0.1)" 
-                             stroke="#e74c3c" 
-                             stroke-width="2" 
-                             stroke-dasharray="5,5"
-                             class="threshold-polygon"/>
-                    
-                    <!-- Average polygon (neurotypical average) -->
-                    <polygon points="${getRadarPoints(averageRadii)}" 
-                             fill="rgba(39, 174, 96, 0.1)" 
-                             stroke="#27ae60" 
-                             stroke-width="2" 
-                             stroke-dasharray="3,3"
-                             class="average-polygon"/>
-                    
-                    <!-- Score polygon (your score) -->
-                    <polygon points="${getRadarPoints(scoreRadii)}" 
-                             fill="rgba(123, 196, 245, 0.3)" 
-                             stroke="#7bc4f5" 
-                             stroke-width="3"
-                             class="score-polygon"/>
-                    
-                    <!-- Score points -->
-                    ${domains.map((domain, index) => {
-                        const angle = (index / numDomains) * 2 * Math.PI - Math.PI / 2;
-                        const radius = scoreRadii[index];
-                        const x = centerX + Math.cos(angle) * radius;
-                        const y = centerY + Math.sin(angle) * radius;
-                        return `<circle cx="${x}" cy="${y}" r="4" fill="#7bc4f5" stroke="#fff" stroke-width="2" class="score-point">
-                                    <title>${domain.label}: ${domain.score}/${domain.max} (${(domain.score/domain.max*100).toFixed(1)}%)</title>
-                                </circle>`;
-                    }).join('')}
-                    
-                    <!-- Axis labels -->
-                    ${axisLabels}
-                </svg>
+            <div class="radar-chart-wrapper">
+                <div class="radar-chart-main">
+                    <svg width="400" height="400" viewBox="0 0 400 400" class="radar-chart">
+                        <!-- Background grid -->
+                        ${gridCircles}
+                        ${gridLabels}
+                        
+                        <!-- Axis lines -->
+                        ${axisLines}
+                        
+                        <!-- Threshold polygon (autistic threshold) -->
+                        <polygon points="${getRadarPoints(thresholdRadii)}" 
+                                 fill="rgba(231, 76, 60, 0.15)" 
+                                 stroke="#e74c3c" 
+                                 stroke-width="2" 
+                                 stroke-dasharray="8,4"
+                                 class="threshold-polygon"/>
+                        
+                        <!-- Average polygon (neurotypical average) -->
+                        <polygon points="${getRadarPoints(averageRadii)}" 
+                                 fill="rgba(39, 174, 96, 0.15)" 
+                                 stroke="#27ae60" 
+                                 stroke-width="2" 
+                                 stroke-dasharray="6,3"
+                                 class="average-polygon"/>
+                        
+                        <!-- Score polygon (your score) -->
+                        <polygon points="${getRadarPoints(scoreRadii)}" 
+                                 fill="rgba(52, 152, 219, 0.25)" 
+                                 stroke="#3498db" 
+                                 stroke-width="3"
+                                 class="score-polygon"/>
+                        
+                        <!-- Score points with better styling -->
+                        ${domains.map((domain, index) => {
+                            const angle = (index / numDomains) * 2 * Math.PI - Math.PI / 2;
+                            const radius = scoreRadii[index];
+                            const x = centerX + Math.cos(angle) * radius;
+                            const y = centerY + Math.sin(angle) * radius;
+                            return `<circle cx="${x}" cy="${y}" r="4" fill="#3498db" stroke="#fff" stroke-width="2" class="score-point">
+                                        <title>${domain.label}: ${domain.score}/${domain.max} (${(domain.score/domain.max*100).toFixed(1)}%)</title>
+                                    </circle>`;
+                        }).join('')}
+                        
+                        <!-- Axis labels -->
+                        ${axisLabels}
+                    </svg>
+                </div>
                 
-                <!-- Score values display -->
-                <div class="radar-scores">
+                <!-- Score values display on the right side -->
+                <div class="radar-scores-sidebar">
+                    <div class="radar-scores-title">Domain Scores</div>
                     ${domains.map(domain => `
-                        <div class="radar-score-item">
-                            <div class="radar-score-label" data-translate="${domain.key}">${domain.label}</div>
-                            <div class="radar-score-value">${domain.score}/${domain.max}</div>
-                            <div class="radar-score-percent">${(domain.score/domain.max*100).toFixed(1)}%</div>
+                        <div class="radar-score-item-sidebar">
+                            <div class="radar-score-label-sidebar" data-translate="${domain.key}">${domain.label}</div>
+                            <div class="radar-score-details">
+                                <div class="radar-score-value-sidebar">${domain.score}/${domain.max}</div>
+                                <div class="radar-score-percent-sidebar">${(domain.score/domain.max*100).toFixed(1)}%</div>
+                            </div>
                         </div>
                     `).join('')}
                 </div>
