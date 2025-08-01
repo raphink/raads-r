@@ -28,16 +28,6 @@
         margin: 20px 0 !important;
     }
     
-    /* Chart titles for print */
-    .chart-title { 
-        font-size: 16pt !important; 
-        font-weight: bold !important; 
-        color: #2c3e50 !important; 
-        margin-bottom: 15px !important;
-        border-bottom: 2px solid #3498db !important;
-        padding-bottom: 5px !important;
-    }
-    
     /* Show title page only in print */
     .title-page { display: flex !important; }
     
@@ -175,7 +165,7 @@
     }
     
     .chart-wrapper {
-        background: #f9f9f9 !important;
+        background: white !important;
         border: 1px solid #000 !important;
         position: relative !important;
         clear: both !important;
