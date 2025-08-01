@@ -672,6 +672,8 @@
     "age_input_placeholder": "Entrez l'âge",
     "assessment_results": "Résultats de l'évaluation",
     "score_distribution": "Répartition des scores par domaine",
+    "bar_chart": "Graphique en barres",
+    "radar_chart": "Graphique radar",
     "social": "Interactions sociales",
     "language": "Communication",
     "sensory_motor": "Sensori-moteur",

@@ -64,6 +64,135 @@ class ReportTemplate {
         return chartHTML;
     }
 
+    // Generate radar chart HTML
+    static generateRadarChart(assessmentData) {
+        const scores = assessmentData.scores;
+        
+        // Define domains for radar chart (excluding total)
+        const domains = [
+            { key: 'social', label: 'Social Interactions', score: scores.social, max: 117, threshold: 31, average: 11 },
+            { key: 'language', label: 'Communication', score: scores.language, max: 21, threshold: 4, average: 2 },
+            { key: 'sensory', label: 'Sensory/Motor', score: scores.sensory, max: 60, threshold: 16, average: 6 },
+            { key: 'restricted', label: 'Restricted Interests', score: scores.restricted, max: 42, threshold: 15, average: 8 }
+        ];
+
+        const centerX = 200;
+        const centerY = 200;
+        const maxRadius = 150;
+        const numDomains = domains.length;
+
+        // Calculate points for each circle (score, threshold, average)
+        const getRadarPoints = (values) => {
+            return values.map((value, index) => {
+                const angle = (index / numDomains) * 2 * Math.PI - Math.PI / 2; // Start from top
+                const x = centerX + Math.cos(angle) * value;
+                const y = centerY + Math.sin(angle) * value;
+                return `${x},${y}`;
+            }).join(' ');
+        };
+
+        // Calculate radius for each domain based on percentage of max
+        const scoreRadii = domains.map(d => (d.score / d.max) * maxRadius);
+        const thresholdRadii = domains.map(d => (d.threshold / d.max) * maxRadius);
+        const averageRadii = domains.map(d => (d.average / d.max) * maxRadius);
+
+        // Generate background grid circles
+        const gridCircles = [0.25, 0.5, 0.75, 1.0].map(ratio => 
+            `<circle cx="${centerX}" cy="${centerY}" r="${maxRadius * ratio}" fill="none" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>`
+        ).join('');
+
+        // Generate axis lines and labels
+        let axisLines = '';
+        let axisLabels = '';
+        
+        domains.forEach((domain, index) => {
+            const angle = (index / numDomains) * 2 * Math.PI - Math.PI / 2;
+            const endX = centerX + Math.cos(angle) * maxRadius;
+            const endY = centerY + Math.sin(angle) * maxRadius;
+            
+            // Axis line
+            axisLines += `<line x1="${centerX}" y1="${centerY}" x2="${endX}" y2="${endY}" stroke="#ccc" stroke-width="1"/>`;
+            
+            // Label positioning
+            const labelRadius = maxRadius + 25;
+            const labelX = centerX + Math.cos(angle) * labelRadius;
+            const labelY = centerY + Math.sin(angle) * labelRadius;
+            
+            // Adjust text anchor based on position
+            let textAnchor = 'middle';
+            if (labelX > centerX + 10) textAnchor = 'start';
+            else if (labelX < centerX - 10) textAnchor = 'end';
+            
+            axisLabels += `<text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" dominant-baseline="middle" class="radar-label" data-translate="${domain.key}">${domain.label}</text>`;
+        });
+
+        // Generate percentage labels for grid circles
+        const gridLabels = [25, 50, 75, 100].map(percent => 
+            `<text x="${centerX + 5}" y="${centerY - (maxRadius * percent / 100)}" class="grid-label" font-size="10" fill="#999">${percent}%</text>`
+        ).join('');
+
+        return `
+            <div class="radar-chart-container">
+                <svg width="450" height="450" viewBox="0 0 400 400" class="radar-chart">
+                    <!-- Background grid -->
+                    ${gridCircles}
+                    ${gridLabels}
+                    
+                    <!-- Axis lines -->
+                    ${axisLines}
+                    
+                    <!-- Threshold polygon (autistic threshold) -->
+                    <polygon points="${getRadarPoints(thresholdRadii)}" 
+                             fill="rgba(231, 76, 60, 0.1)" 
+                             stroke="#e74c3c" 
+                             stroke-width="2" 
+                             stroke-dasharray="5,5"
+                             class="threshold-polygon"/>
+                    
+                    <!-- Average polygon (neurotypical average) -->
+                    <polygon points="${getRadarPoints(averageRadii)}" 
+                             fill="rgba(39, 174, 96, 0.1)" 
+                             stroke="#27ae60" 
+                             stroke-width="2" 
+                             stroke-dasharray="3,3"
+                             class="average-polygon"/>
+                    
+                    <!-- Score polygon (your score) -->
+                    <polygon points="${getRadarPoints(scoreRadii)}" 
+                             fill="rgba(123, 196, 245, 0.3)" 
+                             stroke="#7bc4f5" 
+                             stroke-width="3"
+                             class="score-polygon"/>
+                    
+                    <!-- Score points -->
+                    ${domains.map((domain, index) => {
+                        const angle = (index / numDomains) * 2 * Math.PI - Math.PI / 2;
+                        const radius = scoreRadii[index];
+                        const x = centerX + Math.cos(angle) * radius;
+                        const y = centerY + Math.sin(angle) * radius;
+                        return `<circle cx="${x}" cy="${y}" r="4" fill="#7bc4f5" stroke="#fff" stroke-width="2" class="score-point">
+                                    <title>${domain.label}: ${domain.score}/${domain.max} (${(domain.score/domain.max*100).toFixed(1)}%)</title>
+                                </circle>`;
+                    }).join('')}
+                    
+                    <!-- Axis labels -->
+                    ${axisLabels}
+                </svg>
+                
+                <!-- Score values display -->
+                <div class="radar-scores">
+                    ${domains.map(domain => `
+                        <div class="radar-score-item">
+                            <div class="radar-score-label" data-translate="${domain.key}">${domain.label}</div>
+                            <div class="radar-score-value">${domain.score}/${domain.max}</div>
+                            <div class="radar-score-percent">${(domain.score/domain.max*100).toFixed(1)}%</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
     // Get CSS class for question category
     static getCategoryClass(category) {
         switch (category.toLowerCase()) {
@@ -227,9 +356,12 @@ class ReportTemplate {
         // Populate the enhanced total score card
         this.populateTotalScoreCard(assessmentData);
 
-        // Generate and insert chart
+        // Generate and insert chart (default to bar chart)
         const chartHTML = this.generateChart(assessmentData);
         document.getElementById('chart-container').innerHTML = chartHTML;
+        
+        // Initialize chart toggle functionality
+        this.initializeChartToggle(assessmentData);
 
         // Debug: Check actual bar heights after rendering
         setTimeout(() => {
@@ -364,6 +496,65 @@ class ReportTemplate {
                     printSpan.textContent = window.currentTranslations.print_report;
                 }
             }
+        }
+    }
+
+    // Initialize chart toggle functionality
+    static initializeChartToggle(assessmentData) {
+        const toggleButtons = document.querySelectorAll('.chart-toggle-btn');
+        const chartContainer = document.getElementById('chart-container');
+        
+        if (!toggleButtons.length || !chartContainer) {
+            return;
+        }
+
+        let currentChartType = 'bar'; // Default to bar chart
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const chartType = button.getAttribute('data-chart');
+                
+                if (chartType === currentChartType) {
+                    return; // Already showing this chart type
+                }
+
+                // Update button states
+                toggleButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Generate and display the appropriate chart
+                let chartHTML;
+                if (chartType === 'radar') {
+                    chartHTML = this.generateRadarChart(assessmentData);
+                } else {
+                    chartHTML = this.generateChart(assessmentData);
+                }
+
+                chartContainer.innerHTML = chartHTML;
+                currentChartType = chartType;
+
+                // Update legend visibility
+                this.updateLegendVisibility(chartType);
+
+                // Apply translations to any new elements
+                if (typeof applyTranslations === 'function' && window.currentTranslations) {
+                    applyTranslations(window.currentTranslations);
+                }
+            });
+        });
+    }
+
+    // Update legend visibility based on chart type
+    static updateLegendVisibility(chartType) {
+        const barLegendItems = document.querySelectorAll('.bar-chart-legend');
+        const radarLegendItems = document.querySelectorAll('.radar-chart-legend');
+
+        if (chartType === 'radar') {
+            barLegendItems.forEach(item => item.style.display = 'none');
+            radarLegendItems.forEach(item => item.style.display = 'flex');
+        } else {
+            barLegendItems.forEach(item => item.style.display = 'flex');
+            radarLegendItems.forEach(item => item.style.display = 'none');
         }
     }
     

@@ -66,26 +66,45 @@ class ReportTemplate {
     </div>
 
     <h2 data-translate="score_distribution">Score Distribution by Domain</h2>
+    
+    <!-- Chart type toggle -->
+    <div class="chart-controls no-print">
+        <button class="chart-toggle-btn active" data-chart="bar" data-translate="bar_chart">Bar Chart</button>
+        <button class="chart-toggle-btn" data-chart="radar" data-translate="radar_chart">Radar Chart</button>
+    </div>
+    
     <div class="chart-container">
         <div class="chart-wrapper" id="chart-container">
             <!-- Chart will be populated by JavaScript -->
         </div>
         <div class="chart-legend">
-            <div class="legend-item">
+            <div class="legend-item bar-chart-legend">
                 <div class="legend-color" style="background-color: #7bc4f5;"></div>
                 <span data-translate="your_score">Your Score</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item bar-chart-legend">
                 <div class="legend-color threshold-marker"></div>
                 <span data-translate="autistic_threshold">Autistic Threshold</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item bar-chart-legend">
                 <div class="legend-color average-marker"></div>
                 <span data-translate="neurotypical_average">Neurotypical Average</span>
             </div>
-            <div class="legend-item">
+            <div class="legend-item bar-chart-legend">
                 <div class="legend-color" style="background-color: #e8e8e8;"></div>
                 <span data-translate="maximum_possible">Maximum Possible</span>
+            </div>
+            <div class="legend-item radar-chart-legend" style="display: none;">
+                <div class="legend-color" style="background-color: rgba(123, 196, 245, 0.3); border: 2px solid #7bc4f5;"></div>
+                <span data-translate="your_score">Your Score</span>
+            </div>
+            <div class="legend-item radar-chart-legend" style="display: none;">
+                <div class="legend-color" style="background-color: rgba(231, 76, 60, 0.1); border: 2px dashed #e74c3c;"></div>
+                <span data-translate="autistic_threshold">Autistic Threshold</span>
+            </div>
+            <div class="legend-item radar-chart-legend" style="display: none;">
+                <div class="legend-color" style="background-color: rgba(39, 174, 96, 0.1); border: 2px dashed #27ae60;"></div>
+                <span data-translate="neurotypical_average">Neurotypical Average</span>
             </div>
         </div>
     </div>
