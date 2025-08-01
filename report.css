@@ -515,20 +515,19 @@ h1 {
 /* Radar chart styles - horizontal layout with sidebar */
 .radar-chart-wrapper {
     display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 20px;
+    gap: 30px;
+    align-items: center; /* Center content vertically */
     background: #f8f9fa;
     border-radius: 8px;
     margin: 0;
-    min-height: 480px; /* Match bar chart container height */
 }
 
 .radar-chart-main {
-    flex: 1;
+    flex: 1; /* Reset to normal flex behavior */
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; /* Center the SVG vertically within its container */
+    height: 100%; /* Take full height of parent */
 }
 
 .radar-chart {
@@ -541,6 +540,11 @@ h1 {
     font-weight: 600;
     fill: #2c3e50;
     font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+/* Add styles for wrapped text in SVG */
+.radar-chart text {
+    word-wrap: break-word;
 }
 
 .grid-label {

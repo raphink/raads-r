@@ -76,7 +76,7 @@ class ReportTemplate {
             { key: 'restricted', label: 'Restricted Interests', score: scores.restricted, max: 42, threshold: 15, average: 8 }
         ];
 
-        const centerX = 200;
+        const centerX = 250;
         const centerY = 200;
         const maxRadius = 140;
         const numDomains = domains.length;
@@ -134,7 +134,19 @@ class ReportTemplate {
                 dominantBaseline = 'hanging';
             }
             
-            axisLabels += `<text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label" data-translate="${domain.key}">${domain.label}</text>`;
+            // Split long labels for better wrapping
+            const words = domain.label.split(' ');
+            if (words.length > 1 && domain.label.length > 12) {
+                // Create multi-line text for long labels
+                const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+                const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+                axisLabels += `
+                    <text x="${labelX}" y="${labelY - 6}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label">${line1}</text>
+                    <text x="${labelX}" y="${labelY + 6}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label">${line2}</text>
+                `;
+            } else {
+                axisLabels += `<text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}" class="radar-label" data-translate="${domain.key}">${domain.label}</text>`;
+            }
         });
 
         // Generate percentage labels for grid circles
@@ -145,7 +157,7 @@ class ReportTemplate {
         return `
             <div class="radar-chart-wrapper">
                 <div class="radar-chart-main">
-                    <svg width="400" height="400" viewBox="0 0 400 400" class="radar-chart">
+                    <svg width="500" height="400" viewBox="0 0 500 400" class="radar-chart">
                         <!-- Background grid -->
                         ${gridCircles}
                         ${gridLabels}
