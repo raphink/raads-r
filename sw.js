@@ -6,7 +6,6 @@ const urlsToCache = [
   './manifest.json',
   './report.css',
   './report.js',
-  './report-template.js',
   './en.json',
   './fr.json',
   './es.json',
