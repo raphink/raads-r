@@ -315,11 +315,11 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="cachedReportsModalLabel" data-translate="ui.cachedReports.title"></h5>
+                    <h5 class="modal-title" id="cachedReportsModalLabel" data-translate="ui.cachedReports.title" tabindex="0"></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p id="cachedReportsDescription" class="text-muted mb-3" data-translate="ui.cachedReports.description">
+                    <p id="cachedReportsDescription" class="text-muted mb-3" data-translate="ui.cachedReports.description" tabindex="0">
                     </p>
                     <div id="cachedReportsBody">
                         <!-- Reports will be populated by JavaScript -->
@@ -1842,6 +1842,7 @@ ${copyText.disclaimer}`;
                     // Create list item safely
                     const listItem = document.createElement('div');
                     listItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                    listItem.tabIndex = 0; // Make it focusable for accessibility
                     
                     // Create content div
                     const contentDiv = document.createElement('div');
