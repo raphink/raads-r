@@ -15,7 +15,7 @@
     },
     "form": {
       "commentLabel": "Comment",
-      "commentPlaceholder": "Add a comment about this question (even if you don't understand it) to help AI understand your answer...",
+      "commentPlaceholder": "Add a comment about this question to help AI understand your answer...",
       "commentOptional": "Optional, used for AI analysis",
       "keyboardHint": "💡 <strong>Keyboard shortcuts:</strong> A/B/C/D to select, Tab for comment, Esc to exit, P/N for navigation, Enter to continue"
     },

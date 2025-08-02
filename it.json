@@ -15,7 +15,7 @@
     },
     "form": {
       "commentLabel": "Commento",
-      "commentPlaceholder": "Aggiungi un commento su questa domanda (anche se non la capisci) per aiutare l'IA a capire la tua risposta...",
+      "commentPlaceholder": "Aggiungi un commento su questa domanda per aiutare l'IA a capire la tua risposta...",
       "commentOptional": "Opzionale, utilizzato per l'analisi IA",
       "keyboardHint": "💡 <strong>Scorciatoie da tastiera:</strong> A/B/C/D per selezionare, Tab per commento, Esc per uscire, P/N per navigazione, Invio per continuare"
     },
