@@ -999,6 +999,11 @@
             if (!inCommentField && (e.key === 'k' || e.key === 'K')) {
                 e.preventDefault();
                 $('#question-comment').focus();
+                
+                // Voice over feedback for comment focus
+                if (lang && lang.ui && lang.ui.question && lang.ui.question.feedback) {
+                    VoiceOverFeedback.announce(lang.ui.question.feedback.commentFocus);
+                }
                 return;
             }
             
@@ -1076,9 +1081,57 @@
                 .html(nextBtnText);
         }
 
+        // Voice over feedback system
+        const VoiceOverFeedback = {
+            // Create a live region for announcements if it doesn't exist
+            ensureLiveRegion() {
+                let liveRegion = document.getElementById('voiceover-feedback');
+                if (!liveRegion) {
+                    liveRegion = document.createElement('div');
+                    liveRegion.id = 'voiceover-feedback';
+                    liveRegion.className = 'sr-only';
+                    liveRegion.setAttribute('aria-live', 'polite');
+                    liveRegion.setAttribute('aria-atomic', 'true');
+                    document.body.appendChild(liveRegion);
+                }
+                return liveRegion;
+            },
+
+            // Announce text to screen readers
+            announce(message, priority = 'polite') {
+                const liveRegion = this.ensureLiveRegion();
+                
+                // Set aria-live priority
+                liveRegion.setAttribute('aria-live', priority);
+                
+                // Clear previous message
+                liveRegion.textContent = '';
+                
+                // Add new message after a brief delay to ensure it's announced
+                setTimeout(() => {
+                    liveRegion.textContent = message;
+                }, 100);
+                
+                // Clear message after it's been announced
+                setTimeout(() => {
+                    liveRegion.textContent = '';
+                }, 3000);
+            },
+
+            // Helper function to replace template variables
+            formatMessage(template, variables) {
+                let message = template;
+                Object.keys(variables).forEach(key => {
+                    message = message.replace(new RegExp(`{{${key}}}`, 'g'), variables[key]);
+                });
+                return message;
+            }
+        };
+
         function selectAnswer(optionIndex) {
             const question = questions[currentQuestion];
             const value = options[optionIndex].value;
+            const selectedOption = options[optionIndex];
             
             answers[question.id] = value;
             
@@ -1091,6 +1144,18 @@
             
             // Update next button
             $('#next-btn').prop('disabled', false);
+            
+            // Voice over feedback for answer selection
+            if (lang && lang.ui && lang.ui.question && lang.ui.question.feedback) {
+                const feedbackMessage = VoiceOverFeedback.formatMessage(
+                    lang.ui.question.feedback.answerSelected,
+                    {
+                        key: selectedOption.key,
+                        answer: selectedOption.label
+                    }
+                );
+                VoiceOverFeedback.announce(feedbackMessage);
+            }
         }
 
         function updateCommentCounter() {

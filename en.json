@@ -32,7 +32,11 @@
     "question": {
       "prefix": "Question",
       "answerOptionsIntro": "Answer options available:",
-      "keyboardShortcuts": "Use A, B, C, D keys to select answers, K for comments, or Tab to navigate normally."
+      "keyboardShortcuts": "Use A, B, C, D keys to select answers, K for comments, or Tab to navigate normally.",
+      "feedback": {
+        "answerSelected": "You selected answer {{key}}: {{answer}}. Press Enter to proceed or K to leave a comment.",
+        "commentFocus": "Leave comment now then press Escape to exit comment section."
+      }
     },
     "results": {
       "totalScore": "Total Score",

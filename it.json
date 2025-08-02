@@ -32,7 +32,11 @@
     "question": {
       "prefix": "Domanda",
       "answerOptionsIntro": "Opzioni di risposta disponibili:",
-      "keyboardShortcuts": "Usa i tasti A, B, C, D per selezionare le risposte, K per i commenti, o Tab per navigare normalmente."
+      "keyboardShortcuts": "Usa i tasti A, B, C, D per selezionare le risposte, K per i commenti, o Tab per navigare normalmente.",
+      "feedback": {
+        "answerSelected": "Hai selezionato la risposta {{key}}: {{answer}}. Premi Invio per continuare o K per lasciare un commento.",
+        "commentFocus": "Lascia un commento ora poi premi Escape per uscire dalla sezione commenti."
+      }
     },
     "results": {
       "totalScore": "Punteggio Totale",
