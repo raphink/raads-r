@@ -1060,7 +1060,8 @@
                          data-value="${option.value}" onclick="selectAnswer(${index})">
                         <div class="d-flex align-items-start">
                             <input type="radio" class="form-check-input me-3 mt-1" 
-                                   name="answer" value="${option.value}" ${isSelected ? 'checked' : ''}>
+                                   name="answer" value="${option.value}" ${isSelected ? 'checked' : ''}
+                                   aria-label="${option.key}. ${option.label}">
                             <div class="flex-grow-1">
                                 <strong class="text-primary">${option.key}.</strong> ${option.label}
                             </div>
