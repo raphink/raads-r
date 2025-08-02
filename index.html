@@ -72,6 +72,19 @@
             border-radius: 4px;
             padding: 8px;
         }
+        
+        /* Screen reader only content */
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
     </style>
 </head>
 <body>
@@ -138,7 +151,16 @@
             <!-- Question Card -->
             <div class="card border-2 mb-4">
                 <div class="card-body">
-                    <h3 class="card-title h5 mb-4" id="question-text" tabindex="0"></h3>
+                    <h3 class="card-title h5 mb-4" id="question-text" tabindex="0" aria-describedby="question-help"></h3>
+
+                    <!-- Screen reader only: Answer options and keyboard shortcuts -->
+                    <div class="sr-only" id="question-help">
+                        <p><span data-translate="ui.question.answerOptionsIntro">Answer options available:</span></p>
+                        <ul id="sr-answer-options">
+                            <!-- Options will be populated by JavaScript -->
+                        </ul>
+                        <p><span data-translate="ui.question.keyboardShortcuts">Use A, B, C, D keys to select answers, K for comments, or Tab to navigate normally.</span></p>
+                    </div>
                     
                     <!-- Answer Options -->
                     <div id="answer-options" class="mb-4">
@@ -998,8 +1020,20 @@
 
         function loadQuestion() {
             const question = questions[currentQuestion];
-            $('#question-text').text(question.text);
-            $('#current-q').text(currentQuestion + 1);
+            const questionNumber = currentQuestion + 1;
+            
+            // Add "Question X:" prefix to the question text
+            const questionPrefix = lang.ui.question.prefix || 'Question';
+            $('#question-text').text(`${questionPrefix} ${questionNumber}: ${question.text}`);
+            $('#current-q').text(questionNumber);
+            
+            // Populate sr-only answer options list
+            let srOptionsHtml = '';
+            options.forEach((option, index) => {
+                const key = option.key; // A, B, C, D
+                srOptionsHtml += `<li>${key}: ${option.label}</li>`;
+            });
+            $('#sr-answer-options').html(srOptionsHtml);
             
             // Update progress
             const progress = ((Object.keys(answers).length) / questions.length) * 100;

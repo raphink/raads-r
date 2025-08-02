@@ -29,6 +29,11 @@
       "title": "Instrucciones:",
       "text": "Piensa cuidadosamente en cada pregunta y elige la respuesta que mejor se aplique a ti. Responde honestamente basándote en tu propia experiencia. Si no estás seguro o no entiendes la pregunta, añade un comentario explicativo."
     },
+    "question": {
+      "prefix": "Pregunta",
+      "answerOptionsIntro": "Opciones de respuesta disponibles:",
+      "keyboardShortcuts": "Usa las teclas A, B, C, D para seleccionar respuestas, K para comentarios, o Tab para navegar normalmente."
+    },
     "results": {
       "totalScore": "Puntuación Total",
       "categoriesTitle": "Puntuaciones por Categoría",

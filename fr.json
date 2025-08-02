@@ -29,6 +29,11 @@
       "title": "Instructions :",
       "text": "Réfléchissez attentivement à chaque question et choisissez la réponse qui vous correspond le mieux. Répondez honnêtement selon votre propre expérience. Si vous n'êtes pas sûr ou ne comprenez pas la question, expliquez-le en commentaire."
     },
+    "question": {
+      "prefix": "Question",
+      "answerOptionsIntro": "Options de réponse disponibles :",
+      "keyboardShortcuts": "Utilisez les touches A, B, C, D pour sélectionner les réponses, K pour les commentaires, ou Tab pour naviguer normalement."
+    },
     "results": {
       "totalScore": "Score Total",
       "categoriesTitle": "Scores par catégorie",

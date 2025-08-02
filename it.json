@@ -29,6 +29,11 @@
       "title": "Istruzioni:",
       "text": "Rifletti attentamente su ogni domanda e scegli la risposta che si applica meglio a te. Rispondi onestamente basandoti sulla tua esperienza personale. Se non sei sicuro o non capisci la domanda, aggiungi un commento esplicativo."
     },
+    "question": {
+      "prefix": "Domanda",
+      "answerOptionsIntro": "Opzioni di risposta disponibili:",
+      "keyboardShortcuts": "Usa i tasti A, B, C, D per selezionare le risposte, K per i commenti, o Tab per navigare normalmente."
+    },
     "results": {
       "totalScore": "Punteggio Totale",
       "categoriesTitle": "Punteggi per Categoria",
