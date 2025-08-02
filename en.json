@@ -60,6 +60,7 @@
         "reportError": "❌ Error Generating Report",
         "reportReady": "✅ Report Ready!"
       },
+      "offlineWarning": "AI analysis requires an internet connection. You can still view your scores and copy the results as JSON while offline.",
       "reportModal": {
         "confirmMessage": "This will generate a comprehensive detailed report with AI-powered analysis of your RAADS-R assessment results.",
         "errorPrefix": "Error generating report: "

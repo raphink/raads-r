@@ -60,6 +60,7 @@
         "reportError": "❌ Fehler beim Generieren des Berichts",
         "reportReady": "✅ Bericht Bereit!"
       },
+      "offlineWarning": "KI-Analyse erfordert eine Internetverbindung. Sie können Ihre Punkte anzeigen und Ergebnisse als JSON offline kopieren.",
       "reportModal": {
         "confirmMessage": "Dies wird einen umfassenden detaillierten Bericht mit KI-gestützter Analyse Ihrer RAADS-R-Bewertungsergebnisse generieren.",
         "errorPrefix": "Fehler beim Generieren des Berichts: "

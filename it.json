@@ -60,6 +60,7 @@
         "reportError": "❌ Errore nella Generazione del Rapporto",
         "reportReady": "✅ Rapporto Pronto!"
       },
+      "offlineWarning": "L'analisi AI richiede una connessione internet. Puoi comunque visualizzare i tuoi punteggi e copiare i risultati come JSON offline.",
       "reportModal": {
         "confirmMessage": "Questo genererà un rapporto dettagliato e completo con analisi AI dei risultati della tua valutazione RAADS-R.",
         "errorPrefix": "Errore nella generazione del rapporto: "

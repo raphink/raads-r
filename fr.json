@@ -60,6 +60,7 @@
         "reportError": "❌ Erreur lors de la génération",
         "reportReady": "✅ Rapport prêt !"
       },
+      "offlineWarning": "L'analyse IA nécessite une connexion internet. Vous pouvez toujours voir vos scores et copier les résultats en JSON hors ligne.",
       "reportModal": {
         "confirmMessage": "Ceci va générer un rapport détaillé complet avec une analyse IA de vos résultats au test RAADS-R.",
         "errorPrefix": "Erreur lors de la génération du rapport: "

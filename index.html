@@ -1425,6 +1425,12 @@ ${copyText.disclaimer}`;
 
         // Generate detailed report by calling the backend
         async function generateReport() {
+            // Check if online for AI analysis
+            if (!navigator.onLine) {
+                showSimpleError(lang.ui.results.offlineWarning || 'AI analysis requires an internet connection. You can still view your scores and copy the results as JSON while offline.');
+                return;
+            }
+            
             const $btn = $('#generate-report-btn');
             const originalText = $btn.text();
             

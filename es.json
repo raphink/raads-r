@@ -60,6 +60,7 @@
         "reportError": "❌ Error al Generar Informe",
         "reportReady": "✅ ¡Informe Listo!"
       },
+      "offlineWarning": "El análisis de IA requiere una conexión a internet. Aún puedes ver tus puntuaciones y copiar los resultados como JSON sin conexión.",
       "reportModal": {
         "confirmMessage": "Esto generará un informe detallado y completo con análisis impulsado por IA de los resultados de tu evaluación RAADS-R.",
         "errorPrefix": "Error al generar informe: "
