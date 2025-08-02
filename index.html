@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: http://localhost:* http://127.0.0.1:*; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'none'; object-src 'none';">
     <title id="page-title" data-translate="meta.title"></title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RAADS-R">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#0d6efd">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32x32.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192x192.png">
+    <link rel="shortcut icon" href="./favicon.ico">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -56,6 +74,7 @@
                     <p id="main-subtitle" class="mb-0" data-translate="ui.header.subtitle"></p>
                 </div>
                 <div class="d-flex gap-1 gap-sm-2 align-items-center flex-wrap">
+                    <span id="network-status" class="badge bg-success" title="Network Status">Online</span>
                     <button id="cached-reports-btn" class="btn btn-outline-info btn-sm" data-translate="ui.cachedReports.title" onclick="showCachedReports()">
                     </button>
                     <a href="https://github.com/raphink/raads-r" target="_blank" class="btn btn-outline-secondary btn-sm" title="View on GitHub">
@@ -1990,6 +2009,121 @@ ${copyText.disclaimer}`;
                 }
             }
         }
+    </script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Install prompt handling
+        let deferredPrompt;
+        let installButton;
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt event fired');
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show install button
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            // Create install button if it doesn't exist
+            if (!installButton) {
+                installButton = document.createElement('button');
+                installButton.id = 'pwa-install-btn';
+                installButton.className = 'btn btn-outline-primary btn-sm position-fixed';
+                installButton.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; display: none;';
+                installButton.innerHTML = '<i class="bi bi-download"></i> Install App';
+                installButton.onclick = installPWA;
+                document.body.appendChild(installButton);
+            }
+            
+            // Show the button
+            installButton.style.display = 'block';
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (installButton) {
+                    installButton.style.display = 'none';
+                }
+            }, 10000);
+        }
+
+        function installPWA() {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null;
+                    // Hide the install button
+                    if (installButton) {
+                        installButton.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // Handle when app is installed
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('RAADS-R app was installed');
+            // Hide install button if still visible
+            if (installButton) {
+                installButton.style.display = 'none';
+            }
+            
+            // Optional: Track install event
+            // analytics.track('PWA Installed');
+        });
+
+        // Check if app is already installed (running in standalone mode)
+        function isRunningStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+        }
+
+        // Add visual indicator when running as installed app
+        if (isRunningStandalone()) {
+            document.body.classList.add('pwa-standalone');
+            console.log('App is running in standalone mode');
+        }
+
+        // Optional: Add offline indicator
+        function updateOnlineStatus() {
+            const statusIndicator = document.getElementById('network-status');
+            if (statusIndicator) {
+                if (navigator.onLine) {
+                    statusIndicator.textContent = 'Online';
+                    statusIndicator.className = 'badge bg-success';
+                } else {
+                    statusIndicator.textContent = 'Offline';
+                    statusIndicator.className = 'badge bg-warning';
+                }
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
     </script>
 </body>
 </html>
