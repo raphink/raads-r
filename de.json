@@ -14,9 +14,9 @@
       "completed": "abgeschlossen"
     },
     "form": {
-      "commentLabel": "Kommentar (optional, verwendet für KI-Analyse)",
-      "commentPlaceholder": "Kommentar zu dieser Frage hinzufügen...",
-      "commentOptional": "Optional",
+      "commentLabel": "Kommentar",
+      "commentPlaceholder": "Kommentar zu dieser Frage hinzufügen (auch wenn Sie es nicht verstehen) um der KI zu helfen, Ihre Antwort zu verstehen...",
+      "commentOptional": "Optional, verwendet für KI-Analyse",
       "keyboardHint": "💡 <strong>Tastenkürzel:</strong> A/B/C/D zum Auswählen, Tab für Kommentar, Esc zum Beenden, P/N zur Navigation, Enter zum Fortfahren"
     },
     "navigation": {
