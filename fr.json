@@ -26,7 +26,7 @@
     },
     "instructions": {
       "title": "Instructions :",
-      "text": "Réfléchissez attentivement à chaque question et choisissez la réponse qui vous correspond le mieux. Répondez honnêtement selon votre propre expérience."
+      "text": "Réfléchissez attentivement à chaque question et choisissez la réponse qui vous correspond le mieux. Répondez honnêtement selon votre propre expérience. Si vous n'êtes pas sûr ou ne comprenez pas la question, expliquez-le en commentaire."
     },
     "results": {
       "totalScore": "Score Total",

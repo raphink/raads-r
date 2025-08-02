@@ -26,7 +26,7 @@
     },
     "instructions": {
       "title": "Instructions:",
-      "text": "Think carefully about each question and choose the answer that best applies to you. Answer honestly based on your own experience."
+      "text": "Think carefully about each question and choose the answer that best applies to you. Answer honestly based on your own experience. If you are unsure or don't understand the question, add a comment explaining it."
     },
     "results": {
       "totalScore": "Total Score",
