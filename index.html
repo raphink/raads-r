@@ -63,6 +63,15 @@
         .interp-strong { border-left-color: #6f42c1; }
         .interp-solid { border-left-color: #343a40; }
         .interp-very-strong { border-left-color: #000; }
+        
+        /* Focus styling for the question text */
+        #question-text:focus {
+            outline: 2px solid #0d6efd;
+            outline-offset: 2px;
+            background-color: rgba(13, 110, 253, 0.05);
+            border-radius: 4px;
+            padding: 8px;
+        }
     </style>
 </head>
 <body>
@@ -129,7 +138,7 @@
             <!-- Question Card -->
             <div class="card border-2 mb-4">
                 <div class="card-body">
-                    <h3 class="card-title h5 mb-4" id="question-text"></h3>
+                    <h3 class="card-title h5 mb-4" id="question-text" tabindex="0"></h3>
                     
                     <!-- Answer Options -->
                     <div id="answer-options" class="mb-4">
