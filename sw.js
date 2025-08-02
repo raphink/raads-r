@@ -1,4 +1,4 @@
-const CACHE_NAME = 'raads-r-v1.0.0';
+const CACHE_NAME = 'raads-r-v1.0.1';
 const urlsToCache = [
   './',
   './index.html',
@@ -13,6 +13,8 @@ const urlsToCache = [
   './it.json',
   './de.json',
   // Icons
+  './icons/icon-16x16.png',
+  './icons/icon-32x32.png',
   './icons/icon-72x72.png',
   './icons/icon-96x96.png',
   './icons/icon-128x128.png',
@@ -21,8 +23,10 @@ const urlsToCache = [
   './icons/icon-192x192.png',
   './icons/icon-384x384.png',
   './icons/icon-512x512.png',
+  './favicon.ico',
   // External CDN resources (cached for offline use)
   'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js'
 ];
