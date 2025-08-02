@@ -690,6 +690,10 @@
     "header_report_title": "Rapport d'évaluation RAADS-R",
     "footer_generated_by": "Généré par raphink.github.io/raads-r",
     "header_participant": "[Nom à remplir] - [Âge] ans",
+    "explanation_title": "Comprendre vos résultats",
+    "score_explanation": "<h3>Score</h3>L'évaluation RAADS-R fournit un score à travers plusieurs domaines — Interactions sociales, Sensori-moteur, Intérêts restreints et Communication — liés aux traits du spectre autistique. Un score plus élevé indique une plus grande probabilité de traits autistiques.<br><br>Votre score total est la somme des scores dans ces domaines, avec un score maximum possible de 240. Chacune des 80 questions est notée de 0 à 3, les scores plus élevés indiquant un plus fort soutien aux traits autistiques.",
+    "autistic_threshold_explanation": "<h3>Seuil autistique</h3>Chacun des 4 domaines a un seuil autistique, qui est le score maximum que les individus neurotypiques ont été connus pour atteindre.<br><br>Le seuil autistique global est fixé à 65 points, au-dessus duquel une évaluation plus approfondie est recommandée.",
+    "neurotypical_average_explanation": "<h3>Moyenne neurotypique</h3>Chacun des 4 domaines a également une moyenne neurotypique, qui est le score moyen des individus neurotypiques.<br><br>La moyenne neurotypique globale est d'environ 25 points, servant de référence pour la comparaison.",
     "answers": {
       "0": "Jamais vrai",
       "1": "Parfois vrai",

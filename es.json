@@ -698,6 +698,10 @@
     "header_report_title": "Informe de Evaluación RAADS-R",
     "footer_generated_by": "Generado por raphink.github.io/raads-r",
     "header_participant": "[Nombre a completar] - [Edad] años",
+    "explanation_title": "Entendiendo sus resultados",
+    "score_explanation": "<h3>Puntuación</h3>La evaluación RAADS-R proporciona una puntuación a través de varios dominios — Interacciones sociales, Sensorial-motor, Intereses restringidos y Lenguaje — relacionados con los rasgos del espectro autista. Una puntuación más alta indica una mayor probabilidad de rasgos autistas.<br><br>Su puntuación total es la suma de las puntuaciones en estos dominios, con una puntuación máxima posible de 240. Cada una de las 80 preguntas se puntúa de 0 a 3, donde las puntuaciones más altas indican un mayor respaldo de los rasgos autistas.",
+    "autistic_threshold_explanation": "<h3>Umbral autista</h3>Cada uno de los 4 dominios tiene un umbral autista, que es la puntuación máxima que se sabe que han alcanzado los individuos neurotípicos.<br><br>El umbral autista global se establece en 65 puntos, por encima del cual se recomienda una evaluación adicional.",
+    "neurotypical_average_explanation": "<h3>Promedio neurotípico</h3>Cada uno de los 4 dominios también tiene un promedio neurotípico, que es la puntuación promedio para individuos neurotípicos.<br><br>El promedio neurotípico global es de alrededor de 25 puntos, sirviendo como línea base para comparación.",
     "answers": {
       "0": "Nunca es cierto",
       "1": "A veces es cierto",

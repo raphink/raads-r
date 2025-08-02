@@ -698,6 +698,10 @@
     "header_report_title": "Rapporto di Valutazione RAADS-R",
     "footer_generated_by": "Generato da raphink.github.io/raads-r",
     "header_participant": "[Nome da compilare] - [Età] anni",
+    "explanation_title": "Comprendere i tuoi risultati",
+    "score_explanation": "<h3>Punteggio</h3>La valutazione RAADS-R fornisce un punteggio attraverso diversi domini — Interazioni sociali, Sensorio-motorio, Interessi ristretti e Linguaggio — relativi ai tratti dello spettro autistico. Un punteggio più alto indica una maggiore probabilità di tratti autistici.<br><br>Il tuo punteggio totale è la somma dei punteggi in questi domini, con un punteggio massimo possibile di 240. Ognuna delle 80 domande è valutata da 0 a 3, con punteggi più alti che indicano un maggiore sostegno ai tratti autistici.",
+    "autistic_threshold_explanation": "<h3>Soglia autistica</h3>Ognuno dei 4 domini ha una soglia autistica, che è il punteggio massimo che si sa che gli individui neurotipici abbiano raggiunto.<br><br>La soglia autistica globale è fissata a 65 punti, sopra la quale si raccomanda un'ulteriore valutazione.",
+    "neurotypical_average_explanation": "<h3>Media neurotipica</h3>Ognuno dei 4 domini ha anche una media neurotipica, che è il punteggio medio per gli individui neurotipici.<br><br>La media neurotipica globale è di circa 25 punti, servendo come linea di base per il confronto.",
     "answers": {
       "0": "Mai vero",
       "1": "A volte vero",

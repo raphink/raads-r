@@ -698,6 +698,10 @@
     "header_report_title": "RAADS-R Bewertungsbericht",
     "footer_generated_by": "Generiert von raphink.github.io/raads-r",
     "header_participant": "[Name auszufüllen] - [Alter] Jahre",
+    "explanation_title": "Verstehen Ihrer Ergebnisse",
+    "score_explanation": "<h3>Bewertung</h3>Die RAADS-R-Bewertung liefert eine Punktzahl über mehrere Bereiche — Soziale Interaktionen, Sensomotorisch, Eingeschränkte Interessen und Sprache — die mit Autismus-Spektrum-Merkmalen zusammenhängen. Eine höhere Punktzahl zeigt eine größere Wahrscheinlichkeit autistischer Merkmale an.<br><br>Ihre Gesamtpunktzahl ist die Summe der Punktzahlen in diesen Bereichen, mit einer maximal möglichen Punktzahl von 240. Jede der 80 Fragen wird von 0 bis 3 bewertet, wobei höhere Punktzahlen eine stärkere Bestätigung autistischer Merkmale anzeigen.",
+    "autistic_threshold_explanation": "<h3>Autistische Schwelle</h3>Jeder der 4 Bereiche hat eine autistische Schwelle, die die maximale Punktzahl ist, von der bekannt ist, dass neurotypische Personen sie erreicht haben.<br><br>Die globale autistische Schwelle liegt bei 65 Punkten, oberhalb derer eine weitere Bewertung empfohlen wird.",
+    "neurotypical_average_explanation": "<h3>Neurotypischer Durchschnitt</h3>Jeder der 4 Bereiche hat auch einen neurotypischen Durchschnitt, der die durchschnittliche Punktzahl für neurotypische Personen ist.<br><br>Der globale neurotypische Durchschnitt liegt bei etwa 25 Punkten und dient als Grundlage für Vergleiche.",
     "answers": {
       "0": "Nie wahr",
       "1": "Manchmal wahr",
