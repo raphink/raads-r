@@ -1,7 +1,8 @@
 {
   "meta": {
     "title": "Test RAADS-R - Échelle diagnostique de l'autisme",
-    "description": "Échelle diagnostique de l'autisme et de l'Asperger de Ritvo - révisée"
+    "description": "Échelle diagnostique de l'autisme et de l'Asperger de Ritvo - révisée",
+    "infoUrl": "https://fr.wikipedia.org/wiki/Troubles_du_spectre_de_l%27autisme"
   },
   "ui": {
     "header": {

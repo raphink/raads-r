@@ -1,7 +1,8 @@
 {
   "meta": {
     "title": "RAADS-R Test - Autismus Diagnostik-Skala",
-    "description": "Ritvo Autismus Asperger Diagnostik-Skala - Überarbeitet"
+    "description": "Ritvo Autismus Asperger Diagnostik-Skala - Überarbeitet",
+    "infoUrl": "https://de.wikipedia.org/wiki/Autismus-Spektrum-St%C3%B6rung"
   },
   "ui": {
     "header": {

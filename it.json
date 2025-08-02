@@ -1,7 +1,8 @@
 {
   "meta": {
     "title": "Test RAADS-R - Scala Diagnostica dell'Autismo",
-    "description": "Scala Diagnostica dell'Autismo e Asperger di Ritvo - Rivista"
+    "description": "Scala Diagnostica dell'Autismo e Asperger di Ritvo - Rivista",
+    "infoUrl": "https://it.wikipedia.org/wiki/Disturbi_dello_spettro_autistico"
   },
   "ui": {
     "header": {
