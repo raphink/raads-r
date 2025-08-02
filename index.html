@@ -67,6 +67,16 @@
 </head>
 <body>
     <div class="container my-5">
+        <!-- Offline Indicator -->
+        <div id="offline-indicator" class="alert alert-warning border-start border-warning border-4 mb-3" style="display: none;" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-wifi-off me-2"></i>
+                <div>
+                    <strong>Offline Mode</strong> - You can still take the test and view cached reports, but AI analysis requires an internet connection.
+                </div>
+            </div>
+        </div>
+        
         <!-- Header -->
         <div class="alert alert-primary border-start border-primary border-4" role="alert">
             <!-- First row: Title and GitHub/Info buttons -->
@@ -883,6 +893,23 @@
         }
 
         $(document).ready(async function() {
+            // Handle online/offline status
+            function updateOnlineStatus() {
+                const offlineIndicator = document.getElementById('offline-indicator');
+                if (!navigator.onLine) {
+                    offlineIndicator.style.display = 'block';
+                } else {
+                    offlineIndicator.style.display = 'none';
+                }
+            }
+            
+            // Check initial status
+            updateOnlineStatus();
+            
+            // Listen for online/offline events
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
             // Build language dropdown first
             buildLanguageDropdown();
             
