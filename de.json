@@ -35,7 +35,8 @@
       "keyboardShortcuts": "Verwenden Sie die Tasten A, B, C, D zum Auswählen von Antworten, K für Kommentare, oder Tab zur normalen Navigation.",
       "feedback": {
         "answerSelected": "Sie haben Antwort {{key}} ausgewählt: {{answer}}. Drücken Sie Enter um fortzufahren oder K für einen Kommentar.",
-        "commentFocus": "Hinterlassen Sie jetzt einen Kommentar und drücken Sie dann Escape um den Kommentarbereich zu verlassen."
+        "commentFocus": "Hinterlassen Sie jetzt einen Kommentar und drücken Sie dann Escape um den Kommentarbereich zu verlassen.",
+        "surveyFinished": "Umfrage abgeschlossen. Ihre Gesamtpunktzahl wird unten angezeigt."
       }
     },
     "results": {

@@ -1319,7 +1319,7 @@
                         <div class="card interpretation-card ${interpretation.class} mb-4">
                             <div class="card-body">
                                 <h2 class="card-title h4">${ui.totalScore}</h2>
-                                <div class="display-4 fw-bold mb-2">${results.total}/240</div>
+                                <div id="total-score" class="display-4 fw-bold mb-2" tabindex="0">${results.total}/240</div>
                                 <div class="h5 ${interpretation.color} fw-bold">${interpretation.level}</div>
                                 <p class="text-muted mt-2">${interpretation.description}</p>
                             </div>
@@ -1412,6 +1412,19 @@
             `;
             
             $('#results-container').html(resultsHtml).show();
+            
+            // Voice over feedback for survey completion and focus on total score
+            if (lang && lang.ui && lang.ui.question && lang.ui.question.feedback) {
+                VoiceOverFeedback.announce(lang.ui.question.feedback.surveyFinished);
+            }
+            
+            // Focus on total score so screen readers read it automatically
+            setTimeout(() => {
+                const totalScoreElement = document.getElementById('total-score');
+                if (totalScoreElement) {
+                    totalScoreElement.focus();
+                }
+            }, 100); // Small delay to ensure the DOM is updated
         }
 
         function copyResults() {

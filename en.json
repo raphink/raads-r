@@ -35,7 +35,8 @@
       "keyboardShortcuts": "Use A, B, C, D keys to select answers, K for comments, or Tab to navigate normally.",
       "feedback": {
         "answerSelected": "You selected answer {{key}}: {{answer}}. Press Enter to proceed or K to leave a comment.",
-        "commentFocus": "Leave comment now then press Escape to exit comment section."
+        "commentFocus": "Leave comment now then press Escape to exit comment section.",
+        "surveyFinished": "Survey finished. Your total score is displayed below."
       }
     },
     "results": {

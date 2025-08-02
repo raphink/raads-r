@@ -35,7 +35,8 @@
       "keyboardShortcuts": "Usa i tasti A, B, C, D per selezionare le risposte, K per i commenti, o Tab per navigare normalmente.",
       "feedback": {
         "answerSelected": "Hai selezionato la risposta {{key}}: {{answer}}. Premi Invio per continuare o K per lasciare un commento.",
-        "commentFocus": "Lascia un commento ora poi premi Escape per uscire dalla sezione commenti."
+        "commentFocus": "Lascia un commento ora poi premi Escape per uscire dalla sezione commenti.",
+        "surveyFinished": "Sondaggio completato. Il tuo punteggio totale è mostrato qui sotto."
       }
     },
     "results": {
