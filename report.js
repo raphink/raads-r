@@ -198,11 +198,11 @@ class ReportTemplate {
                 
                 <!-- Score values display on the right side -->
                 <div class="radar-scores-sidebar">
-                    <div class="radar-scores-title">${this.getTranslatedText('report.domain_scores', 'Domain Scores')}</div>
+                    <div class="radar-scores-title" tabindex="0">${this.getTranslatedText('report.domain_scores', 'Domain Scores')}</div>
                     ${domains.map(domain => {
                         const translatedLabel = this.getTranslatedText(`ui.results.categories.${domain.key}`, domain.label);
                         return `
-                        <div class="radar-score-item-sidebar">
+                        <div class="radar-score-item-sidebar" tabindex="0">
                             <div class="radar-score-label-sidebar">${translatedLabel}</div>
                             <div class="radar-score-details">
                                 <div class="radar-score-value-sidebar">${domain.score}/${domain.max}</div>
@@ -332,12 +332,12 @@ class ReportTemplate {
                 
                 html += `
                     <div class="question-item" id="question-${qa.id}">
-                        <div class="question-header">
+                        <div class="question-header" tabindex="0">
                             <div class="question-number">Q${qa.id}</div>
                             <div class="question-category ${categoryClass}">${qa.category}</div>
                         </div>
-                        <div class="question-text">${qa.text}</div>
-                        <div class="answer-section">
+                        <div class="question-text" tabindex="0">${qa.text}</div>
+                        <div class="answer-section" tabindex="0">
                             <div class="answer-text">${answerText} <span class="score-badge">${qa.score} pts</span></div>
                             ${qa.comment ? `<div class="comment-text">"${qa.comment}"</div>` : ''}
                         </div>
@@ -499,6 +499,15 @@ class ReportTemplate {
 
     // Update analysis section when backend responds (during streaming)
     static updateAnalysis(analysisHTML) {
+        // Add tabindex="0" to each header and paragraph
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = analysisHTML;
+        const headers = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
+        headers.forEach(header => {
+            header.setAttribute('tabindex', '0');
+        });
+        analysisHTML = tempDiv.innerHTML;
+
         const analysisContainer = document.getElementById('analysis-container');
         if (analysisContainer) {
             analysisContainer.className = 'markdown-content';
@@ -912,7 +921,7 @@ async function startDirectStreaming(assessmentData, reportId) {
                             
                             // Update the UI immediately
                             ReportTemplate.updateAnalysis(parsed.html);
-                            
+
                             // Update localStorage for consistency
                             const reportData = localStorage.getItem(`raads-report-${reportId}`);
                             if (reportData) {
