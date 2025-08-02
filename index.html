@@ -893,6 +893,9 @@
                 const translatedText = getNestedProperty(lang, translationPath);
                 
                 if (translatedText) {
+                    // Set the language attribute on the translated element
+                    element.setAttribute('lang', currentLanguage);
+                    
                     if (element.hasAttribute('data-translate-html')) {
                         // Allow safe HTML for explicitly marked elements from trusted translations
                         element.innerHTML = SecurityUtils.sanitizeTranslationHTML(translatedText);
@@ -906,6 +909,9 @@
             // Translate attributes (like placeholder) with data-translate-attr
             document.querySelectorAll('[data-translate-attr]').forEach(element => {
                 const attrMappings = element.getAttribute('data-translate-attr').split(',');
+                
+                // Set language attribute on elements with translated attributes
+                element.setAttribute('lang', currentLanguage);
                 
                 attrMappings.forEach(mapping => {
                     const [attrName, translationPath] = mapping.split(':');
