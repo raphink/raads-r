@@ -29,6 +29,16 @@
       "title": "Instructions:",
       "text": "Think carefully about each question and choose the answer that best applies to you. Answer honestly based on your own experience. If you are unsure or don't understand the question, add a comment explaining it."
     },
+    "question": {
+      "prefix": "Question",
+      "answerOptionsIntro": "Answer options available:",
+      "keyboardShortcuts": "Use A, B, C, D keys to select answers, K for comments, or Tab to navigate normally.",
+      "feedback": {
+        "answerSelected": "You selected answer {{key}}: {{answer}}. Press Enter to proceed or K to leave a comment.",
+        "commentFocus": "Leave comment now then press Escape to exit comment section.",
+        "surveyFinished": "Survey finished. Your total score is displayed below."
+      }
+    },
     "results": {
       "totalScore": "Total Score",
       "categoriesTitle": "Scores by Category",

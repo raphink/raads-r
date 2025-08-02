@@ -29,6 +29,16 @@
       "title": "Anweisungen:",
       "text": "Denken Sie sorgfältig über jede Frage nach und wählen Sie die Antwort, die am besten auf Sie zutrifft. Antworten Sie ehrlich basierend auf Ihrer eigenen Erfahrung. Wenn Sie sich nicht sicher sind oder die Frage nicht verstehen, fügen Sie einen Kommentar hinzu, der dies erklärt."
     },
+    "question": {
+      "prefix": "Frage",
+      "answerOptionsIntro": "Verfügbare Antwortoptionen:",
+      "keyboardShortcuts": "Verwenden Sie die Tasten A, B, C, D zum Auswählen von Antworten, K für Kommentare, oder Tab zur normalen Navigation.",
+      "feedback": {
+        "answerSelected": "Sie haben Antwort {{key}} ausgewählt: {{answer}}. Drücken Sie Enter um fortzufahren oder K für einen Kommentar.",
+        "commentFocus": "Hinterlassen Sie jetzt einen Kommentar und drücken Sie dann Escape um den Kommentarbereich zu verlassen.",
+        "surveyFinished": "Umfrage abgeschlossen. Ihre Gesamtpunktzahl wird unten angezeigt."
+      }
+    },
     "results": {
       "totalScore": "Gesamtpunktzahl",
       "categoriesTitle": "Punktzahlen nach Kategorie",

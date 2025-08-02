@@ -29,6 +29,16 @@
       "title": "Instrucciones:",
       "text": "Piensa cuidadosamente en cada pregunta y elige la respuesta que mejor se aplique a ti. Responde honestamente basándote en tu propia experiencia. Si no estás seguro o no entiendes la pregunta, añade un comentario explicativo."
     },
+    "question": {
+      "prefix": "Pregunta",
+      "answerOptionsIntro": "Opciones de respuesta disponibles:",
+      "keyboardShortcuts": "Usa las teclas A, B, C, D para seleccionar respuestas, K para comentarios, o Tab para navegar normalmente.",
+      "feedback": {
+        "answerSelected": "Has seleccionado la respuesta {{key}}: {{answer}}. Presiona Enter para continuar o K para dejar un comentario.",
+        "commentFocus": "Deja un comentario ahora y luego presiona Escape para salir de la sección de comentarios.",
+        "surveyFinished": "Encuesta terminada. Tu puntuación total se muestra a continuación."
+      }
+    },
     "results": {
       "totalScore": "Puntuación Total",
       "categoriesTitle": "Puntuaciones por Categoría",
