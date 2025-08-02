@@ -1198,6 +1198,15 @@
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
                 loadQuestion();
+                
+                // Focus the question text so screen readers read it automatically
+                setTimeout(() => {
+                    const questionElement = document.getElementById('question-text');
+                    if (questionElement) {
+                        questionElement.focus();
+                    }
+                }, 100); // Small delay to ensure the DOM is updated
+                
             } else {
                 showResults();
             }
@@ -1208,6 +1217,14 @@
                 saveComment();
                 currentQuestion--;
                 loadQuestion();
+                
+                // Focus the question text so screen readers read it automatically
+                setTimeout(() => {
+                    const questionElement = document.getElementById('question-text');
+                    if (questionElement) {
+                        questionElement.focus();
+                    }
+                }, 100); // Small delay to ensure the DOM is updated
             }
         }
 
