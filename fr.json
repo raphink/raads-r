@@ -18,7 +18,7 @@
       "commentLabel": "Commentaire",
       "commentPlaceholder": "Ajoutez un commentaire sur cette question pour aider l'IA à comprendre votre réponse...",
       "commentOptional": "Optionnel, utilisé pour l'analyse IA",
-      "keyboardHint": "💡 <strong>Raccourcis clavier :</strong> A/B/C/D pour sélectionner, Tab pour commentaire, Échap pour sortir, P/N pour navigation, Entrée pour continuer"
+      "keyboardHint": "💡 <strong>Raccourcis clavier :</strong> A/B/C/D pour sélectionner, K pour commentaire, Échap pour sortir, P/N pour navigation, Entrée pour continuer"
     },
     "navigation": {
       "previous": "← Précédent",

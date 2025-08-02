@@ -18,7 +18,7 @@
       "commentLabel": "Commento",
       "commentPlaceholder": "Aggiungi un commento su questa domanda per aiutare l'IA a capire la tua risposta...",
       "commentOptional": "Opzionale, utilizzato per l'analisi IA",
-      "keyboardHint": "💡 <strong>Scorciatoie da tastiera:</strong> A/B/C/D per selezionare, Tab per commento, Esc per uscire, P/N per navigazione, Invio per continuare"
+      "keyboardHint": "💡 <strong>Scorciatoie da tastiera:</strong> A/B/C/D per selezionare, K per commento, Esc per uscire, P/N per navigazione, Invio per continuare"
     },
     "navigation": {
       "previous": "← Precedente",

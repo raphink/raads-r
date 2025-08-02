@@ -18,7 +18,7 @@
       "commentLabel": "Kommentar",
       "commentPlaceholder": "Kommentar zu dieser Frage hinzufügen um der KI zu helfen, Ihre Antwort zu verstehen...",
       "commentOptional": "Optional, verwendet für KI-Analyse",
-      "keyboardHint": "💡 <strong>Tastenkürzel:</strong> A/B/C/D zum Auswählen, Tab für Kommentar, Esc zum Beenden, P/N zur Navigation, Enter zum Fortfahren"
+      "keyboardHint": "💡 <strong>Tastenkürzel:</strong> A/B/C/D zum Auswählen, K für Kommentar, Esc zum Beenden, P/N zur Navigation, Enter zum Fortfahren"
     },
     "navigation": {
       "previous": "← Zurück",

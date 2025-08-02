@@ -964,9 +964,9 @@
                 return;
             }
             
-            // Handle Tab key to focus comment field (only when not already in comment field)
-            if (!inCommentField && e.key === 'Tab') {
-                e.preventDefault(); // Prevent default tab behavior
+            // Handle K key to focus comment field (K for Komment!)
+            if (!inCommentField && (e.key === 'k' || e.key === 'K')) {
+                e.preventDefault();
                 $('#question-comment').focus();
                 return;
             }
