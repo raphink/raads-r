@@ -476,6 +476,55 @@
                 return div.innerHTML;
             },
             
+            // Allow safe HTML tags in translations (for trusted content only)
+            sanitizeTranslationHTML(str) {
+                if (typeof str !== 'string') return '';
+                
+                // Create a temporary element to parse HTML
+                const temp = document.createElement('div');
+                temp.innerHTML = str;
+                
+                // Define allowed tags and their allowed attributes
+                const allowedTags = {
+                    'strong': [],
+                    'em': [],
+                    'b': [],
+                    'i': [],
+                    'br': [],
+                    'span': ['class'],
+                    'small': [],
+                    'code': []
+                };
+                
+                // Function to clean an element recursively
+                function cleanElement(element) {
+                    const tagName = element.tagName.toLowerCase();
+                    
+                    // If tag is not allowed, replace with its text content
+                    if (!allowedTags.hasOwnProperty(tagName)) {
+                        const textNode = document.createTextNode(element.textContent);
+                        element.parentNode.replaceChild(textNode, element);
+                        return;
+                    }
+                    
+                    // Remove disallowed attributes
+                    const allowedAttrs = allowedTags[tagName];
+                    Array.from(element.attributes).forEach(attr => {
+                        if (!allowedAttrs.includes(attr.name)) {
+                            element.removeAttribute(attr.name);
+                        }
+                    });
+                    
+                    // Recursively clean child elements
+                    Array.from(element.children).forEach(cleanElement);
+                }
+                
+                // Clean all elements in the temp container
+                Array.from(temp.children).forEach(cleanElement);
+                
+                return temp.innerHTML;
+            },
+            
             // Sanitize participant names and other user inputs
             sanitizeUserInput(input, maxLength = 100) {
                 if (typeof input !== 'string') return '';
@@ -780,8 +829,8 @@
                 
                 if (translatedText) {
                     if (element.hasAttribute('data-translate-html')) {
-                        // Only allow HTML for explicitly marked elements, and sanitize it
-                        element.innerHTML = SecurityUtils.sanitizeHTML(translatedText);
+                        // Allow safe HTML for explicitly marked elements from trusted translations
+                        element.innerHTML = SecurityUtils.sanitizeTranslationHTML(translatedText);
                     } else {
                         // Safe default: use textContent
                         element.textContent = translatedText;
