@@ -18,6 +18,27 @@
     .close-btn { display: none !important; }
     .return-arrow { display: none !important; }
     
+    /* Disable question highlighting in print - more specific selector */
+    body .question-item:target,
+    .question-item:target {
+        background: #f8f9fa !important;
+        border-left: 1px solid #000 !important;
+        animation: none !important;
+    }
+    
+    /* Also reset any keyframe animations */
+    @keyframes highlight-fade {
+        0% { background: #f8f9fa !important; }
+        100% { background: #f8f9fa !important; }
+    }
+    
+    /* Ensure question items use print styling */
+    .question-item {
+        background: #f8f9fa !important;
+        border: 1px solid #000 !important;
+        animation: none !important;
+    }
+    
     /* Show only radar chart in print, hide toggle buttons */
     .print-only { display: block !important; }
     .chart-controls { display: none !important; }
