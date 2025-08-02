@@ -74,7 +74,6 @@
                     <p id="main-subtitle" class="mb-0" data-translate="ui.header.subtitle"></p>
                 </div>
                 <div class="d-flex gap-1 gap-sm-2 align-items-center flex-wrap">
-                    <span id="network-status" class="badge bg-success" title="Network Status">Online</span>
                     <button id="cached-reports-btn" class="btn btn-outline-info btn-sm" data-translate="ui.cachedReports.title" onclick="showCachedReports()">
                     </button>
                     <a href="https://github.com/raphink/raads-r" target="_blank" class="btn btn-outline-secondary btn-sm" title="View on GitHub">
@@ -2156,23 +2155,6 @@ ${copyText.disclaimer}`;
             document.body.classList.add('pwa-standalone');
             console.log('App is running in standalone mode');
         }
-
-        // Optional: Add offline indicator
-        function updateOnlineStatus() {
-            const statusIndicator = document.getElementById('network-status');
-            if (statusIndicator) {
-                if (navigator.onLine) {
-                    statusIndicator.textContent = 'Online';
-                    statusIndicator.className = 'badge bg-success';
-                } else {
-                    statusIndicator.textContent = 'Offline';
-                    statusIndicator.className = 'badge bg-warning';
-                }
-            }
-        }
-
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
     </script>
 </body>
 </html>
