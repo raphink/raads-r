@@ -14,7 +14,7 @@
       "completed": "complété"
     },
     "form": {
-      "commentLabel": "Commentaire (optionnel)",
+      "commentLabel": "Commentaire (optionnel, utilisé pour l'analyse IA)",
       "commentPlaceholder": "Ajoutez un commentaire sur cette question...",
       "commentOptional": "Optionnel",
       "keyboardHint": "💡 <strong>Raccourcis clavier :</strong> A/B/C/D pour sélectionner, Tab pour commentaire, Échap pour sortir, P/N pour navigation, Entrée pour continuer"

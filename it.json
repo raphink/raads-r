@@ -14,7 +14,7 @@
       "completed": "completato"
     },
     "form": {
-      "commentLabel": "Commento (opzionale)",
+      "commentLabel": "Commento (opzionale, utilizzato per l'analisi AI)",
       "commentPlaceholder": "Aggiungi un commento su questa domanda...",
       "commentOptional": "Opzionale",
       "keyboardHint": "💡 <strong>Scorciatoie da tastiera:</strong> A/B/C/D per selezionare, Tab per commento, Esc per uscire, P/N per navigazione, Invio per continuare"
