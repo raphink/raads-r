@@ -12,7 +12,20 @@
     "progress": {
       "question": "Domanda",
       "of": "di",
-      "completed": "completato"
+      "completed": "completato",
+      "restore": {
+        "title": "Continua Sondaggio Precedente",
+        "foundProgress": "Abbiamo trovato il tuo progresso precedente!",
+        "lastAnswered": "Ultima risposta:",
+        "progress": "Progresso:",
+        "saved": "Salvato:",
+        "questionsAnswered": "domande risposte",
+        "continueButton": "Continua Precedente",
+        "startNewButton": "Inizia Nuovo Sondaggio",
+        "autoSaveNote": "Il tuo progresso viene salvato automaticamente mentre rispondi alle domande. Puoi continuare da dove hai lasciato o ricominciare da capo.",
+        "restored": "Progresso ripristinato!",
+        "continuingFrom": "Continuando dalla domanda"
+      }
     },
     "form": {
       "commentLabel": "Commento",

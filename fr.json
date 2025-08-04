@@ -12,7 +12,20 @@
     "progress": {
       "question": "Question",
       "of": "sur",
-      "completed": "complété"
+      "completed": "complété",
+      "restore": {
+        "title": "Continuer l'enquête précédente",
+        "foundProgress": "Nous avons trouvé votre progression précédente !",
+        "lastAnswered": "Dernière réponse :",
+        "progress": "Progression :",
+        "saved": "Sauvegardé :",
+        "questionsAnswered": "questions répondues",
+        "continueButton": "Continuer la précédente",
+        "startNewButton": "Commencer une nouvelle enquête",
+        "autoSaveNote": "Votre progression est automatiquement sauvegardée lorsque vous répondez aux questions. Vous pouvez continuer où vous vous êtes arrêté ou recommencer.",
+        "restored": "Progression restaurée !",
+        "continuingFrom": "Continuation à partir de la question"
+      }
     },
     "form": {
       "commentLabel": "Commentaire",

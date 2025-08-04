@@ -12,7 +12,20 @@
     "progress": {
       "question": "Frage",
       "of": "von",
-      "completed": "abgeschlossen"
+      "completed": "abgeschlossen",
+      "restore": {
+        "title": "Vorherige Umfrage fortsetzen",
+        "foundProgress": "Wir haben Ihren vorherigen Fortschritt gefunden!",
+        "lastAnswered": "Zuletzt beantwortet:",
+        "progress": "Fortschritt:",
+        "saved": "Gespeichert:",
+        "questionsAnswered": "Fragen beantwortet",
+        "continueButton": "Vorherige fortsetzen",
+        "startNewButton": "Neue Umfrage starten",
+        "autoSaveNote": "Ihr Fortschritt wird automatisch gespeichert, während Sie die Fragen beantworten. Sie können dort weitermachen, wo Sie aufgehört haben, oder neu beginnen.",
+        "restored": "Fortschritt wiederhergestellt!",
+        "continuingFrom": "Fortsetzung ab Frage"
+      }
     },
     "form": {
       "commentLabel": "Kommentar",

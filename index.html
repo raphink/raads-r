@@ -339,7 +339,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="progressRestoreModalLabel">🔄 Continue Previous Survey</h5>
+                    <h5 class="modal-title" id="progressRestoreModalLabel" data-translate="ui.progress.restore.title">🔄 Continue Previous Survey</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -348,7 +348,7 @@
                             <i class="bi bi-clock-history fs-3 text-info"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="mb-2">We found your previous survey progress!</h6>
+                            <h6 class="mb-2" data-translate="ui.progress.restore.foundProgress">We found your previous survey progress!</h6>
                             <div id="progress-details">
                                 <!-- Progress details will be populated by JavaScript -->
                             </div>
@@ -357,13 +357,13 @@
                     <div class="alert alert-light border-start border-info border-3">
                         <small class="text-muted">
                             <i class="bi bi-info-circle me-1"></i>
-                            Your progress is automatically saved as you answer questions. You can continue where you left off or start fresh.
+                            <span data-translate="ui.progress.restore.autoSaveNote">Your progress is automatically saved as you answer questions. You can continue where you left off or start fresh.</span>
                         </small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" onclick="startNewSurvey()">Start New Survey</button>
-                    <button type="button" class="btn btn-info" onclick="continuePreviousSurvey()">Continue Previous</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="startNewSurvey()" data-translate="ui.progress.restore.startNewButton">Start New Survey</button>
+                    <button type="button" class="btn btn-info" onclick="continuePreviousSurvey()" data-translate="ui.progress.restore.continueButton">Continue Previous</button>
                 </div>
             </div>
         </div>
@@ -1088,7 +1088,12 @@
 
         // Progress restoration functions
         function checkForSavedProgress() {
-            if (SurveyProgress.hasSavedProgress()) {
+            const hasSaved = SurveyProgress.hasSavedProgress();
+            SecurityUtils.safeLog('Checking for saved progress:', hasSaved);
+            
+            if (hasSaved) {
+                const progress = SurveyProgress.get();
+                SecurityUtils.safeLog('Found saved progress:', progress);
                 showProgressRestoreModal();
                 return true;
             }
@@ -1097,34 +1102,76 @@
 
         function showProgressRestoreModal() {
             const progress = SurveyProgress.get();
-            if (!progress) return;
+            if (!progress) {
+                SecurityUtils.safeLog('No progress data found when trying to show modal');
+                return;
+            }
+
+            SecurityUtils.safeLog('Showing progress restore modal for:', progress);
 
             const timeSinceSave = SurveyProgress.getTimeSinceSave();
             const questionNumber = progress.currentQuestion + 1;
             const answeredCount = progress.answeredCount;
             const totalQuestions = progress.questionsTotal;
 
+            // Fallback text in case translations aren't loaded yet
+            const fallbackText = {
+                lastAnswered: 'Last answered:',
+                progress: 'Progress:',
+                saved: 'Saved:',
+                questionsAnswered: 'questions answered',
+                question: 'Question',
+                of: 'of'
+            };
+
             const detailsHtml = `
                 <p class="mb-2">
-                    <strong>Last answered:</strong> Question ${questionNumber} of ${totalQuestions}
+                    <strong>${(lang && lang.ui && lang.ui.progress && lang.ui.progress.restore && lang.ui.progress.restore.lastAnswered) || fallbackText.lastAnswered}</strong> ${(lang && lang.ui && lang.ui.progress && lang.ui.progress.question) || fallbackText.question} ${questionNumber} ${(lang && lang.ui && lang.ui.progress && lang.ui.progress.of) || fallbackText.of} ${totalQuestions}
                 </p>
                 <p class="mb-2">
-                    <strong>Progress:</strong> ${answeredCount} questions answered (${Math.round((answeredCount / totalQuestions) * 100)}%)
+                    <strong>${(lang && lang.ui && lang.ui.progress && lang.ui.progress.restore && lang.ui.progress.restore.progress) || fallbackText.progress}</strong> ${answeredCount} ${(lang && lang.ui && lang.ui.progress && lang.ui.progress.restore && lang.ui.progress.restore.questionsAnswered) || fallbackText.questionsAnswered} (${Math.round((answeredCount / totalQuestions) * 100)}%)
                 </p>
                 <p class="mb-0">
-                    <strong>Saved:</strong> ${timeSinceSave}
+                    <strong>${(lang && lang.ui && lang.ui.progress && lang.ui.progress.restore && lang.ui.progress.restore.saved) || fallbackText.saved}</strong> ${timeSinceSave}
                 </p>
             `;
 
             $('#progress-details').html(detailsHtml);
-            const modal = new bootstrap.Modal(document.getElementById('progressRestoreModal'));
+            
+            // Ensure modal translations are applied before showing
+            if (lang) {
+                translateElements();
+            }
+            
+            const modalElement = document.getElementById('progressRestoreModal');
+            if (!modalElement) {
+                SecurityUtils.safeLog('Modal element not found!');
+                return;
+            }
+            
+            const modal = new bootstrap.Modal(modalElement);
+            
+            // Add event listener for when modal is hidden (closed with X or by clicking outside)
+            modalElement.addEventListener('hidden.bs.modal', function handleModalClose() {
+                // Remove this event listener to prevent multiple attachments
+                modalElement.removeEventListener('hidden.bs.modal', handleModalClose);
+                
+                // Default to continuing previous survey when modal is closed
+                continuePreviousSurvey();
+            });
+            
+            SecurityUtils.safeLog('About to show modal');
             modal.show();
         }
 
         function continuePreviousSurvey() {
+            // Remove the modal close event listener to prevent double execution
+            const modalElement = document.getElementById('progressRestoreModal');
+            modalElement.removeEventListener('hidden.bs.modal', arguments.callee);
+            
             if (SurveyProgress.restore()) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('progressRestoreModal'));
-                modal.hide();
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
                 
                 // Update UI to reflect restored progress
                 loadQuestion();
@@ -1133,7 +1180,7 @@
                 const alertHtml = `
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="bi bi-check-circle me-2"></i>
-                        <strong>Progress restored!</strong> Continuing from question ${currentQuestion + 1}.
+                        <strong>${lang.ui.progress.restore.restored}</strong> ${lang.ui.progress.restore.continuingFrom} ${currentQuestion + 1}.
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 `;
@@ -1149,13 +1196,17 @@
         }
 
         function startNewSurvey() {
+            // Remove the modal close event listener to prevent double execution
+            const modalElement = document.getElementById('progressRestoreModal');
+            modalElement.removeEventListener('hidden.bs.modal', arguments.callee);
+            
             SurveyProgress.clear();
             currentQuestion = 0;
             answers = {};
             comments = {};
             
-            const modal = bootstrap.Modal.getInstance(document.getElementById('progressRestoreModal'));
-            modal.hide();
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) modal.hide();
             
             loadQuestion();
         }
@@ -1201,10 +1252,13 @@
             initializeUI();
             $('#total-q').text(questions.length);
             
-            // Check for saved progress before loading question
-            if (!checkForSavedProgress()) {
-                loadQuestion();
-            }
+            // Small delay to ensure UI is fully initialized before checking progress
+            setTimeout(() => {
+                // Check for saved progress before loading question
+                if (!checkForSavedProgress()) {
+                    loadQuestion();
+                }
+            }, 100);
             
             // Check for cached reports and update button
             checkForCachedReports();

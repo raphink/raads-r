@@ -12,7 +12,20 @@
     "progress": {
       "question": "Question",
       "of": "of",
-      "completed": "completed"
+      "completed": "completed",
+      "restore": {
+        "title": "Continue Previous Survey",
+        "foundProgress": "We found your previous survey progress!",
+        "lastAnswered": "Last answered:",
+        "progress": "Progress:",
+        "saved": "Saved:",
+        "questionsAnswered": "questions answered",
+        "continueButton": "Continue Previous",
+        "startNewButton": "Start New Survey",
+        "autoSaveNote": "Your progress is automatically saved as you answer questions. You can continue where you left off or start fresh.",
+        "restored": "Progress restored!",
+        "continuingFrom": "Continuing from question"
+      }
     },
     "form": {
       "commentLabel": "Comment",
