@@ -2231,7 +2231,7 @@ ${copyText.disclaimer}`;
         }
 
         // Simplified report generation functions (replaces report-template.js)
-        function generateReport(assessmentData, reportId, language = 'en') {
+        function openReportWindow(assessmentData, reportId, language = 'en') {
             try {
                 // Save report data to localStorage
                 const reportData = {
@@ -2304,7 +2304,7 @@ ${copyText.disclaimer}`;
                 return generateReportFromCache(assessmentData, analysisHTML, reportId, assessmentData.language);
             } else {
                 // Use streaming approach when no analysis exists - report.html will generate it
-                return generateReport(assessmentData, reportId, assessmentData.language);
+                return openReportWindow(assessmentData, reportId, assessmentData.language);
             }
         }
         
