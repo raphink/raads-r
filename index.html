@@ -2201,7 +2201,8 @@ ${copyText.disclaimer}`;
                     ReportCache.save(reportId, fullData, null);
                     
                     // Open report window - it can now access the cached data immediately
-                    const reportWindow = generateReport(fullData, reportId, fullData.language);
+                    const reportUrl = `report.html?id=${reportId}&lang=${fullData.language}`;
+                    const reportWindow = window.open(reportUrl, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
                     
                 } catch (error) {
                     console.error('Error generating report:', error);
