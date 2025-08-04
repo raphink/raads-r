@@ -1151,6 +1151,8 @@
             $('.question-option').removeClass('selected');
             $(`.question-option[data-value="${value}"]`).addClass('selected');
             
+            // Uncheck all radio buttons (class form-check-input)
+            $('.form-check-input').prop('checked', false);
             // Update radio button
             $(`input[value="${value}"]`).prop('checked', true);
             
