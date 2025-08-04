@@ -334,6 +334,41 @@
         </div>
     </div>
 
+    <!-- Progress Restoration Modal -->
+    <div class="modal fade" id="progressRestoreModal" tabindex="-1" aria-labelledby="progressRestoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="progressRestoreModalLabel">🔄 Continue Previous Survey</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="bi bi-clock-history fs-3 text-info"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2">We found your previous survey progress!</h6>
+                            <div id="progress-details">
+                                <!-- Progress details will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-light border-start border-info border-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Your progress is automatically saved as you answer questions. You can continue where you left off or start fresh.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" onclick="startNewSurvey()">Start New Survey</button>
+                    <button type="button" class="btn btn-info" onclick="continuePreviousSurvey()">Continue Previous</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Environment configuration
         const CONFIG = {
@@ -513,6 +548,119 @@
                     console.error('Failed to get report summaries:', error);
                     return [];
                 }
+            }
+        };
+
+        // Survey progress management for autosave functionality
+        const SurveyProgress = {
+            STORAGE_KEY: 'raads_survey_progress',
+            EXPIRY_HOURS: 24, // Progress expires after 24 hours
+            
+            // Save current survey progress
+            save(currentQuestion, answers, comments, language) {
+                try {
+                    const now = new Date();
+                    const expiryDate = new Date(now.getTime() + (this.EXPIRY_HOURS * 60 * 60 * 1000));
+                    
+                    const progressData = {
+                        currentQuestion: currentQuestion,
+                        answers: answers,
+                        comments: comments,
+                        language: language,
+                        savedAt: now.toISOString(),
+                        expiresAt: expiryDate.toISOString(),
+                        questionsTotal: questions.length,
+                        answeredCount: Object.keys(answers).length
+                    };
+                    
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progressData));
+                    SecurityUtils.safeLog('Survey progress saved');
+                    return true;
+                } catch (error) {
+                    console.error('Failed to save survey progress:', error);
+                    return false;
+                }
+            },
+            
+            // Get saved survey progress
+            get() {
+                try {
+                    const stored = localStorage.getItem(this.STORAGE_KEY);
+                    if (!stored) return null;
+                    
+                    const progressData = JSON.parse(stored);
+                    
+                    // Check if progress has expired
+                    if (new Date() > new Date(progressData.expiresAt)) {
+                        this.clear();
+                        return null;
+                    }
+                    
+                    return progressData;
+                } catch (error) {
+                    console.error('Failed to retrieve survey progress:', error);
+                    this.clear(); // Clear corrupted data
+                    return null;
+                }
+            },
+            
+            // Clear saved progress
+            clear() {
+                try {
+                    localStorage.removeItem(this.STORAGE_KEY);
+                    SecurityUtils.safeLog('Survey progress cleared');
+                    return true;
+                } catch (error) {
+                    console.error('Failed to clear survey progress:', error);
+                    return false;
+                }
+            },
+            
+            // Check if there's valid saved progress
+            hasSavedProgress() {
+                const progress = this.get();
+                return progress && progress.answeredCount > 0;
+            },
+            
+            // Restore progress to current survey state
+            restore() {
+                const progress = this.get();
+                if (!progress) return false;
+                
+                try {
+                    // Only restore if language matches
+                    if (progress.language === currentLanguage) {
+                        currentQuestion = progress.currentQuestion;
+                        answers = progress.answers || {};
+                        comments = progress.comments || {};
+                        SecurityUtils.safeLog(`Survey progress restored: Question ${currentQuestion + 1}, ${Object.keys(answers).length} answers`);
+                        return true;
+                    } else {
+                        SecurityUtils.safeLog('Survey progress language mismatch, not restoring');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Failed to restore survey progress:', error);
+                    return false;
+                }
+            },
+            
+            // Get formatted time since last save
+            getTimeSinceSave() {
+                const progress = this.get();
+                if (!progress) return null;
+                
+                const savedTime = new Date(progress.savedAt);
+                const now = new Date();
+                const diffMinutes = Math.floor((now - savedTime) / (1000 * 60));
+                
+                if (diffMinutes < 1) return 'just now';
+                if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`;
+                
+                const diffHours = Math.floor(diffMinutes / 60);
+                if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+                
+                return savedTime.toLocaleDateString();
             }
         };
 
@@ -836,7 +984,8 @@
                 if (success) {
                     initializeUI();
                     
-                    // Reset test state when language changes
+                    // Reset test state when language changes and clear autosave
+                    SurveyProgress.clear();
                     currentQuestion = 0;
                     answers = {};
                     comments = {};
@@ -937,6 +1086,87 @@
             translateElements();
         }
 
+        // Progress restoration functions
+        function checkForSavedProgress() {
+            if (SurveyProgress.hasSavedProgress()) {
+                showProgressRestoreModal();
+                return true;
+            }
+            return false;
+        }
+
+        function showProgressRestoreModal() {
+            const progress = SurveyProgress.get();
+            if (!progress) return;
+
+            const timeSinceSave = SurveyProgress.getTimeSinceSave();
+            const questionNumber = progress.currentQuestion + 1;
+            const answeredCount = progress.answeredCount;
+            const totalQuestions = progress.questionsTotal;
+
+            const detailsHtml = `
+                <p class="mb-2">
+                    <strong>Last answered:</strong> Question ${questionNumber} of ${totalQuestions}
+                </p>
+                <p class="mb-2">
+                    <strong>Progress:</strong> ${answeredCount} questions answered (${Math.round((answeredCount / totalQuestions) * 100)}%)
+                </p>
+                <p class="mb-0">
+                    <strong>Saved:</strong> ${timeSinceSave}
+                </p>
+            `;
+
+            $('#progress-details').html(detailsHtml);
+            const modal = new bootstrap.Modal(document.getElementById('progressRestoreModal'));
+            modal.show();
+        }
+
+        function continuePreviousSurvey() {
+            if (SurveyProgress.restore()) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('progressRestoreModal'));
+                modal.hide();
+                
+                // Update UI to reflect restored progress
+                loadQuestion();
+                
+                // Show success message
+                const alertHtml = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Progress restored!</strong> Continuing from question ${currentQuestion + 1}.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                $('#test-container').prepend(alertHtml);
+                
+                // Auto-dismiss after 3 seconds
+                setTimeout(() => {
+                    $('.alert-success').alert('close');
+                }, 3000);
+            } else {
+                startNewSurvey();
+            }
+        }
+
+        function startNewSurvey() {
+            SurveyProgress.clear();
+            currentQuestion = 0;
+            answers = {};
+            comments = {};
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('progressRestoreModal'));
+            modal.hide();
+            
+            loadQuestion();
+        }
+
+        // Autosave current survey progress
+        function autosaveSurveyProgress() {
+            if (Object.keys(answers).length > 0) {
+                SurveyProgress.save(currentQuestion, answers, comments, currentLanguage);
+            }
+        }
+
         $(document).ready(async function() {
             // Handle online/offline status
             function updateOnlineStatus() {
@@ -970,7 +1200,11 @@
             updateInfoLink();
             initializeUI();
             $('#total-q').text(questions.length);
-            loadQuestion();
+            
+            // Check for saved progress before loading question
+            if (!checkForSavedProgress()) {
+                loadQuestion();
+            }
             
             // Check for cached reports and update button
             checkForCachedReports();
@@ -982,9 +1216,18 @@
             // Track focus/blur on comment field
             $('#question-comment')
             .on('focus', function() { inCommentField = true; })
-            .on('blur', function() { inCommentField = false; })
+            .on('blur', function() { 
+                inCommentField = false; 
+                saveComment(); // Save comment when losing focus
+            })
             .on('input', function() { 
                 updateCommentCounter(); 
+                
+                // Debounced autosave for comments (save after 2 seconds of no typing)
+                clearTimeout(window.commentSaveTimeout);
+                window.commentSaveTimeout = setTimeout(() => {
+                    saveComment();
+                }, 2000);
             });
 
             // Keyboard navigation
@@ -1159,6 +1402,9 @@
             // Update next button
             $('#next-btn').prop('disabled', false);
             
+            // Autosave progress
+            autosaveSurveyProgress();
+            
             // Voice over feedback for answer selection
             if (lang && lang.ui && lang.ui.question && lang.ui.question.feedback) {
                 const feedbackMessage = VoiceOverFeedback.formatMessage(
@@ -1198,6 +1444,9 @@
             } else {
                 delete comments[question.id];
             }
+            
+            // Autosave progress when comments change
+            autosaveSurveyProgress();
         }
 
         function canProceed() {
@@ -1208,6 +1457,9 @@
             if (!canProceed()) return;
             
             saveComment();
+            
+            // Autosave progress
+            autosaveSurveyProgress();
             
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
@@ -1222,6 +1474,8 @@
                 }, 100); // Small delay to ensure the DOM is updated
                 
             } else {
+                // Clear autosave when showing results (survey completed)
+                SurveyProgress.clear();
                 showResults();
             }
         }
@@ -1229,6 +1483,10 @@
         function prevQuestion() {
             if (currentQuestion > 0) {
                 saveComment();
+                
+                // Autosave progress
+                autosaveSurveyProgress();
+                
                 currentQuestion--;
                 loadQuestion();
                 
@@ -1594,6 +1852,9 @@ ${copyText.disclaimer}`;
         }
 
         function restartTest() {
+            // Clear autosaved progress when intentionally restarting
+            SurveyProgress.clear();
+            
             currentQuestion = 0;
             answers = {};
             comments = {};
