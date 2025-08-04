@@ -115,6 +115,7 @@ var (
 		"es": "Spanish",
 		"it": "Italian",
 		"de": "German",
+		"ru": "Russian",
 	}
 )
 
