@@ -310,20 +310,24 @@ class ReportTemplate {
     // Generate questions HTML for appendix
     static async generateQuestionsHTML(questionsAndAnswers, language = 'en') {
         try {
-            // Load language data to get answer text mappings
+            // Load language data to get answer text mappings from options array
             const response = await fetch(`${language}.json`);
             const data = await response.json();
-            const translations = data.report || {};
+            const options = data.options || [];
             
-            // Fallback answer texts
-            const fallbackAnswers = {
-                0: "Never true",
-                1: "Sometimes true", 
-                2: "Often true",
-                3: "Always true"
-            };
-
-            const answers = translations.answers || fallbackAnswers;
+            // Create answer mapping from options array - this is the correct RAADS-R scale
+            const answers = {};
+            options.forEach(option => {
+                answers[option.value] = option.label;
+            });
+            
+            // Fallback answer texts (correct RAADS-R options)
+            if (Object.keys(answers).length === 0) {
+                answers[0] = "True now and when I was young (16 years or younger)";
+                answers[1] = "True only now";
+                answers[2] = "True only when I was younger than 16";
+                answers[3] = "Never true";
+            }
             let html = '';
 
             for (const qa of questionsAndAnswers) {
