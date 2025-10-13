@@ -1748,7 +1748,7 @@
             questions.forEach(question => {
                 const answer = answers[question.id];
                 if (answer !== undefined) {
-                    let score = question.reverse ? answer : (3 - answer);
+                    let score = question.reverse ? (3 - answer) : answer;
                     totalScore += score;
 
                     switch (question.category) {
