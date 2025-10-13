@@ -141,7 +141,7 @@
     },
     "cachedReports": {
       "title": "📁 Cached Reports",
-      "description": "Your generated reports are cached locally for 30 days. You can reopen them even after closing your browser.",
+      "description": "Your generated reports are cached locally for 300 days. You can reopen them even after closing your browser.",
       "close": "Close",
       "import": "📥 Import",
       "cancel": "Cancel",

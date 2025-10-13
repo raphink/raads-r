@@ -141,7 +141,7 @@
     },
     "cachedReports": {
       "title": "📁 Rapports en cache",
-      "description": "Vos rapports générés sont mis en cache localement pendant 30 jours. Vous pouvez les rouvrir même après avoir fermé votre navigateur.",
+      "description": "Vos rapports générés sont mis en cache localement pendant 300 jours. Vous pouvez les rouvrir même après avoir fermé votre navigateur.",
       "close": "Fermer",
       "import": "📥 Importer",
       "cancel": "Annuler",

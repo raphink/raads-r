@@ -145,7 +145,7 @@
     },
     "cachedReports": {
       "title": "📁 Rapporti Salvati",
-      "description": "I tuoi rapporti generati sono memorizzati localmente per 30 giorni. Puoi riaprirli anche dopo aver chiuso il browser.",
+      "description": "I tuoi rapporti generati sono memorizzati localmente per 300 giorni. Puoi riaprirli anche dopo aver chiuso il browser.",
       "close": "Chiudi",
       "import": "📥 Importa",
       "cancel": "Annulla",

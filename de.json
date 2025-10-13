@@ -145,7 +145,7 @@
     },
     "cachedReports": {
       "title": "📁 Gespeicherte Berichte",
-      "description": "Ihre erstellten Berichte werden 30 Tage lokal gespeichert. Sie können sie auch nach dem Schließen Ihres Browsers wieder öffnen.",
+      "description": "Ihre erstellten Berichte werden 300 Tage lokal gespeichert. Sie können sie auch nach dem Schließen Ihres Browsers wieder öffnen.",
       "close": "Schließen",
       "import": "📥 Importieren",
       "cancel": "Abbrechen",

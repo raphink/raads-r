@@ -145,7 +145,7 @@
     },
     "cachedReports": {
       "title": "📁 Informes Guardados",
-      "description": "Tus informes generados se guardan localmente durante 30 días. Puedes reabrirlos incluso después de cerrar tu navegador.",
+      "description": "Tus informes generados se guardan localmente durante 300 días. Puedes reabrirlos incluso después de cerrar tu navegador.",
       "close": "Cerrar",
       "import": "📥 Importar",
       "cancel": "Cancelar",
