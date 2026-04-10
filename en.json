@@ -232,7 +232,7 @@
     },
     {
       "id": 8,
-      "text": "I only like to talk to people who share my interests.",
+      "text": "I only like to talk to people who share my special interests.",
       "category": "IS",
       "reverse": false
     },
@@ -298,7 +298,7 @@
     },
     {
       "id": 19,
-      "text": "I am very sensitive to the way clothes feel when I touch them. How they feel is more important to me than how they look.",
+      "text": "I am very sensitive to the way my clothes feel when I touch them. How they feel is more important to me than how they look.",
       "category": "SM",
       "reverse": false
     },
@@ -340,7 +340,7 @@
     },
     {
       "id": 26,
-      "text": "I like having a conversation with several people, for instance at a dinner party, school or work.",
+      "text": "I like having a conversation with several people, for instance around a dinner table, at school, or at work.",
       "category": "IS",
       "reverse": true
     },
@@ -358,7 +358,7 @@
     },
     {
       "id": 29,
-      "text": "Some ordinary textures that do not bother others feel very offensive to me.",
+      "text": "Some ordinary textures that do not bother others feel very offensive when they touch my skin.",
       "category": "SM",
       "reverse": false
     },
@@ -388,13 +388,13 @@
     },
     {
       "id": 34,
-      "text": "I can be very sensitive to sounds, textures or colors, or completely unaware of them.",
+      "text": "The same sound, color or texture can suddenly change from very sensitive to very dull.",
       "category": "SM",
       "reverse": false
     },
     {
       "id": 35,
-      "text": "The phrase \"I've got you under my skin\" makes me very uncomfortable.",
+      "text": "The phrase \"I've got you under my skin\" makes me uncomfortable.",
       "category": "L",
       "reverse": false
     },
@@ -412,205 +412,205 @@
     },
     {
       "id": 38,
-      "text": "I cannot tell when someone is flirting with me.",
+      "text": "I do not connect with characters in movies and cannot feel what they feel.",
       "category": "IS",
       "reverse": false
     },
     {
       "id": 39,
+      "text": "I cannot tell when someone is flirting with me.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 40,
       "text": "I can see in my mind in exact detail things that I am interested in.",
       "category": "IR",
       "reverse": false
     },
     {
-      "id": 40,
-      "text": "I make lists of things that interest me, even when they have no practical use (for example sports statistics, train schedules, calendar dates, historical facts).",
+      "id": 41,
+      "text": "I keep lists of things that interest me, even when they have no practical use (for example sports statistics, train schedules, calendar dates, historical facts and dates).",
       "category": "IR",
       "reverse": false
     },
     {
-      "id": 41,
+      "id": 42,
       "text": "When I feel overwhelmed by my senses, I have to isolate myself to shut them down.",
       "category": "SM",
       "reverse": false
     },
     {
-      "id": 42,
+      "id": 43,
       "text": "I like to talk things over with my friends.",
       "category": "IS",
       "reverse": true
     },
     {
-      "id": 43,
+      "id": 44,
       "text": "I cannot tell if someone is interested or bored with what I am saying.",
       "category": "IS",
       "reverse": false
     },
     {
-      "id": 44,
+      "id": 45,
       "text": "It can be very hard to read someone's face, hand and body movements when we are talking.",
       "category": "IS",
       "reverse": false
     },
     {
-      "id": 45,
+      "id": 46,
       "text": "I have a hard time relating to other people's thoughts or feelings.",
       "category": "IS",
       "reverse": false
     },
     {
-      "id": 46,
-      "text": "I can feel like I am different person at different times.",
+      "id": 47,
+      "text": "The same thing (like clothes or temperatures) can feel very different to me at different times.",
       "category": "SM",
       "reverse": false
     },
     {
-      "id": 47,
+      "id": 48,
       "text": "I feel very comfortable dating or being in social situations.",
       "category": "IS",
       "reverse": true
     },
     {
-      "id": 48,
-      "text": "I try to be as helpful as possible when other people tell me their personal problems.",
+      "id": 49,
+      "text": "I try to be as helpful as I can when other people tell me their personal problems.",
       "category": "IS",
       "reverse": true
     },
     {
-      "id": 49,
+      "id": 50,
       "text": "I have been told that I have an unusual voice (for example flat, monotone, childish, or high-pitched).",
       "category": "SM",
       "reverse": false
     },
     {
-      "id": 50,
-      "text": "Sometimes a thought or a subject gets stuck in my mind and I have to talk about it even if no one wants to listen.",
+      "id": 51,
+      "text": "Sometimes a thought or a subject gets stuck in my mind and I have to talk about it even if no one is interested.",
       "category": "IR",
       "reverse": false
     },
     {
-      "id": 51,
+      "id": 52,
       "text": "I do certain things with my hands over and over again (like flapping, twirling sticks or strings, waving things by my eyes).",
       "category": "SM",
       "reverse": false
     },
     {
-      "id": 52,
+      "id": 53,
       "text": "I have never been interested in what most of the people I know consider interesting.",
       "category": "IR",
       "reverse": false
     },
     {
-      "id": 53,
+      "id": 54,
       "text": "I am considered a compassionate type of person.",
       "category": "IS",
       "reverse": true
     },
     {
-      "id": 54,
-      "text": "I get along with other people by following a set of specific rules that help me appear normal.",
-      "category": "IS",
-      "reverse": false
-    },
-    {
       "id": 55,
-      "text": "It is very difficult for me to work and function in groups.",
+      "text": "I get along with other people by following a set of specific rules that help me look normal.",
       "category": "IS",
       "reverse": false
     },
     {
       "id": 56,
-      "text": "When I talk to someone, I have a hard time changing the subject. If the other person does so, I can get confused and not follow the new topic.",
-      "category": "IR",
+      "text": "It is very difficult for me to work and function in groups.",
+      "category": "IS",
       "reverse": false
     },
     {
       "id": 57,
+      "text": "When I am talking to someone, it is hard to change the subject. If the other person does so, I can get very upset and confused.",
+      "category": "IR",
+      "reverse": false
+    },
+    {
+      "id": 58,
       "text": "Sometimes I have to cover my ears to block out painful noises (like vacuum cleaners or people talking too much or too loudly).",
       "category": "SM",
       "reverse": false
     },
     {
-      "id": 58,
+      "id": 59,
       "text": "I can chat and make small talk with people.",
       "category": "L",
       "reverse": true
     },
     {
-      "id": 59,
-      "text": "Sometimes things that should hurt do not bother me.",
+      "id": 60,
+      "text": "Sometimes things that should feel painful are not (for instance when I hurt myself or burn my hand on the stove).",
       "category": "SM",
       "reverse": false
     },
     {
-      "id": 60,
-      "text": "When I talk to someone, I have a hard time telling when it is my turn to talk or to listen.",
-      "category": "IS",
-      "reverse": false
-    },
-    {
       "id": 61,
-      "text": "I am considered a loner by those who know me best.",
+      "text": "When talking to someone, I have a hard time telling when it is my turn to talk or to listen.",
       "category": "IS",
       "reverse": false
     },
     {
       "id": 62,
+      "text": "I am considered a loner by those who know me best.",
+      "category": "IS",
+      "reverse": false
+    },
+    {
+      "id": 63,
       "text": "I usually speak in a normal tone.",
       "category": "SM",
       "reverse": true
     },
     {
-      "id": 63,
+      "id": 64,
       "text": "I like things to be exactly the same day after day and even small changes in my routines upset me.",
       "category": "IR",
       "reverse": false
     },
     {
-      "id": 64,
+      "id": 65,
       "text": "How to make friends and socialize is a mystery to me.",
       "category": "IS",
       "reverse": false
     },
     {
-      "id": 65,
-      "text": "It calms me to spin around or rock in a chair when I feel stressed.",
-      "category": "SM",
-      "reverse": false
-    },
-    {
       "id": 66,
-      "text": "The phrase \"He wears his heart on his sleeve\" does not make sense to me.",
-      "category": "L",
+      "text": "It calms me to spin around or to rock in a chair when I'm feeling stressed.",
+      "category": "SM",
       "reverse": false
     },
     {
       "id": 67,
-      "text": "If I am in a place where there are many smells, textures to feel, noises or bright lights, I get anxious or frightened.",
-      "category": "SM",
+      "text": "The phrase, \"He wears his heart on his sleeve,\" does not make sense to me.",
+      "category": "L",
       "reverse": false
     },
     {
       "id": 68,
+      "text": "If I am in a place where there are many smells, textures to feel, noises or bright lights, I feel anxious or frightened.",
+      "category": "SM",
+      "reverse": false
+    },
+    {
+      "id": 69,
       "text": "I can tell when someone says one thing but means something else.",
       "category": "IS",
       "reverse": true
     },
     {
-      "id": 69,
-      "text": "I like being by myself as much as possible.",
-      "category": "IS",
-      "reverse": false
-    },
-    {
       "id": 70,
-      "text": "I keep my thoughts stacked in my memory like they are on filing cards, and I pick out the ones I need by looking through the stack.",
+      "text": "I keep my thoughts stacked in my memory like they are on filing cards, and I pick out the ones I need by looking through the stack and finding the right one (or another unique way).",
       "category": "IR",
       "reverse": false
     },
     {
       "id": 71,
-      "text": "The same sound sometimes seems very loud or very quiet, even though I know it has not changed.",
+      "text": "The same sound sometimes seems very loud or very soft, even though I know it has not changed.",
       "category": "SM",
       "reverse": false
     },
@@ -622,7 +622,7 @@
     },
     {
       "id": 73,
-      "text": "I cannot stand it when I dislike a sound, color, smell or texture.",
+      "text": "I can't tolerate things I dislike (like smells, textures, sounds or colors).",
       "category": "SM",
       "reverse": false
     },
@@ -658,7 +658,7 @@
     },
     {
       "id": 79,
-      "text": "I am often told I ask embarrassing questions.",
+      "text": "I am often told that I ask embarrassing questions.",
       "category": "IS",
       "reverse": false
     },
