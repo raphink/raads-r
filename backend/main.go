@@ -490,7 +490,7 @@ IMPORTANT:
 		language)
 
 	claudeReq := ClaudeRequest{
-		Model:     "claude-sonnet-4-20250514",
+		Model:     "claude-sonnet-4-6",
 		MaxTokens: 8000,
 		Messages: []Message{
 			{
@@ -655,7 +655,7 @@ IMPORTANT:
 		languageName)
 
 	claudeReq := ClaudeRequest{
-		Model:     "claude-3-5-sonnet-20241022",
+		Model:     "claude-haiku-4-5",
 		MaxTokens: 8000,
 		Stream:    true,
 		Messages: []Message{
